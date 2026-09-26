@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "verified_at": "2026-09-26T22:43:46.851754+00:00",
+  "source_commit": "b380778c321d220a2a8bac315473098a9fd2c02a",
+  "release": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7",
+  "tag": "v4.2.0-rc7",
+  "draft": false,
+  "prerelease": true,
+  "release_id": 397420399,
+  "published_at": "2026-09-26T22:43:44Z",
+  "remote_asset_sizes_and_sha256_verified": true,
+  "assets": [
+    {
+      "name": "OCI_DIGEST.txt",
+      "bytes": 143,
+      "sha256": "996620e91d2b3d835008f34624f77d7d41dd5ebeac340bec0c3ad79dcbb4e03b",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/OCI_DIGEST.txt"
+    },
+    {
+      "name": "OCI_MANIFEST.json",
+      "bytes": 2561,
+      "sha256": "d344b5be448297cbda183b8054ed087aab52db47793a35bca55cc8f49484c1e5",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/OCI_MANIFEST.json"
+    },
+    {
+      "name": "PACKAGE.json",
+      "bytes": 37697,
+      "sha256": "cf759fcc33ab2b56971eaa9f45b7b630bbfe4d215b06477f09d35637cbab9bc7",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/PACKAGE.json"
+    },
+    {
+      "name": "PUBLICATION_CHECKS.json",
+      "bytes": 1959,
+      "sha256": "1ef82941ed31ac455c0a22801d76f45d3cb3cee235731aa76bff248135b13dd1",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/PUBLICATION_CHECKS.json"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 717,
+      "sha256": "e9045aa13fe1e469dcb87b23e34981f685b3be8bea0af4bd26079b0e339d3d26",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/SHA256SUMS"
+    },
+    {
+      "name": "vision-dataset-studio-4.2.0-rc7-qualification.zip",
+      "bytes": 76809952,
+      "sha256": "aaf2bd548703a733de648fa93b838858fbf54d8871ea2286035ad56ab23c43bc",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/vision-dataset-studio-4.2.0-rc7-qualification.zip"
+    },
+    {
+      "name": "vision-dataset-studio-flex-2.16.1-vds16k1.zip",
+      "bytes": 97989245,
+      "sha256": "4d199f5fbf46be977f37f6cdf972cd102e9b01d3bb0c3fc435ed1c4ab59b4514",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/vision-dataset-studio-flex-2.16.1-vds16k1.zip"
+    },
+    {
+      "name": "vision-dataset-studio-graphics-1.0.1-vds16k1.zip",
+      "bytes": 102266,
+      "sha256": "6f0dc5d39a25ea2f18becdb3fe6a8fceb0720f22cdedb62341455d7c9e327415",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/vision-dataset-studio-graphics-1.0.1-vds16k1.zip"
+    },
+    {
+      "name": "vision-dataset-studio-litert-2.2.0-vds16k2.zip",
+      "bytes": 9012117,
+      "sha256": "0e75368b19828a3a0c141e71369576aaf4acfbcd89bd62b06e20e4903992a7b8",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/vision-dataset-studio-litert-2.2.0-vds16k2.zip"
+    },
+    {
+      "name": "vision-dataset-studio.apk",
+      "bytes": 101659102,
+      "sha256": "d75bbb2be4e649c55cfcfb7513d1c2be875d1de22fe673f9c15545910e3e5727",
+      "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/download/v4.2.0-rc7/vision-dataset-studio.apk"
+    }
+  ],
+  "oci": {
+    "reference": "ghcr.io/unicornwhodev/vision-dataset-studio-qualification:v4.2.0-rc7",
+    "manifest_digest": "sha256:d344b5be448297cbda183b8054ed087aab52db47793a35bca55cc8f49484c1e5",
+    "remote_manifest_verified": true,
+    "downloaded_layers_verified": [
+      "vision-dataset-studio.apk",
+      "vision-dataset-studio-4.2.0-rc7-qualification.zip",
+      "vision-dataset-studio-flex-2.16.1-vds16k1.zip",
+      "vision-dataset-studio-graphics-1.0.1-vds16k1.zip",
+      "vision-dataset-studio-litert-2.2.0-vds16k2.zip",
+      "PACKAGE.json",
+      "PUBLICATION_CHECKS.json",
+      "SHA256SUMS"
+    ]
+  },
+  "product": "Cadryl",
+  "version": "4.2.0-rc7",
+  "repository": "unicornwhodev/cadryl_android_dataset_and_litert_train",
+  "package_visibility": "private",
+  "github_release_assets_visibility": "public",
+  "runnable_container": false,
+  "source_and_evidence_checks": {
+    "schema": 1,
+    "product": "Cadryl",
+    "version": "4.2.0-rc7",
+    "source_commit": "b380778c321d220a2a8bac315473098a9fd2c02a",
+    "scanner": "Gitleaks 8.30.1",
+    "source_files_scanned": 801,
+    "history_commits_scanned": 32,
+    "history_findings_reviewed": 100,
+    "tree_findings_reviewed": 78,
+    "index_findings_reviewed": 78,
+    "package_findings_reviewed": 36,
+    "confirmed_secrets": 0,
+    "scanner_rules_disabled": false,
+    "archive_depth": 4,
+    "archives_checked": 16,
+    "archive_crc_and_paths_verified": true,
+    "private_keys_weights_and_user_databases_found": false,
+    "compiled_inputs_match_git": 213,
+    "raw_evidence_matches_git_and_manifest": true,
+    "data_scope": "Synthetic Android qualification evidence; no user datasets or model weights. Public source and key digests are retained.",
+    "payloads": [
+      {
+        "name": "PACKAGE.json",
+        "bytes": 37697,
+        "sha256": "cf759fcc33ab2b56971eaa9f45b7b630bbfe4d215b06477f09d35637cbab9bc7"
+      },
+      {
+        "name": "vision-dataset-studio-4.2.0-rc7-qualification.zip",
+        "bytes": 76809952,
+        "sha256": "aaf2bd548703a733de648fa93b838858fbf54d8871ea2286035ad56ab23c43bc"
+      },
+      {
+        "name": "vision-dataset-studio-flex-2.16.1-vds16k1.zip",
+        "bytes": 97989245,
+        "sha256": "4d199f5fbf46be977f37f6cdf972cd102e9b01d3bb0c3fc435ed1c4ab59b4514"
+      },
+      {
+        "name": "vision-dataset-studio-graphics-1.0.1-vds16k1.zip",
+        "bytes": 102266,
+        "sha256": "6f0dc5d39a25ea2f18becdb3fe6a8fceb0720f22cdedb62341455d7c9e327415"
+      },
+      {
+        "name": "vision-dataset-studio-litert-2.2.0-vds16k2.zip",
+        "bytes": 9012117,
+        "sha256": "0e75368b19828a3a0c141e71369576aaf4acfbcd89bd62b06e20e4903992a7b8"
+      },
+      {
+        "name": "vision-dataset-studio.apk",
+        "bytes": 101659102,
+        "sha256": "d75bbb2be4e649c55cfcfb7513d1c2be875d1de22fe673f9c15545910e3e5727"
+      }
+    ],
+    "native_transitive_notices_review_complete": false,
+    "history_commits_available": 37
+  },
+  "physical_arm_qualified": false,
+  "physical_arm_16k_qualified": false,
+  "remote_ci_executed": false
+}

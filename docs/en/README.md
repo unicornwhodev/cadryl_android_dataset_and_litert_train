@@ -26,7 +26,7 @@ The native build notes cover [Flex](../FLEX_16K.md), [Graphics Path](../GRAPHICS
 
 [Validation](VALIDATION.md) · [Android acceptance matrix](../ANDROID_QUALIFICATION.md) · [Release testing](../RELEASE_TESTING.md) · [Signing](../SIGNING.md) · [Distribution](RELEASE_PLAN.md) · [Roadmap](ROADMAP.md).
 
-The **[rc7 release note](../RC7_RELEASE.md)** describes the current candidate and includes an English summary. The [rc6 publication receipt](../RC6_PUBLICATION_RECEIPT.json) retains the previous delivery evidence. Dated reports retain their original builds and scope; older results do not qualify a new APK.
+The **[rc7 release note](../RC7_RELEASE.md)** describes the current candidate and includes an English summary. The [rc7 publication receipt](../RC7_PUBLICATION_RECEIPT.json) confirms all ten GitHub assets and eight GHCR layers. The [rc6 publication receipt](../RC6_PUBLICATION_RECEIPT.json) retains the previous delivery evidence. Dated reports retain their original builds and scope; older results do not qualify a new APK.
 
 ## Models and licensing
 

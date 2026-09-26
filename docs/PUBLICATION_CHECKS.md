@@ -16,6 +16,12 @@ Les archives sont aussi inventoriées et relues, y compris leurs APK, AAR et JAR
 
 Le [reçu du 24 septembre](RC6_PUBLICATION_RECEIPT.json) confirme les dix assets GitHub et les huit couches OCI retéléchargées. Les 706 fichiers sélectionnés, l’index, l’historique de 30 commits et les 16 archives imbriquées ont été contrôlés. Les signalements relus sont des empreintes publiques de sources et de clés ; aucun secret n’a été confirmé. Les reçus bruts sont conservés sans normalisation de fins de ligne.
 
+## Publication rc7 vérifiée
+
+Le [reçu du 27 septembre](RC7_PUBLICATION_RECEIPT.json) confirme les dix assets GitHub et les huit couches OCI relues. Les 801 fichiers sélectionnés, l’index, les 32 commits examinés par Gitleaks parmi 37 commits accessibles, et les 16 archives imbriquées ont été contrôlés. Les 213 sources compilées correspondent au commit `b380778`. Les signalements revus sont des empreintes publiques ; aucun secret n’a été confirmé.
+
+GitHub a renommé le dépôt en `unicornwhodev/cadryl_android_dataset_and_litert_train`. Le reçu utilise son adresse actuelle ; les anciennes adresses redirigent vers ce dépôt. Le package GHCR existant garde son nom et sa visibilité privée.
+
 ## Après l’envoi
 
 Les noms, tailles et SHA-256 des assets GitHub doivent correspondre aux fichiers locaux. Le tag doit pointer sur le commit de compilation. Les couches du package GHCR sont téléchargées de nouveau et comparées octet par octet par SHA-256.

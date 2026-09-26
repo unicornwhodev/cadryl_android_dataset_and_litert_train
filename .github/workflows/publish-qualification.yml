@@ -34,7 +34,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          test "$GITHUB_REPOSITORY" = unicornwhodev/vision-dataset-studio
+          test "$GITHUB_REPOSITORY" = unicornwhodev/cadryl_android_dataset_and_litert_train
           python3 - <<'PY'
           import os, pathlib, re
           version = re.search(r'versionName\s*=\s*"([^"]+)"', pathlib.Path('app/build.gradle.kts').read_text())[1]

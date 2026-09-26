@@ -2,7 +2,7 @@
 
 [Documentation](README.md) · [Français](../RELEASE_PLAN.md)
 
-Current delivery: **4.2.0-rc7**, a prerelease signed with the durable key. Files keep their technical `vision-dataset-studio` names for existing links and scripts. [rc7 contents and results](../RC7_RELEASE.md).
+Current delivery: **4.2.0-rc7**, a prerelease signed with the durable key, [published and verified](../RC7_PUBLICATION_RECEIPT.json). Files keep their technical `vision-dataset-studio` names for existing links and scripts. [rc7 contents and results](../RC7_RELEASE.md).
 
 ## Published files
 
@@ -11,7 +11,7 @@ Current delivery: **4.2.0-rc7**, a prerelease signed with the durable key. Files
 - Maven ZIPs for Flex `2.16.1-vds16k1`, Graphics Path `1.0.1-vds16k1` and LiteRT `2.2.0-vds16k2`.
 - `PACKAGE.json`, `PUBLICATION_CHECKS.json` and `SHA256SUMS`: provenance and integrity.
 
-Assets are available through the [GitHub release](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc7). The [GHCR package](https://github.com/users/unicornwhodev/packages/container/package/vision-dataset-studio-qualification) remains private. It holds artifacts, not a runnable container.
+Assets are available through the [GitHub release](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7). The [GHCR package](https://github.com/users/unicornwhodev/packages/container/package/vision-dataset-studio-qualification) remains private. It holds artifacts, not a runnable container.
 
 ## Prepare a release
 

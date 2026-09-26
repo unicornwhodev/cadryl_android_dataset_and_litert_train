@@ -2,7 +2,7 @@
 
 27 septembre 2026 · préversion · Android 9+ ARM64 · code 12.
 
-[Téléchargements](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc7) · [Premiers pas](GETTING_STARTED.md) · [Preuves](../test-results/rc7-release/README.md)
+[Téléchargements](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7) · [Premiers pas](GETTING_STARTED.md) · [Preuves](../test-results/rc7-release/README.md) · [Publication vérifiée](RC7_PUBLICATION_RECEIPT.json)
 
 ## Ce qui change
 
