@@ -103,7 +103,7 @@ def main():
         log = run('instrumentation.txt', 'shell', 'am', 'instrument', '-w', '-r',
                   APP_ID + '.releaseqa/androidx.test.runner.AndroidJUnitRunner')
         state['tests'] = parse_instrumentation(log)
-        if not state['tests']['complete'] or state['tests']['passed'] != 4:
+        if not state['tests']['complete'] or state['tests']['passed'] != 5:
             raise RuntimeError('Release UI suite has failures, skips or incomplete results')
         state['art_crashes_after'] = art_crashes(run('crash-after.txt', 'logcat', '-d', '-b', 'crash'))
         if state['art_crashes_after']:

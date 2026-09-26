@@ -1,0 +1,3 @@
+dist\rc7-review\release-ui-driver.apk: 1 file pushed, 0 skipped. 231.3 MB/s (4930689 bytes in 0.020s)
+Performing Push Install
+Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package com.unicornwhodev.visiondatasetstudio.releaseqa signatures do not match newer version; ignoring!]

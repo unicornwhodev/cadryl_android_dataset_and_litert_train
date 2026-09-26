@@ -49,7 +49,7 @@ fun TrainingScreen(vm:MainViewModel) {
     var abandonRunId by remember(p.id) { mutableStateOf<String?>(null) }
     val active=run?.phase in setOf("queued","training","evaluating")
     LaunchedEffect(p.id,p.modelConfigJson,number,run?.phase){vm.refreshTrainingPreflight()}
-    Scaffold(contentWindowInsets=WindowInsets(0),topBar={StudioTopBar(stringResource(R.string.screen_training),stringResource(R.string.subtitle_on_device),onBack={vm.navigateTo(Screen.Models)})}) { inset ->
+    Scaffold(contentWindowInsets=WindowInsets(0),topBar={WorkspaceTopBar(vm, stringResource(R.string.screen_training),stringResource(R.string.subtitle_on_device),onBack={vm.navigateTo(Screen.Models)})}) { inset ->
         Box(Modifier.fillMaxSize().padding(inset),contentAlignment=Alignment.TopCenter) {
             Column(Modifier.widthIn(max=760.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
                 Row(verticalAlignment=Alignment.CenterVertically){Icon(Icons.Default.PhonelinkSetup,null,Modifier.size(24.dp));Spacer(Modifier.width(12.dp));Column{

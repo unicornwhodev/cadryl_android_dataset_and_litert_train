@@ -39,6 +39,7 @@ import java.io.File
 import com.unicornwhodev.visiondatasetstudio.data.json.StudioJson
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelContract
+import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelClassCompatibility
 
 private enum class BatchFilter(private val titleText: () -> String) {
     ALL({ tr("Tous", "All") }),
@@ -71,9 +72,10 @@ fun BatchGridScreen(viewModel: MainViewModel) {
     val project by viewModel.projectFlow.collectAsState()
     val policy = project?.let(ProjectSettings::read)
     val sourceReady = !project?.hfSourceRepo.isNullOrBlank() || policy?.sourceIndexReady == true
-    val annotationModelCompatible=remember(project?.modelConfigJson,project?.activeTasksCsv) {
-        runCatching { project?.modelConfigJson?.let { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(it) }?.let { ModelContract.supportsTasks(it,project?.activeTasksCsv.orEmpty()) }==true }.getOrDefault(false)
+    val classCoverage=remember(project?.modelConfigJson,project?.activeTasksCsv,project?.classesCsv) {
+        runCatching { project?.modelConfigJson?.let { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(it) }?.let { ModelClassCompatibility.inspect(it,project?.activeTasksCsv.orEmpty(),project?.classesCsv.orEmpty()) } }.getOrNull()
     }
+    val annotationModelCompatible = classCoverage?.canAssist == true
     var filter by rememberSaveable { mutableStateOf(BatchFilter.PENDING) }
     var search by rememberSaveable { mutableStateOf("") }
     var priority by rememberSaveable { mutableStateOf(false) }
@@ -111,7 +113,11 @@ fun BatchGridScreen(viewModel: MainViewModel) {
                 IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, tr("Actions du lot", "Batch actions")) }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text(stringResource(R.string.batch_retry_downloads)) }, enabled = !busy, onClick = { menu = false; viewModel.fetchAndPrepareBatch(batchNumber) })
-                    DropdownMenuItem(text = { Text(if(annotationModelCompatible) tr("Préannoter le lot…", "Preannotate batch…") else tr("Modèle incompatible avec les tâches", "Model incompatible with the tasks")) }, enabled = !busy && annotationModelCompatible && (project?.modelPath != null || project?.modelConfigJson?.contains("local_http") == true) && samples.any { StudioWorkflow.isPending(it.annotationStatus) }, onClick = { menu = false; replaceProposals = false; confirmInference = true })
+                    DropdownMenuItem(text = { Text(if(annotationModelCompatible) tr("Préannoter le lot…", "Preannotate batch…") else tr("Vérifier le modèle et les classes…", "Check model and classes…")) }, enabled = !busy, onClick = {
+                        menu = false
+                        if (annotationModelCompatible && (project?.modelPath != null || project?.modelConfigJson?.contains("local_http") == true) && samples.any { StudioWorkflow.isPending(it.annotationStatus) }) { replaceProposals = false; confirmInference = true }
+                        else viewModel.navigateTo(Screen.ModelSettings)
+                    })
                     DropdownMenuItem(text = { Text(tr("Relancer les propositions IA…", "Rerun AI proposals…")) }, enabled = !busy && annotationModelCompatible && samples.any { StudioWorkflow.isPending(it.annotationStatus) }, onClick = { menu = false; replaceProposals = true; confirmInference = true })
                     DropdownMenuItem(text = { Text(stringResource(R.string.batch_exclude_failures)) }, enabled = !busy && samples.any { it.acquisitionStatus.startsWith("ERROR") }, onClick = { menu = false; rejectErrors = true })
                     DropdownMenuItem(text = { Text(stringResource(R.string.publication_next_batch)) }, enabled = !busy, onClick = { menu = false; viewModel.nextBatch() })
@@ -171,7 +177,10 @@ fun BatchGridScreen(viewModel: MainViewModel) {
         }
     }
     if (confirmInference) AlertDialog(onDismissRequest = { confirmInference = false }, title = { Text(if(replaceProposals) tr("Recalculer les propositions ?", "Recalculate proposals?") else stringResource(R.string.batch_preannotate_title)) },
-        text = { Text(if(replaceProposals) tr("Les propositions IA non validées du lot seront remplacées avec les réglages actuels. Les corrections humaines et les cas finalisés restent intacts.", "Unreviewed AI proposals in this batch will be replaced using the current settings. Human corrections and finalized samples stay unchanged.") else stringResource(R.string.batch_preannotate_body)) },
+        text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            classCoverage?.let { Text(it.summary); if (it.checked && it.missing.isNotEmpty()) Text(tr("À compléter à la main : ", "Complete manually: ") + it.missing.take(8).joinToString()) }
+            Text(if(replaceProposals) tr("Les propositions IA non validées du lot seront remplacées avec les réglages actuels. Les corrections humaines et les cas finalisés restent intacts.", "Unreviewed AI proposals in this batch will be replaced using the current settings. Human corrections and finalized samples stay unchanged.") else stringResource(R.string.batch_preannotate_body))
+        } },
         confirmButton = { Button(onClick = { confirmInference = false; viewModel.preannotateActiveBatch(replaceExistingProposals=replaceProposals) }) { Text(stringResource(R.string.batch_run)) } }, dismissButton = { TextButton(onClick = { confirmInference = false }) { Text(stringResource(R.string.common_cancel)) } })
     if (rejectErrors) AlertDialog(onDismissRequest = { rejectErrors = false }, title = { Text(stringResource(R.string.batch_reject_failures)) },
         text = { Text(stringResource(R.string.batch_reject_failures_body)) },

@@ -56,7 +56,7 @@ def apk_payload(path):
 
 def verify_suite(folder, app_sha, count, *, test_sha=None, qa_sha=None):
     state = read(folder / 'status.json')
-    outcome = 'release_core_suite_passed' if count == 40 else 'release_ui_suite_passed'
+    outcome = 'release_core_suite_passed' if test_sha is not None else 'release_ui_suite_passed'
     if state.get('outcome') != outcome or state.get('main_sha256') != app_sha:
         raise ValueError('Suite did not pass against the selected APK')
     for field, expected in [('test_sha256', test_sha), ('qa_sha256', qa_sha)]:
@@ -154,8 +154,8 @@ def main():
                         '--apk', str(apks[label]['app']), '--output', str(temporary)], check=True)
         if audit != read(temporary) or len(audit['native_64bit_libraries']) != 4:
             raise ValueError('Strict native audit is inconsistent')
-        core = verify_suite(evidence / label / 'core', app_sha, 40, test_sha=test_sha)
-        ui = verify_suite(evidence / label / 'ui', app_sha, 4, qa_sha=qa_sha)
+        core = verify_suite(evidence / label / 'core', app_sha, 45, test_sha=test_sha)
+        ui = verify_suite(evidence / label / 'ui', app_sha, 5, qa_sha=qa_sha)
         package_text = (evidence / label / 'core/package.txt').read_text(encoding='utf-8')
         if f'primaryCpuAbi={abi}' not in package_text:
             raise ValueError('Installed package ABI differs from the selected build')
@@ -165,7 +165,7 @@ def main():
                             source_manifest_sha256=digest(build_dir / 'source-manifest.json'),
                             signed_artifacts=signed['artifacts'])
     host = read(evidence / 'host-checks.json')
-    if host['jvm']['failed'] or host['jvm']['errors'] or host['jvm']['skipped'] or host['jvm']['passed'] != 70:
+    if host['jvm']['failed'] or host['jvm']['errors'] or host['jvm']['skipped'] or host['jvm']['passed'] != 84:
         raise ValueError('JVM checks incomplete')
     if host['lint']['errors'] or not host['python']['passed']:
         raise ValueError('Host checks failed')
@@ -187,7 +187,7 @@ def main():
         signature=dict(certificate_sha256=pin['certificate_sha256'], durable=True,
                        compatible_with_rc4_or_rc5_debug=False),
         native_transitive_notices_review_complete=False,
-        limitations=['Physical Honor interrupted on a prior candidate; this rc6 has emulator evidence only.',
+        limitations=['Physical Honor interrupted on a prior candidate; this release has emulator evidence only.',
                      'ARM64 ran through libndk_translation on x86_64, not a physical ARM device.',
                      'Historical ART cause unconfirmed; new environment and ART guard in place.',
                      'Model-catalogue quality, extended operation and remote CI remain incomplete.'])

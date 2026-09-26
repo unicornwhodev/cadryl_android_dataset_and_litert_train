@@ -39,6 +39,10 @@ sealed class Screen {
     object QualityDashboard : Screen()
     object Preferences : Screen()
     object Controls : Screen()
+    object SourceSettings : Screen()
+    object TransferSettings : Screen()
+    object ModelSettings : Screen()
+    object ModelAdvanced : Screen()
     object Models : Screen()
     object Training : Screen()
     object Similarity : Screen()
@@ -79,9 +83,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val communityModels = _communityModels.asStateFlow()
     private val _modelDiagnostics = MutableStateFlow("")
     val modelDiagnostics = _modelDiagnostics.asStateFlow()
+    private val _modelInputSpec = MutableStateFlow<ModelInputSpec?>(null)
+    val modelInputSpec = _modelInputSpec.asStateFlow()
+    private val _exportReadiness = MutableStateFlow<com.unicornwhodev.visiondatasetstudio.domain.export.ExportReadiness?>(null)
+    val exportReadiness = _exportReadiness.asStateFlow()
     private val _inferenceReceipts=MutableStateFlow("")
     val inferenceReceipts=_inferenceReceipts.asStateFlow()
     private var operationJob: Job? = null
+    private var exportReadinessJob: Job? = null
     val deviceTraining=com.unicornwhodev.visiondatasetstudio.domain.training.OnDeviceTraining(application)
     private val _trainingRun=MutableStateFlow<com.unicornwhodev.visiondatasetstudio.domain.training.DeviceTrainingRun?>(null)
     val trainingRun=_trainingRun.asStateFlow()
@@ -188,8 +197,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun reportError(message: String) { _operationProgress.value = OperationProgress(message, 0, 1, true) }
     fun clearOperationProgress() { if (!_isBusy.value) _operationProgress.value = null }
     fun clearEditorIssues() { _editorIssues.value = emptyList() }
-    fun refreshInferenceReceipts()=viewModelScope.launch(Dispatchers.IO) {
-        val rows=InferenceReceiptStore(getApplication<Application>().filesDir).list(_activeProjectId.value).takeLast(20).reversed()
+    fun refreshInferenceReceipts(failuresOnly: Boolean = false)=viewModelScope.launch(Dispatchers.IO) {
+        val rows=InferenceReceiptStore(getApplication<Application>().filesDir).list(_activeProjectId.value).filter { !failuresOnly || it.outcome=="failure" }.takeLast(20).reversed()
         _inferenceReceipts.value=rows.joinToString("\n\n"){r->tr("${r.outcome.uppercase()} · ${r.sampleId ?: "benchmark"} · ${r.diagnostics.adapter}/${r.diagnostics.task}\nSHA ${r.diagnostics.modelSha256} · entrée ${r.diagnostics.inputShape} · seuil ${r.diagnostics.threshold} · ${r.diagnostics.proposalCount} proposition(s)", "${r.outcome.uppercase()} · ${r.sampleId ?: "benchmark"} · ${r.diagnostics.adapter}/${r.diagnostics.task}\nSHA ${r.diagnostics.modelSha256} · input ${r.diagnostics.inputShape} · threshold ${r.diagnostics.threshold} · ${r.diagnostics.proposalCount} proposal(s)")+(r.diagnostics.emptyReason?.let{"\n$it"}?:"")+(r.diagnostics.error?.let{tr("\nErreur : $it", "\nError: $it")}?:"")}
     }
 
@@ -245,25 +254,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun saveSetup(name: String, sourceRepo: String, destRepo: String, sourceConfig: String, sourceSplit: String,
-                  imageColumn: String, classesCsv: String, diskBudgetMb: Long, tasks: Set<StudioTask>, startBatch: Boolean = false) = operation {
+                  imageColumn: String, classesCsv: String, diskBudgetMb: Long, tasks: Set<StudioTask>, startBatch: Boolean = false,
+                  autoPreannotate: Boolean? = null) = operation {
         val old = db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
         val local = ProjectSettings.read(old).sourceMode == "LOCAL_INDEX"
         val source = if (local && sourceRepo.isBlank()) "" else StudioWorkflow.normalizeRepo(sourceRepo) ?: error(tr("Dataset source invalide. Utilisez namespace/dataset ou une URL HF de dataset.", "Invalid source dataset. Use namespace/dataset or an HF dataset URL."))
         val destination = if (destRepo.isBlank()) "" else StudioWorkflow.normalizeRepo(destRepo, true) ?: error(tr("Destination invalide : utilisateur/dataset attendu.", "Invalid destination: expected user/dataset."))
         check(destination.isBlank() || source != destination) { tr("Source et destination doivent être différentes.", "Source and destination must be different.") }
-        check(classesCsv.split(',').any { it.isNotBlank() }) { tr("Définissez au moins une classe.", "Define at least one class.") }
+        check(!ProjectVocabulary.requiredFor(tasks) || ProjectVocabulary.parse(classesCsv).isNotEmpty()) { tr("Définissez au moins une classe.", "Define at least one class.") }
         val p = old
-        check(db.batchDao().getBatches(p.id).first().none{it.status in setOf("PUBLISHING","PUBLISHED")}) { tr("Terminez le transfert interrompu avant de modifier le projet", "Complete the interrupted transfer before changing the project") }
+        check(db.batchDao().getBatches(p.id).first().none{it.status in setOf("PREPARED","PUBLISHING","PUBLISHED","CONFLICT","PURGING")}) { tr("Terminez le transfert interrompu avant de modifier le projet", "Complete the interrupted transfer before changing the project") }
         val hasBatches = db.batchDao().getLatestBatchSync(_activeProjectId.value) != null || ProjectSettings.read(p).sourceIndexReady
         val published = db.batchDao().getBatches(_activeProjectId.value).first().any { it.hfCommitSha != null || it.remotePrefix != null }
         check(!published || destination == p.hfDestRepo) { tr("La destination d’un atelier déjà publié est verrouillée pour préserver les preuves de publication.", "A published project's destination is locked to preserve publication evidence.") }
         check(!hasBatches || (p.hfSourceRepo == source && p.sourceConfig == sourceConfig.trim() && p.sourceSplit == sourceSplit.trim() && p.imageColumn == imageColumn.trim())) {
-            tr("La source d’un atelier déjà alimenté est verrouillée pour préserver la provenance. Créez un autre projet dans Moteur et transferts pour changer de source.", "The source is locked after importing data to preserve provenance. Create another project in My workspace to change sources.")
+            tr("La source est verrouillée après l’import pour conserver la provenance. Pour changer de source, créez un projet dans Projets.", "The source is locked after import to preserve provenance. To change sources, create a project in Projects.")
         }
         val updated = p.copy(name = name.trim().ifBlank { tr("Mon atelier", "My studio") }, hfSourceRepo = source, hfDestRepo = destination,
             sourceConfig = sourceConfig.trim().ifBlank { "default" }, sourceSplit = sourceSplit.trim().ifBlank { "train" },
-            imageColumn = imageColumn.trim().ifBlank { "image" }, classesCsv = classesCsv.split(',').map(String::trim).filter(String::isNotBlank).distinct().joinToString(","),
-            diskBudgetMb = diskBudgetMb.coerceIn(128L, 65536L), activeTasksCsv = StudioWorkflow.tasksCsv(tasks), updatedAt = System.currentTimeMillis())
+            imageColumn = imageColumn.trim().ifBlank { "image" }, classesCsv = ProjectVocabulary.format(ProjectVocabulary.parse(classesCsv)),
+            diskBudgetMb = diskBudgetMb.coerceIn(128L, 65536L), activeTasksCsv = StudioWorkflow.tasksCsv(tasks),
+            settingsJson = if (autoPreannotate == null) p.settingsJson else ProjectSettings.write(ProjectSettings.read(p).copy(autoPreannotate=autoPreannotate)), updatedAt = System.currentTimeMillis())
+        if (autoPreannotate == true) ModelClassCompatibility.requireAssistance(modelConfig(updated), updated.activeTasksCsv, updated.classesCsv)
         db.projectDao().saveProject(updated)
         _operationProgress.value = null
         if (startBatch) prepareBatch(updated, _activeBatchNumber.value) else setScreen(Screen.Home)
@@ -289,12 +301,73 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val sp = chosen?.split ?: split ?: "train"
         val rows = hfApiClient.fetchViewerRows(clean, cfg, sp, 0, 3)
         _sourceInspection.value = HfSourceInspectionState(rows.success, clean, result.splits, cfg, sp,
-            rows.columns, rows.columns.firstOrNull { it.contains("image", true) } ?: "image", rows.rows,
+            rows.columns, com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.suggest(rows.columns, rows.rows).orEmpty(), rows.rows,
             if (!rows.success) rows.error ?: result.error else null)
         _operationProgress.value = if (rows.success) null else OperationProgress(rows.error ?: tr("Dataset Viewer indisponible pour cette source.", "Dataset Viewer is unavailable for this source."), 0, 1, true)
     }
     fun checkDestinationRepo(destRepo: String) = operation {
         _destRepoStatus.value = hfApiClient.checkDatasetAccess(StudioWorkflow.normalizeRepo(destRepo, true) ?: error(tr("Destination invalide.", "Invalid destination.")))
+    }
+    fun saveExportDestination(value: String) = operation {
+        val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@operation
+        val destination = if (value.isBlank()) "" else StudioWorkflow.normalizeRepo(value, true)
+            ?: error(tr("Destination invalide.", "Invalid destination."))
+        require(destination.isBlank() || destination != p.hfSourceRepo) { tr("Choisissez un dépôt distinct de la source.", "Choose a repository separate from the source.") }
+        val history = db.batchDao().getBatches(p.id).first()
+        check(destination == p.hfDestRepo || history.none { it.remotePrefix != null || it.hfCommitSha != null || it.status in setOf("PUBLISHING", "PUBLISHED") }) {
+            tr("La destination est liée à un transfert existant. Conservez-la pour reprendre et vérifier cet envoi.", "The destination is bound to an existing transfer. Keep it to resume and verify this upload.")
+        }
+        db.projectDao().saveProject(p.copy(hfDestRepo = destination, updatedAt = System.currentTimeMillis()))
+        _destRepoStatus.value = null
+        _operationProgress.value = OperationProgress(tr("Destination enregistrée.", "Destination saved."), 1, 1)
+    }
+    fun saveProjectClasses(value: String) = operation {
+        val labels = ProjectVocabulary.parse(value)
+        val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@operation
+        require(!ProjectVocabulary.requiredFor(StudioWorkflow.parseTasks(p.activeTasksCsv)) || labels.isNotEmpty()) { tr("Ajoutez au moins une classe.", "Add at least one class.") }
+        check(db.batchDao().getBatches(p.id).first().none { it.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT", "PURGING") }) {
+            tr("Terminez le transfert en cours avant de modifier les classes.", "Complete the pending transfer before changing classes.")
+        }
+        db.projectDao().saveProject(p.copy(classesCsv = ProjectVocabulary.format(labels), updatedAt = System.currentTimeMillis()))
+        _operationProgress.value = OperationProgress(tr("Classes enregistrées. Annotations conservées.", "Classes saved. Annotations preserved."), 1, 1)
+    }
+    fun saveExportFormats(tar: Boolean, coco: Boolean, yolo: Boolean, vl: Boolean) = operation {
+        val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@operation
+        val batch = db.batchDao().getBatchSync(p.id, _activeBatchNumber.value)
+        check(batch?.status !in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT", "PURGING", "PURGED")) {
+            tr("Les formats de l’envoi en cours sont figés.", "Formats are fixed for the pending upload.")
+        }
+        val policy = ProjectSettings.read(p).copy(hfWebDataset = tar, hfCoco = coco, hfYolo = yolo, hfVl = vl)
+        db.projectDao().saveProject(p.copy(settingsJson = ProjectSettings.write(policy), updatedAt = System.currentTimeMillis()))
+        _operationProgress.value = null
+    }
+    fun refreshExportReadiness() {
+        exportReadinessJob?.cancel()
+        exportReadinessJob = viewModelScope.launch {
+            try {
+                _exportReadiness.value = null
+                val id = _activeProjectId.value
+                val number = _activeBatchNumber.value
+                val p = db.projectDao().getProjectSync(id) ?: return@launch
+                val annotations = db.sampleDao().getSamplesForBatchSync(id, number).filter { it.annotationStatus == "VALIDATED" }
+                    .map { batchEngine.getSampleAnnotations(it.sampleId) }
+                if (id == _activeProjectId.value && number == _activeBatchNumber.value)
+                    _exportReadiness.value = com.unicornwhodev.visiondatasetstudio.domain.export.ExportReadiness.inspect(p.classesCsv, annotations)
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) { reportError(tr("Impossible de vérifier les annotations de ce lot.", "Cannot check this batch's annotations.")) }
+        }
+    }
+    fun inspectActiveModelInput() = operation {
+        _modelInputSpec.value = null
+        val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@operation
+        if (p.modelPath == null) return@operation
+        val config = modelConfig(p)
+        if (config.runtime == "local_http") return@operation
+        try {
+            loadForInference(p, config)
+            _modelInputSpec.value = withContext(Dispatchers.IO) { liteRtEngine.inputSpec(config) }
+            _operationProgress.value = null
+        } finally { liteRtEngine.close() }
     }
     fun createDestinationRepo(destRepo: String) = operation {
         val clean = StudioWorkflow.normalizeRepo(destRepo, true) ?: error(tr("Destination invalide.", "Invalid destination."))
@@ -488,7 +561,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun modelConfig(project: ProjectEntity): ModelConfig = project.modelConfigJson?.takeIf { it.isNotBlank() }?.let {
         moshi.adapter(ModelConfig::class.java).failOnUnknown().fromJson(it) ?: error(tr("Configuration modèle vide", "Empty model configuration"))
-    }?.also(ModelContract::validate) ?: ModelConfig.defaultDetectionPreset(project.classesCsv.split(',').map(String::trim)).also(ModelContract::validate)
+    }?.also(ModelContract::validate) ?: ModelConfig.defaultDetectionPreset(com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(project.classesCsv)).also(ModelContract::validate)
 
     fun importModel(uri: Uri) = operation {
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Atelier absent", "Studio not found"))
@@ -510,7 +583,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             check(withContext(Dispatchers.IO) { liteRtEngine.loadModel(file) }) { tr("Modèle incompatible avec le runtime installé.", "Model incompatible with the installed runtime.") }
             // A raw graph does not carry the previous model's labels, preprocessing or training contract.
-            val inspection=ModelConfig(task="inspection",adapter="inspect_only")
+            val baseInspection=ModelConfig(task="inspection",adapter="inspect_only")
+            val inspection=withContext(Dispatchers.IO) { liteRtEngine.inputSpec(baseInspection)?.fixedImageConfig(baseInspection) } ?: baseInspection
             val imported=p.copy(modelPath=file.absolutePath,modelConfigJson=moshi.adapter(ModelConfig::class.java).toJson(inspection),
                 settingsJson=TrainingPolicy.settingsForModel(p,inspection),updatedAt=System.currentTimeMillis())
             db.projectDao().saveProject(imported)
@@ -532,7 +606,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             check(hfApiClient.downloadImage(url.trim(), file, maxBytes = remaining)) { tr("Téléchargement du modèle impossible ou trop volumineux.", "Model download failed or exceeded the size limit.") }
             check(withContext(Dispatchers.IO) { liteRtEngine.loadModel(file) }) { tr("Modèle incompatible avec le runtime installé.", "Model incompatible with the installed runtime.") }
             // A raw graph does not carry the previous model's labels, preprocessing or training contract.
-            val inspection=ModelConfig(task="inspection",adapter="inspect_only")
+            val baseInspection=ModelConfig(task="inspection",adapter="inspect_only")
+            val inspection=withContext(Dispatchers.IO) { liteRtEngine.inputSpec(baseInspection)?.fixedImageConfig(baseInspection) } ?: baseInspection
             val imported=p.copy(modelPath=file.absolutePath,modelConfigJson=moshi.adapter(ModelConfig::class.java).toJson(inspection),
                 settingsJson=TrainingPolicy.settingsForModel(p,inspection),updatedAt=System.currentTimeMillis())
             db.projectDao().saveProject(imported)
@@ -545,6 +620,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val config=moshi.adapter(ModelConfig::class.java).failOnUnknown().fromJson(json) ?: error(tr("Contrat JSON absent", "Missing JSON contract"))
         ModelContract.validate(config)
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
+        if (config.runtime != "local_http" && p.modelPath != null && ModelContract.adapter(config) != "inspect_only") {
+            try {
+                loadForInference(p, config)
+                withContext(Dispatchers.IO) { liteRtEngine.validateInput(config) }
+            } finally { liteRtEngine.close() }
+        }
         db.projectDao().saveProject(p.copy(modelConfigJson=moshi.adapter(ModelConfig::class.java).toJson(config),settingsJson=TrainingPolicy.settingsForModel(p,config),updatedAt=System.currentTimeMillis()))
         _dryRunResult.value=null
         _operationProgress.value=OperationProgress(tr("Contrat enregistré. Exécutez un essai sur une image réelle avant le lot.", "Contract saved. Try a real image before processing the batch."),1,1)
@@ -560,7 +641,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun preannotateActiveBatch(replaceExistingProposals:Boolean=false) = operation {
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
         val c=modelConfig(p)
-        ModelContract.requireTaskCompatibility(c,p.activeTasksCsv)
+        ModelClassCompatibility.requireAssistance(c,p.activeTasksCsv,p.classesCsv)
         try {
             loadForInference(p,c)
             val processed=batchEngine.runBatchInference(p.id,_activeBatchNumber.value,c,replaceExistingProposals=replaceExistingProposals) { done,total ->
@@ -584,6 +665,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val point=annotations.points.firstOrNull{it.isHumanVerified && it.canProvideCoordinates}
             when{promptPoint.size==2->base.copy(promptPoint=promptPoint,promptBox=emptyList());box!=null->base.copy(promptBox=listOf(box.xmin,box.ymin,box.xmax,box.ymax),promptPoint=emptyList());point!=null->base.copy(promptPoint=listOf(point.x,point.y),promptBox=emptyList());else->base}
         }else base
+        ModelClassCompatibility.requireAssistance(c,p.activeTasksCsv,p.classesCsv)
         try {
             loadForInference(p,c);val bitmap=decodeSample(s)
             val inference=try { liteRtEngine.runInference(bitmap,c) } finally { bitmap.recycle() }
@@ -594,7 +676,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             val a=_currentAnnotations.value
             undoStack.add(a);redoStack.clear();refreshUndo()
-            _currentAnnotations.value=ProposalMerger.merge(a,proposals,p.activeTasksCsv,c.captionLanguage,ModelContract.compatibility(c,p.activeTasksCsv).usableOutputs)
+            _currentAnnotations.value=ProposalMerger.merge(a,ModelClassCompatibility.forProject(proposals,c,p.classesCsv),p.activeTasksCsv,c.captionLanguage,ModelContract.compatibility(c,p.activeTasksCsv).usableOutputs)
             enqueueSave(_currentAnnotations.value)
             _operationProgress.value=OperationProgress(tr("${proposals.size} proposition(s). ${liteRtEngine.lastNote}", "${proposals.size} proposal(s). ${liteRtEngine.lastNote}") + if(liteRtEngine.lastEmbedding!=null) tr(" Représentation enregistrée pour les images similaires.", " Embedding saved for similar images.") else "",1,1)
         } finally { liteRtEngine.close() }
@@ -809,11 +891,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _previewSnippet.value = if (s == null) tr("Aucun cas dans ce lot.", "No samples in this batch.") else exporters.generatePreviewSnippet(format, s, batchEngine.getSampleAnnotations(s.sampleId), p)
         }
     }
+    fun recoverPendingTransferArchive() = operation {
+        _lastExportedZip.value = batchEngine.recoverPendingArchive(_activeProjectId.value, _activeBatchNumber.value)
+        _operationProgress.value = OperationProgress(tr("Copie prête à enregistrer. L’envoi HF reste en attente de vérification.",
+            "Copy ready to save. The HF upload still awaits verification."), 1, 1)
+    }
     fun saveArchiveToUri(uri: Uri) = operation {
         val file = _lastExportedZip.value?.takeIf { it.isFile } ?: error(tr("Préparez d’abord l’archive", "Prepare the archive first"))
         val copyReceipt=withContext(Dispatchers.IO) {
             val ctx=kotlin.coroutines.coroutineContext
             com.unicornwhodev.visiondatasetstudio.core.storage.SafArchives.copyVerified(getApplication<Application>().contentResolver,file,uri) { ctx.ensureActive() }
+        }
+        val pending = db.batchDao().getBatchSync(_activeProjectId.value, _activeBatchNumber.value)?.status in
+            setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT")
+        if (pending) {
+            _operationProgress.value = OperationProgress(tr("Copie locale relue et vérifiée. La publication HF reste en attente ; le nettoyage reste verrouillé.",
+                "Local copy read back and verified. HF publication remains pending; cleanup stays locked."), 1, 1)
+            return@operation
         }
         if(!copyReceipt.persistentRead) {
             _operationProgress.value=OperationProgress(tr("Copie relue mais droit de lecture non persistant. Lot non clôturé : choisissez un fournisseur SAF persistant pour autoriser le nettoyage après redémarrage.", "Copy verified but read access is not persistent. Batch remains open: choose a SAF provider with persistent access to allow cleanup after restarting."),1,1,true)
@@ -842,6 +936,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         batchObserver?.cancel();liteRtEngine.close()
         _currentSample.value=null;_currentAnnotations.value=SampleAnnotations();undoStack.clear();redoStack.clear();refreshUndo()
         _sourceInspection.value=HfSourceInspectionState();_destRepoStatus.value=null;_dryRunResult.value=null;_modelDiagnostics.value=""
+        exportReadinessJob?.cancel();_exportReadiness.value=null;_modelInputSpec.value=null
         _lastExportedZip.value=null;_previewSnippet.value=null;_editorIssues.value=emptyList()
         _workflow.value=null;_agentChoice.value=null;_trainingRun.value=null;_trainingPreflight.value=null
         _similarImages.value=emptyList();_inferenceReceipts.value="";_benchmarkReport.value=null
@@ -925,7 +1020,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     private suspend fun registerModel(p:ProjectEntity,file:File,name:String) {
         val hash=withContext(Dispatchers.IO){com.unicornwhodev.visiondatasetstudio.core.geometry.HashUtils.computeSha256(file)}
-        val config=p.modelConfigJson ?: moshi.adapter(ModelConfig::class.java).toJson(ModelConfig.defaultDetectionPreset(p.classesCsv.split(',').map(String::trim)))
+        val config=p.modelConfigJson ?: moshi.adapter(ModelConfig::class.java).toJson(ModelConfig.defaultDetectionPreset(com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv)))
         val report=liteRtEngine.tensorReport();_modelDiagnostics.value=report
         db.modelProfileDao().save(ModelProfileEntity(UUID.randomUUID().toString(),name,file.path,hash,config,report))
     }
@@ -948,11 +1043,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
         liteRtEngine.close();db.projectDao().saveProject(p.copy(modelPath=profile.modelPath.takeIf{it.isNotBlank()},modelConfigJson=profile.configJson,settingsJson=TrainingPolicy.settingsForModel(p,c),updatedAt=System.currentTimeMillis()))
         _modelDiagnostics.value=profile.tensorReport;_dryRunResult.value=null
-        _operationProgress.value=OperationProgress(tr("Profil sélectionné; classes du modèle et vocabulaire du projet restent distincts. Vérifiez leur correspondance.", "Profile selected; model labels and project vocabulary remain separate. Check their correspondence."),1,1)
+        _operationProgress.value=OperationProgress(ModelClassCompatibility.inspect(c,p.activeTasksCsv,p.classesCsv).summary,1,1)
     }
     fun exportPack(uri:Uri)=operation {
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
-        val pack=StudioPack(name=p.name,classes=p.classesCsv.split(',').map(String::trim),tasks=p.activeTasksCsv.split(','),
+        val pack=StudioPack(name=p.name,classes=com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv),tasks=p.activeTasksCsv.split(','),
             batchSize=ProjectSettings.read(p).batchSize,model=p.modelConfigJson?.let{modelConfig(p).copy(trainingCheckpoint="")})
         val json=moshi.adapter(StudioPack::class.java).toJson(pack)
         withContext(Dispatchers.IO){getApplication<Application>().contentResolver.openOutputStream(uri,"wt")?.bufferedWriter()?.use{it.write(json)} ?: error(tr("Fichier non accessible", "File inaccessible"))}
@@ -967,7 +1062,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val pack=moshi.adapter(StudioPack::class.java).failOnUnknown().fromJson(text) ?: error(tr("Pack JSON invalide", "Invalid preset JSON"))
         pack.validate();var id=System.currentTimeMillis();while(db.projectDao().getProjectSync(id)!=null)id++
         val modelJson=pack.model?.let{moshi.adapter(ModelConfig::class.java).toJson(it)}
-        db.projectDao().saveProject(ProjectEntity(id=id,name=pack.name,classesCsv=pack.classes.joinToString(","),activeTasksCsv=pack.tasks.joinToString(","),
+        db.projectDao().saveProject(ProjectEntity(id=id,name=pack.name,classesCsv=ProjectVocabulary.format(pack.classes),activeTasksCsv=pack.tasks.joinToString(","),
             settingsJson=ProjectSettings.write(ProcessingSettings(batchSize=pack.batchSize)),modelConfigJson=modelJson))
         switchProject(id)
         _operationProgress.value=OperationProgress(tr("Nouveau projet créé depuis le pack. Ajoutez sa source et, si nécessaire, les poids autorisés.", "New project created from the preset. Add its source and any required authorized weights."),1,1)

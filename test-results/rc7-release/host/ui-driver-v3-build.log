@@ -1,0 +1,47 @@
+Reusing configuration cache.
+> Task :release-qa:generateReleaseAssets UP-TO-DATE
+> Task :release-qa:preBuild UP-TO-DATE
+> Task :release-qa:preReleaseBuild UP-TO-DATE
+> Task :release-qa:checkTestedAppObfuscationRelease UP-TO-DATE
+> Task :release-qa:generateReleaseResources UP-TO-DATE
+> Task :release-qa:processReleaseNavigationResources UP-TO-DATE
+> Task :release-qa:javaPreCompileRelease UP-TO-DATE
+> Task :release-qa:packageReleaseResources UP-TO-DATE
+> Task :release-qa:mergeReleaseAssets UP-TO-DATE
+> Task :release-qa:parseReleaseLocalResources UP-TO-DATE
+> Task :release-qa:compressReleaseAssets UP-TO-DATE
+> Task :release-qa:generateReleaseRFile UP-TO-DATE
+> Task :release-qa:checkReleaseDuplicateClasses UP-TO-DATE
+> Task :release-qa:desugarReleaseFileDependencies UP-TO-DATE
+> Task :release-qa:mergeExtDexRelease UP-TO-DATE
+> Task :release-qa:mergeLibDexRelease UP-TO-DATE
+> Task :release-qa:checkReleaseAarMetadata UP-TO-DATE
+> Task :release-qa:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :release-qa:compileReleaseNavigationResources UP-TO-DATE
+> Task :release-qa:mergeReleaseResources UP-TO-DATE
+> Task :release-qa:compileReleaseKotlin NO-SOURCE
+> Task :release-qa:processReleaseManifest UP-TO-DATE
+> Task :release-qa:processReleaseResources UP-TO-DATE
+> Task :release-qa:processReleaseJavaRes NO-SOURCE
+> Task :release-qa:mergeReleaseJavaResource UP-TO-DATE
+> Task :release-qa:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :release-qa:mergeReleaseNativeLibs NO-SOURCE
+> Task :release-qa:stripReleaseDebugSymbols NO-SOURCE
+> Task :release-qa:validateSigningRelease UP-TO-DATE
+> Task :release-qa:writeReleaseSigningConfigVersions UP-TO-DATE
+
+> Task :release-qa:compileReleaseJavaWithJavac
+Note: D:\Dev\project\vision-dataset-studio\release-qa\src\main\java\com\unicornwhodev\visiondatasetstudio\releaseqa\ReleaseWorkflowTest.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :release-qa:dexBuilderRelease
+> Task :release-qa:mergeProjectDexRelease
+> Task :release-qa:packageRelease
+> Task :release-qa:assembleRelease
+> Task :release-qa:createReleaseApkListingFileRedirect UP-TO-DATE
+
+[Incubating] Problems report is available at: file:///D:/Dev/project/vision-dataset-studio/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 11s
+28 actionable tasks: 4 executed, 24 up-to-date
+Configuration cache entry reused.

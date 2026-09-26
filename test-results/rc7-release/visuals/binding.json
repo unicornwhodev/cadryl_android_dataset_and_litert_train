@@ -1,0 +1,34 @@
+{
+  "app_sha256": "4ceeab41c82e1bc96a5f60e392cb65d7e1ae8d51c4904b062f1d2f92b70c0a08",
+  "version": "4.2.0-rc7",
+  "date": "2026-09-27",
+  "package_abi": "x86_64",
+  "api": 36,
+  "page_size": 16384,
+  "physical_device": false,
+  "locale": "fr",
+  "kind": "Unmodified native Android screenshots and UI hierarchy; synthetic empty project",
+  "visually_reviewed": true,
+  "files": [
+    {
+      "path": "home.png",
+      "sha256": "ebea93952e4266954edb68b6239be0264ae85430cf46753fd7016afa39c3cb67",
+      "bytes": 187509
+    },
+    {
+      "path": "home.xml",
+      "sha256": "1763a933dca755fc35034c9d342ac412255ba99906f974ebefc9db3f3f3717dd",
+      "bytes": 26764
+    },
+    {
+      "path": "images.png",
+      "sha256": "7f81dd49e92dd65059d5d28e42bb1b900c3017ca0cbefe8d064ff30af607b24d",
+      "bytes": 94983
+    },
+    {
+      "path": "images.xml",
+      "sha256": "96e21e42668d439d5c634a14fe1560c7adcd87157d947538f0f1f99ca2f85bab",
+      "bytes": 13197
+    }
+  ]
+}

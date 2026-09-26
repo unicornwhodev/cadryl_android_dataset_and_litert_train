@@ -3,3 +3,4 @@
 *.bat text eol=crlf
 # Qualification receipts are immutable raw evidence, including Windows line endings.
 /test-results/rc6-release/** -text
+/test-results/rc7-release/** -text whitespace=cr-at-eol

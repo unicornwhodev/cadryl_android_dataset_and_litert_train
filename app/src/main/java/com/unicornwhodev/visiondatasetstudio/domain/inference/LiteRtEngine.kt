@@ -55,6 +55,20 @@ class LiteRtEngine : AutoCloseable {
             true
         } catch(e:Exception) { lastError=e.message ?: tr("Modèle non chargeable", "Model could not be loaded");close();false }
     }
+    fun inputSpec(config: ModelConfig): ModelInputSpec? = synchronized(lock) {
+        if (bundle != null || config.runtime == "local_http") return@synchronized null
+        val engine = interpreter ?: error(tr("Aucun modèle chargé", "No model loaded"))
+        val tensor = config.training?.let { engine.getInputTensorFromSignature(it.imageInput, it.inferSignature) }
+            ?: engine.getInputTensor(0)
+        ModelInputSpec(tensor.shape().toList(), tensor.shapeSignature().toList(), tensor.dataType().name)
+    }
+    fun validateInput(config: ModelConfig) = synchronized(lock) {
+        inputSpec(config)?.validate(config)
+        config.training?.let { training ->
+            val tensor = requireNotNull(interpreter).getInputTensorFromSignature(training.imageInput, training.trainSignature)
+            ModelInputSpec(tensor.shape().toList(), tensor.shapeSignature().toList(), tensor.dataType().name).validate(config)
+        }
+    }
     fun tensorReport():String = synchronized(lock) {
         bundle?.let{return@synchronized tr("Bundle ${it.manifest.kind} · ${it.manifest.revision} · ${it.manifest.files.size} fichiers vérifiés", "Bundle ${it.manifest.kind} · ${it.manifest.revision} · ${it.manifest.files.size} verified files")}
         val i=interpreter ?: error(tr("Aucun modèle chargé", "No model loaded"))
@@ -123,6 +137,7 @@ class LiteRtEngine : AutoCloseable {
                 }
                 val i=interpreter ?: error(tr("Aucun modèle chargé", "No model loaded"))
                 require(i.inputTensorCount==1+config.extraIntInputs.size) { tr("Nombre d’entrées différent du contrat", "Input count differs from the contract") }
+                inputSpec(config)?.validate(config)
                 val expected=if(config.inputLayout=="NHWC") intArrayOf(1,config.inputHeight,config.inputWidth,config.inputChannels) else intArrayOf(1,config.inputChannels,config.inputHeight,config.inputWidth)
                 if(!i.getInputTensor(0).shape().contentEquals(expected)) {
                     require(config.inputWidth in config.dynamicMinSize..config.dynamicMaxSize && config.inputHeight in config.dynamicMinSize..config.dynamicMaxSize)

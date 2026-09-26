@@ -27,7 +27,7 @@ import com.unicornwhodev.visiondatasetstudio.R
 import androidx.compose.ui.semantics.*
 import com.unicornwhodev.visiondatasetstudio.ui.screens.*
 
-private data class StudioDestination(val screen: Screen, val label: String, val icon: ImageVector)
+private data class StudioDestination(val screen: Screen, val label: String, val icon: ImageVector, val key: String)
 
 @Composable
 fun StudioRoot(viewModel: MainViewModel) {
@@ -40,17 +40,17 @@ fun StudioRoot(viewModel: MainViewModel) {
     val preferences by viewModel.preferences.collectAsState()
     val holder = rememberSaveableStateHolder()
     val destinations = listOf(
-        StudioDestination(Screen.Home, stringResource(R.string.nav_studio), Icons.Default.SpaceDashboard),
-        StudioDestination(Screen.BatchGrid, stringResource(R.string.nav_batch), Icons.Default.GridView),
-        StudioDestination(Screen.Models, stringResource(R.string.nav_models), Icons.Default.Memory),
-        StudioDestination(Screen.Publication, stringResource(R.string.nav_export), Icons.Default.IosShare),
-        StudioDestination(Screen.QualityDashboard, stringResource(R.string.nav_quality), Icons.Default.Insights)
+        StudioDestination(Screen.Home, stringResource(R.string.nav_studio), Icons.Default.SpaceDashboard, "Home"),
+        StudioDestination(Screen.BatchGrid, stringResource(R.string.nav_batch), Icons.Default.GridView, "BatchGrid"),
+        StudioDestination(Screen.Models, stringResource(R.string.nav_models), Icons.Default.Memory, "Models"),
+        StudioDestination(Screen.Publication, stringResource(R.string.nav_export), Icons.Default.IosShare, "Publication"),
+        StudioDestination(Screen.QualityDashboard, stringResource(R.string.nav_quality), Icons.Default.Insights, "QualityDashboard")
     )
     BackHandler(enabled = screen !is Screen.Home) { viewModel.back() }
     CompositionLocalProvider(LocalStudioGuidance provides preferences.showGuidance) {
     BoxWithConstraints(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout))) {
         val editor = screen is Screen.AnnotationEditor
-        val showNavigation = !editor && screen !is Screen.Setup && screen !is Screen.Preferences && screen !is Screen.Controls
+        val showNavigation = !editor && screen !is Screen.Preferences && screen !is Screen.Setup
         val rail = maxWidth >= 840.dp && showNavigation
         Row(Modifier.fillMaxSize()) {
             if (rail) {
@@ -61,8 +61,8 @@ fun StudioRoot(viewModel: MainViewModel) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))
                     Spacer(Modifier.height(12.dp))
                     destinations.forEach { item ->
-                        StudioRailItem(item.label, item.icon, screen == item.screen, !editorBusy && !busy,
-                            Modifier.testTag("nav_${item.screen.javaClass.simpleName}")) { viewModel.navigateTo(item.screen) }
+                        StudioRailItem(item.label, item.icon, screen.workspace() == item.screen, !editorBusy && !busy,
+                            Modifier.testTag("nav_${item.key}")) { viewModel.navigateTo(item.screen) }
                     }
                     Spacer(Modifier.weight(1f))
                     StudioRailItem(stringResource(R.string.nav_settings), Icons.Default.Tune, false, !editorBusy && !busy) { viewModel.navigateTo(Screen.Preferences) }
@@ -90,6 +90,10 @@ fun StudioRoot(viewModel: MainViewModel) {
                             is Screen.QualityDashboard -> QualityDashboardScreen(viewModel)
                             is Screen.Preferences -> StudioPreferencesScreen(viewModel)
                             is Screen.Controls -> StudioControlsScreen(viewModel)
+                            is Screen.SourceSettings -> StudioControlsScreen(viewModel, 1)
+                            is Screen.TransferSettings -> StudioControlsScreen(viewModel, 2)
+                            is Screen.ModelSettings -> ModelConfigurationScreen(viewModel)
+                            is Screen.ModelAdvanced -> StudioControlsScreen(viewModel, 3)
                         }
                     } }
                 }
@@ -98,9 +102,9 @@ fun StudioRoot(viewModel: MainViewModel) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
                     Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 4.dp)) {
                         destinations.forEach { item ->
-                            val selected = screen == item.screen
+                            val selected = screen.workspace() == item.screen
                             val color by animateColorAsState(if (selected) MaterialTheme.colorScheme.primary else Color.Transparent, label = "navigation")
-                            Column(Modifier.weight(1f).testTag("nav_${item.screen.javaClass.simpleName}").clip(RoundedCornerShape(4.dp))
+                            Column(Modifier.weight(1f).testTag("nav_${item.key}").clip(RoundedCornerShape(4.dp))
                                 .clickable(enabled = !editorBusy && !busy, role = Role.Tab) { viewModel.navigateTo(item.screen) }
                                 .semantics { this.selected = selected }.heightIn(min = 54.dp).padding(bottom = 5.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(3.dp)) {

@@ -1,0 +1,219 @@
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest:
+INSTRUMENTATION_STATUS: test=guidedSetupValidatesSourceAndReachesReviewWithoutModel
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: qa_step=restart actual Release process
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Atelier|Studio
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Ambiguous control: Atelier|Studio
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:87)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:78)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.text(ReleaseWorkflowTest.java:102)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.restart(ReleaseWorkflowTest.java:121)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.launchActualRelease(ReleaseWorkflowTest.java:129)
+
+INSTRUMENTATION_STATUS: stream=
+Error in guidedSetupValidatesSourceAndReachesReviewWithoutModel(com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest):
+java.lang.AssertionError: Ambiguous control: Atelier|Studio
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:87)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:78)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.text(ReleaseWorkflowTest.java:102)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.restart(ReleaseWorkflowTest.java:121)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.launchActualRelease(ReleaseWorkflowTest.java:129)
+
+INSTRUMENTATION_STATUS: test=guidedSetupValidatesSourceAndReachesReviewWithoutModel
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=displayPreferencePersistsAndIsRestored
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: qa_step=restart actual Release process
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Atelier|Studio
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Plus d’options|More options
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Réglages|Settings
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Afficher les conseils|Show guidance
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Afficher les conseils|Show guidance
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=restart actual Release process
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Atelier|Studio
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=restart actual Release process
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Atelier|Studio
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Ambiguous control: Atelier|Studio
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:87)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:78)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.text(ReleaseWorkflowTest.java:102)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.restart(ReleaseWorkflowTest.java:121)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.displayPreferencePersistsAndIsRestored(ReleaseWorkflowTest.java:234)
+
+INSTRUMENTATION_STATUS: stream=
+Error in displayPreferencePersistsAndIsRestored(com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest):
+java.lang.AssertionError: Ambiguous control: Atelier|Studio
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:87)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:78)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.text(ReleaseWorkflowTest.java:102)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.restart(ReleaseWorkflowTest.java:121)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.displayPreferencePersistsAndIsRestored(ReleaseWorkflowTest.java:234)
+
+INSTRUMENTATION_STATUS: test=displayPreferencePersistsAndIsRestored
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=modelImportExportAndQualityRemainAccessible
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: qa_step=restart actual Release process
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Atelier|Studio
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Modèles|Models
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Importer|Import
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Choisir un \.tflite|Choose a \.tflite file
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Export
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Archive locale|Local archive
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Qualité|Quality
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Stockage|Storage
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=modelImportExportAndQualityRemainAccessible
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=createdProjectSurvivesProcessRestart
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: qa_step=restart actual Release process
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Atelier|Studio
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Ambiguous control: Atelier|Studio
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:87)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:78)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.text(ReleaseWorkflowTest.java:102)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.restart(ReleaseWorkflowTest.java:121)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.launchActualRelease(ReleaseWorkflowTest.java:129)
+
+INSTRUMENTATION_STATUS: stream=
+Error in createdProjectSurvivesProcessRestart(com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest):
+java.lang.AssertionError: Ambiguous control: Atelier|Studio
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:87)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:78)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.text(ReleaseWorkflowTest.java:102)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.restart(ReleaseWorkflowTest.java:121)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.launchActualRelease(ReleaseWorkflowTest.java:129)
+
+INSTRUMENTATION_STATUS: test=createdProjectSurvivesProcessRestart
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=homeRendersFromOptimizedApk
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: qa_step=restart actual Release process
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Atelier|Studio
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Outils|Tools
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: qa_step=find: Modèles|Models
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=homeRendersFromOptimizedApk
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 9.259
+There were 3 failures:
+1) guidedSetupValidatesSourceAndReachesReviewWithoutModel(com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest)
+java.lang.AssertionError: Ambiguous control: Atelier|Studio
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:87)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:78)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.text(ReleaseWorkflowTest.java:102)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.restart(ReleaseWorkflowTest.java:121)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.launchActualRelease(ReleaseWorkflowTest.java:129)
+2) displayPreferencePersistsAndIsRestored(com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest)
+java.lang.AssertionError: Ambiguous control: Atelier|Studio
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:87)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:78)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.text(ReleaseWorkflowTest.java:102)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.restart(ReleaseWorkflowTest.java:121)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.displayPreferencePersistsAndIsRestored(ReleaseWorkflowTest.java:234)
+3) createdProjectSurvivesProcessRestart(com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest)
+java.lang.AssertionError: Ambiguous control: Atelier|Studio
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:87)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.find(ReleaseWorkflowTest.java:78)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.text(ReleaseWorkflowTest.java:102)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.restart(ReleaseWorkflowTest.java:121)
+	at com.unicornwhodev.visiondatasetstudio.releaseqa.ReleaseWorkflowTest.launchActualRelease(ReleaseWorkflowTest.java:129)
+
+FAILURES!!!
+Tests run: 5,  Failures: 3
+
+
+INSTRUMENTATION_CODE: -1

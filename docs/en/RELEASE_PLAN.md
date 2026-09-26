@@ -2,16 +2,16 @@
 
 [Documentation](README.md) · [Français](../RELEASE_PLAN.md)
 
-Current delivery: **4.2.0-rc6**, a prerelease signed with the durable key, [published and verified](../RC6_PUBLICATION_RECEIPT.json). Files keep their technical `vision-dataset-studio` names for existing links and scripts. [rc6 contents and results](../RC6_RELEASE.md).
+Current delivery: **4.2.0-rc7**, a prerelease signed with the durable key. Files keep their technical `vision-dataset-studio` names for existing links and scripts. [rc7 contents and results](../RC7_RELEASE.md).
 
 ## Published files
 
 - `vision-dataset-studio.apk`: ARM64 Release app, Android 9+, no model weights.
-- `vision-dataset-studio-4.2.0-rc6-qualification.zip`: ARM64/x86_64 app/test APKs, UI driver, docs, notices and selected evidence.
+- `vision-dataset-studio-4.2.0-rc7-qualification.zip`: ARM64/x86_64 app/test APKs, UI driver, docs, notices and selected evidence.
 - Maven ZIPs for Flex `2.16.1-vds16k1`, Graphics Path `1.0.1-vds16k1` and LiteRT `2.2.0-vds16k2`.
 - `PACKAGE.json`, `PUBLICATION_CHECKS.json` and `SHA256SUMS`: provenance and integrity.
 
-Assets are available through the [GitHub release](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc6). The [GHCR package](https://github.com/users/unicornwhodev/packages/container/package/vision-dataset-studio-qualification) remains private. It holds artifacts, not a runnable container.
+Assets are available through the [GitHub release](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc7). The [GHCR package](https://github.com/users/unicornwhodev/packages/container/package/vision-dataset-studio-qualification) remains private. It holds artifacts, not a runnable container.
 
 ## Prepare a release
 
@@ -25,4 +25,4 @@ Review archives before upload. Use a new tag rather than overwriting an existing
 
 Keep the Android ID and [durable key](../SIGNING.md), then increase `versionCode`. rc4/rc5 Debug certificate incompatibility stays explicit. Uninstalling is not a data migration.
 
-Prepared CI has not run for this delivery. Hardware gaps, the historical ART cause and pending native notices remain visible. rc6 is not labelled stable. The [rc5 publication receipt](../RC5_PUBLICATION_RECEIPT.json) is retained.
+Prepared CI has not run for this delivery. Hardware gaps, the historical ART cause and pending native notices remain visible. rc7 is not labelled stable. The [rc6 publication receipt](../RC6_PUBLICATION_RECEIPT.json) is retained.

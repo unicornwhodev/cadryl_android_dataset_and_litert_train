@@ -33,7 +33,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 /** Every enabled control below has an execution path; unsupported runtimes are not advertised as toggles. */
 @OptIn(ExperimentalMaterial3Api::class,ExperimentalLayoutApi::class)
 @Composable
-fun StudioControlsScreen(vm:MainViewModel) {
+fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
     val project by vm.projectFlow.collectAsState()
     val allProjects by vm.projects.collectAsState()
     val models by vm.modelProfiles.collectAsState()
@@ -50,7 +50,7 @@ fun StudioControlsScreen(vm:MainViewModel) {
     var destructiveAction by remember{mutableStateOf<String?>(null)}
     val p=project ?: return
     val stored=remember(p.settingsJson){ProjectSettings.read(p)}
-    var tab by rememberSaveable{mutableStateOf(0)}
+    val tab = section
     var policy by remember(p.id,p.settingsJson){mutableStateOf(stored)}
     var budget by remember(p.id,p.diskBudgetMb){mutableStateOf(p.diskBudgetMb.toString())}
     var idColumn by remember(p.id,p.idColumn){mutableStateOf(p.idColumn)}
@@ -63,7 +63,7 @@ fun StudioControlsScreen(vm:MainViewModel) {
     var modelUrl by rememberSaveable{mutableStateOf("")}
     val moshi=remember{com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi}
     val configAdapter=remember{moshi.adapter(ModelConfig::class.java).indent("  ")}
-    var contract by remember(p.id,p.modelConfigJson){mutableStateOf(p.modelConfigJson ?: configAdapter.toJson(ModelConfig.defaultDetectionPreset(p.classesCsv.split(',').map(String::trim))))}
+    var contract by remember(p.id,p.modelConfigJson){mutableStateOf(p.modelConfigJson ?: configAdapter.toJson(ModelConfig.defaultDetectionPreset(com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv))))}
     var contractError by remember{mutableStateOf<String?>(null)}
     val folder=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()){it?.let(vm::importSourceFolder)}
     val manifestFolder=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()){it?.let(vm::chooseManifestImageFolder)}
@@ -72,9 +72,8 @@ fun StudioControlsScreen(vm:MainViewModel) {
     val packIn=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){it?.let(vm::importPack)}
     val benchmarkOut=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")){it?.let(vm::saveBenchmark)}
     val packOut=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")){it?.let(vm::exportPack)}
-    Scaffold(contentWindowInsets=WindowInsets(0),modifier=Modifier.imePadding(),topBar={StudioTopBar(stringResource(R.string.screen_controls), p.name, onBack={ if (!busy) vm.back() })}) { inset ->
+    Scaffold(contentWindowInsets=WindowInsets(0),modifier=Modifier.imePadding(),topBar={WorkspaceTopBar(vm, when(section) { 1 -> tr("Source et lots", "Source & batches"); 2 -> tr("Destination et stockage", "Destination & storage"); 3 -> tr("Réglages avancés du modèle", "Advanced model settings"); else -> tr("Mes projets", "My projects") }, p.name, onBack={ if (!busy) vm.back() })}) { inset ->
         Column(Modifier.fillMaxSize().padding(inset)) {
-            StudioTabs(listOf(tr("Projets", "Projects"), "Sources", tr("Transferts", "Transfers"), tr("Modèles", "Models")), tab, { tab=it }, Modifier.padding(horizontal=16.dp))
             Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
                 when(tab) {
                     0 -> {
@@ -156,6 +155,7 @@ fun StudioControlsScreen(vm:MainViewModel) {
                         }
                     }
                     2 -> {
+                        ExportDestinationPanel(vm)
                         StudioSection(stringResource(R.string.controls_bounded_storage),tr("Les budgets s’appliquent à l’espace utilisé par cette application, modèles et exports compris. Les sources sélectionnées restent en lecture seule.", "Budgets apply to this app's storage, including models and exports. Selected sources remain read-only."),Icons.Default.Storage) {
                             ControlField(tr("Budget de l’application, Mio · 128 à 65 536", "App budget, MiB · 128 to 65,536"),budget,true){budget=it}
                             ControlInt(tr("Espace libre à conserver, Mio · 32 à 4 096", "Free storage reserve, MiB · 32 to 4,096"),policy.reserveFreeMb){policy=policy.copy(reserveFreeMb=it)}
@@ -170,10 +170,7 @@ fun StudioControlsScreen(vm:MainViewModel) {
                             ControlField(tr("Branche de destination existante", "Existing destination branch"),policy.destBranch){policy=policy.copy(destBranch=it)}
                             ControlField(tr("Préfixe de publication", "Publication prefix"),policy.destPrefix){policy=policy.copy(destPrefix=it)}
                             ControlField(tr("Split de sortie", "Output split"),split){split=it}
-                            ControlSwitch(tr("Ajouter les shards WebDataset", "Add WebDataset shards"),policy.hfWebDataset){policy=policy.copy(hfWebDataset=it)}
-                            ControlSwitch(tr("Ajouter la projection COCO", "Add COCO projection"),policy.hfCoco){policy=policy.copy(hfCoco=it)}
-                            ControlSwitch(tr("Ajouter la projection YOLO", "Add YOLO projection"),policy.hfYolo){policy=policy.copy(hfYolo=it)}
-                            ControlSwitch(tr("Ajouter les instructions vision-language", "Add vision-language instructions"),policy.hfVl){policy=policy.copy(hfVl=it)}
+                            Text(tr("Choisissez les formats dans Exporter. Ils sont communs à la copie locale et à HF.", "Choose formats in Export. They apply to both local copies and HF."), style=MaterialTheme.typography.bodySmall)
                             StudioDetails(tr("Images et JSONL canonique restent obligatoires. Les fichiers sont isolés par projet et lot sous le préfixe. Aucun fichier du dépôt source n’est supprimé; pas de miroir destructif ni de suppression distante.", "Images and canonical JSONL are required. Files are isolated by project and batch under the prefix. Source repository files are never deleted; no destructive mirroring or remote deletion."), style =MaterialTheme.typography.bodyMedium)
                             TextButton(onClick={vm.navigateTo(Screen.Publication)},enabled=!busy){Text(stringResource(R.string.controls_open_exports))}
                         }
@@ -210,7 +207,7 @@ fun StudioControlsScreen(vm:MainViewModel) {
                             OutlinedButton(onClick={vm.saveActiveModelProfile(modelName)},enabled=!busy && modelName.isNotBlank()){Text(stringResource(R.string.controls_keep_profile))}
                         }
                         StudioSection(stringResource(R.string.controls_contract_preprocessing),tr("Choisissez un gabarit, puis adaptez-le aux véritables tenseurs du modèle. Un nom de famille de modèles ne garantit pas la compatibilité.", "Choose a template and adapt it to the model's actual tensors. A model family name does not guarantee compatibility."),Icons.Default.Tune) {
-                            FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)){ModelPresets.names.forEach{(id,title)->AssistChip(onClick={contract=configAdapter.toJson(ModelPresets.create(id,p.classesCsv.split(',').map(String::trim)));contractError=null},label={Text(title)},enabled=!busy)}}
+                            FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)){ModelPresets.names.forEach{(id,title)->AssistChip(onClick={contract=configAdapter.toJson(ModelPresets.create(id,com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv)));contractError=null},label={Text(title)},enabled=!busy)}}
                             StudioDetails(tr("Entrées : NHWC/NCHW, RGB/BGR/gris, FLOAT32/UINT8/INT8, normalisation par canal, stretch/letterbox/crop. Sorties : index, layout, coordonnées, activation, seuil, NMS, points issus de boîtes et comptage proposé.", "Inputs: NHWC/NCHW, RGB/BGR/grayscale, FLOAT32/UINT8/INT8, per-channel normalization, stretch/letterbox/crop. Outputs: indices, layout, coordinates, activation, threshold, NMS, box-derived points and proposed counts."), style =MaterialTheme.typography.bodySmall)
                             OutlinedTextField(contract,{contract=it;contractError=null},label={Text(stringResource(R.string.controls_versioned_contract))},modifier=Modifier.fillMaxWidth().heightIn(min=240.dp,max=500.dp),textStyle=MaterialTheme.typography.bodySmall.copy(fontFamily=FontFamily.Monospace),isError=contractError!=null)
                             contractError?.let{Text(it,color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.bodySmall)}
@@ -228,7 +225,7 @@ fun StudioControlsScreen(vm:MainViewModel) {
                                 result.proposals.take(8).forEach{Text("${it.type} · ${it.label} · score ${it.score}",style=MaterialTheme.typography.bodySmall)}
                             }
                             OutlinedButton(onClick={vm.preannotateActiveBatch()},enabled=!busy){Text(stringResource(R.string.controls_preannotate_pending))}
-                            OutlinedButton(onClick=vm::refreshInferenceReceipts,enabled=!busy){Text(stringResource(R.string.controls_show_receipts))}
+                            OutlinedButton(onClick={vm.refreshInferenceReceipts()},enabled=!busy){Text(stringResource(R.string.controls_show_receipts))}
                             if(receipts.isNotBlank())SelectionContainer{Text(receipts,style=MaterialTheme.typography.bodySmall.copy(fontFamily=FontFamily.Monospace))}
                         }
                         StudioSection(stringResource(R.string.controls_measure_device),tr("Trois passages de chauffe, puis plusieurs essais sur la même image. Les annotations restent intactes. La mesure de mémoire concerne ce processus, pas un serveur HTTP distinct.", "Three warmup runs, then repeated trials on the same image. Annotations remain intact. Memory measurements cover this process, not a separate HTTP server."),Icons.Default.Speed) {

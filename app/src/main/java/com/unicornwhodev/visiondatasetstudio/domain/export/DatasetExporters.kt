@@ -33,7 +33,7 @@ class DatasetExporters(private val storageManager: StorageManager, private val h
     private val moshi = com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi
     private val sampleAdapter = moshi.adapter(CanonicalDatasetSample::class.java)
     private fun json(value: Any) = moshi.adapter(Any::class.java).toJson(value)
-    private fun classes(project: ProjectEntity) = project.classesCsv.split(',').map(String::trim).filter(String::isNotBlank).distinct()
+    private fun classes(project: ProjectEntity) = com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(project.classesCsv)
     private fun imageName(s: SampleEntity) = "${s.sampleId}.${s.localImagePath?.let(::File)?.extension ?: "jpg"}"
     data class ExportPackageResult(val success: Boolean, val outputDirectory: File, val generatedFiles: List<Pair<String, File>>,
                                   val sampleCount: Int, val zipArchive: File? = null, val error: String? = null)
@@ -55,6 +55,12 @@ class DatasetExporters(private val storageManager: StorageManager, private val h
                 require(s.annotationStatus == "VALIDATED") { tr("Un cas non validé est présent", "An unapproved sample is present") }
                 require(s.imageWidth > 0 && s.imageHeight > 0 && s.localImagePath?.let { File(it).isFile } == true) { tr("Image locale absente ou invalide", "Local image missing or invalid") }
                 require(HashUtils.computeSha256(File(s.localImagePath!!))==s.sha256) { tr("Image modifiée après acquisition : ${s.sampleId}", "Image changed after acquisition: ${s.sampleId}") }
+            }
+            val readiness = ExportReadiness.inspect(project.classesCsv, pairs.map { it.second })
+            val missingClasses = readiness.missingFor(includeCoco, includeYolo)
+            require(missingClasses.isEmpty()) {
+                tr("Ajoutez les classes manquantes dans Export : ${missingClasses.joinToString()}. Le JSONL complet reste disponible.",
+                    "Add the missing classes in Export: ${missingClasses.joinToString()}. Full JSONL remains available.")
             }
             val imageBytes = pairs.sumOf { File(it.first.localImagePath!!).length() }
             // Reserve space for the package, optional TAR and ZIP before writing; never purge originals to make room.
@@ -130,6 +136,30 @@ class DatasetExporters(private val storageManager: StorageManager, private val h
         val actual=root.walkTopDown().filter{it.isFile && it!=manifest}.map{it.relativeTo(root).invariantSeparatorsPath}.toSet()
         require(actual==names && names.isNotEmpty());true
     }.getOrDefault(false)
+
+    /** Copy an already frozen package; never rebuild or replace the upload intent. */
+    suspend fun recoveryZip(project: ProjectEntity, batchNumber: Int): File = withContext(Dispatchers.IO) {
+        val root = storageManager.batchExportDir(project.id, batchNumber)
+        check(verifyPreparedPackage(root)) { tr("Paquet préparé absent ou modifié.", "Prepared package missing or changed.") }
+        val files = root.walkTopDown().filter { it.isFile }.toList()
+        check(storageManager.hasAvailableBudget(files.sumOf { it.length() } + 1048576L, project.diskBudgetMb,
+            com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings.read(project).reserveFreeMb)) {
+            tr("Augmentez le budget de stockage pour créer cette copie.", "Increase the storage budget to create this copy.")
+        }
+        val zip = File(storageManager.exportsDir, "${root.name}-recovery.zip")
+        val copyContext = coroutineContext
+        DurableFiles.replace(zip) { raw ->
+            val out = ZipOutputStream(raw)
+            files.forEach { file ->
+                copyContext.ensureActive()
+                out.putNextEntry(ZipEntry(file.relativeTo(root).invariantSeparatorsPath))
+                file.inputStream().use { DurableFiles.copyBounded(it, out, maxOf(1L, file.length()), checkCancelled = { copyContext.ensureActive() }) }
+                out.closeEntry()
+            }
+            out.finish(); out.flush()
+        }
+        zip
+    }
 
     suspend fun packageBatchToLocalZip(project: ProjectEntity, batchNumber: Int,
         validatedSamplesWithAnnotations: List<Pair<SampleEntity, SampleAnnotations>>,

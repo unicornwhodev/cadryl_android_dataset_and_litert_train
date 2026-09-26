@@ -13,10 +13,21 @@ class StudioComposeV4Test {
         rule.waitUntil(10000) { rule.onAllNodesWithTag("home_primary").fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithTag("controls_shortcut").assertIsDisplayed()
         rule.onNodeWithTag("controls_shortcut").performClick()
-        rule.onNodeWithText(rule.activity.getString(R.string.screen_controls)).assertIsDisplayed()
-        rule.onNodeWithText(rule.activity.getString(R.string.screen_models)).performClick()
+        rule.onAllNodesWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Mes projets", "My projects")).onFirst().assertIsDisplayed()
+        rule.onNodeWithTag("nav_Models").performClick()
+        rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Réglages", "Settings")).performClick()
+        rule.onNodeWithTag("nav_Models").assertIsSelected()
+        rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Contrat JSON, mesures et outils avancés", "JSON contract, benchmarks & advanced tools")).performScrollTo().performClick()
         rule.onNodeWithText(rule.activity.getString(R.string.controls_public_catalog)).assertExists()
         rule.onNodeWithText("SSD MobileNet V1").assertExists()
+    }
+    @Test fun exportDestinationStaysInExportWorkspace() {
+        rule.waitUntil(10000) { rule.onAllNodesWithTag("nav_Publication").fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithTag("nav_Publication").performClick()
+        rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Destination et stockage", "Destination & storage")).performClick()
+        rule.onNodeWithTag("nav_Publication").assertIsSelected()
+        rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Dépôt de destination", "Destination repository")).assertIsDisplayed()
+        rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Jeton HF", "HF token")).performScrollTo().assertExists()
     }
     @Test fun compactNavigationKeepsImportAndExportAccessible() {
         rule.waitUntil(10000) { rule.onAllNodesWithTag("nav_Models").fetchSemanticsNodes().isNotEmpty() }

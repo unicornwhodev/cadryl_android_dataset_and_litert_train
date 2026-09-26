@@ -1,0 +1,8 @@
+Selected package facts; original dumpsys SHA-256: e5d307eb442667beca059bcf8d5e58502a765019c0201bcf1337e078afffb507
+flags=0x0
+primaryCpuAbi=arm64-v8a
+versionCode=12 minSdk=28 targetSdk=36
+versionName=4.2.0-rc7
+flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+android.permission.POST_NOTIFICATIONS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]

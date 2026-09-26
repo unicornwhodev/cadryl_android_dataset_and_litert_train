@@ -1,0 +1,49 @@
+{
+  "version": "4.2.0-rc7",
+  "version_code": 12,
+  "date": "2026-09-27",
+  "suite": "minified Release core and independent UI",
+  "physical_arm_qualified": false,
+  "physical_arm_16k_qualified": false,
+  "ci_executed": false,
+  "strict_native_16k_passed": true,
+  "production_qualified": false,
+  "results": {
+    "arm": {
+      "app_sha256": "d75bbb2be4e649c55cfcfb7513d1c2be875d1de22fe673f9c15545910e3e5727",
+      "tests_sha256": "22b25262260977948ed8f42916a29822e159a513a8ffdb5e86e6ac591437a03b",
+      "qa_sha256": "4f782fe0e8510fd38ab774121c65897adffb96e9b79e132ec2d3a4978ff580d3",
+      "physical_arm": false,
+      "package_abi": "arm64-v8a",
+      "host_abi": "x86_64",
+      "outcome": "passed"
+    },
+    "x86": {
+      "app_sha256": "4ceeab41c82e1bc96a5f60e392cb65d7e1ae8d51c4904b062f1d2f92b70c0a08",
+      "tests_sha256": "22b25262260977948ed8f42916a29822e159a513a8ffdb5e86e6ac591437a03b",
+      "qa_sha256": "4f782fe0e8510fd38ab774121c65897adffb96e9b79e132ec2d3a4978ff580d3",
+      "physical_arm": false,
+      "package_abi": "x86_64",
+      "host_abi": "x86_64",
+      "outcome": "passed"
+    }
+  },
+  "host": {
+    "jvm": {
+      "passed": 84,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 124
+    },
+    "python": {
+      "passed": 87,
+      "failed": 0
+    }
+  },
+  "compiled_files": 213,
+  "root_usage": "Dedicated emulator only, synthetic fixture staging/readback; all app tests non-debuggable, ADB restored to shell UID 2000."
+}

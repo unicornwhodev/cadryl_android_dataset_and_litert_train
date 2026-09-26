@@ -57,6 +57,16 @@ class HfTransferV4Test {
         val file=File(temp.root,"too-large");server.enqueue(MockResponse().setBody("too much"))
         assertFalse(api.downloadImage("https://storage.googleapis.com/fixture",file,maxBytes=2));assertFalse(file.exists())
     }
+    @Test fun forbiddenDownloadHasActionableDiagnosticAndPreservesExistingFile()=exercise { server,api ->
+        val file=File(temp.root,"protected.bin").apply { writeText("existing") }
+        var message:String?=null
+        server.enqueue(MockResponse().setResponseCode(403).setBody("private response must not appear"))
+        assertFalse(api.downloadImage("https://huggingface.co/fixture",file,onFailure={message=it}))
+        assertEquals("existing",file.readText())
+        assertTrue(message.orEmpty().contains("403"))
+        assertFalse(message.orEmpty().contains("private response"))
+        assertFalse(message.orEmpty().contains("test-only-placeholder"))
+    }
     @Test fun commitConflictPreservesPinnedParent()=exercise {server,api ->
         val f=File(temp.root,"data.bin").apply{writeText("content")};val parent="a".repeat(40)
         server.enqueue(MockResponse().setBody("{\"files\":[{\"path\":\"batches/data.bin\",\"uploadMode\":\"regular\"}]}"))

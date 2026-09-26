@@ -8,7 +8,11 @@ Import your images, review the model’s suggestions, make your corrections and 
 
 An independent project by **Unicorn Who Dev**, previously called *Vision Dataset Studio*.
 
-[Get rc6](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc6) · [Your first batch](docs/en/GETTING_STARTED.md) · [Documentation](docs/en/README.md) · [Français](README.md)
+[Get rc7](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc7) · [Your first batch](docs/en/GETTING_STARTED.md) · [Documentation](docs/en/README.md) · [Français](README.md)
+
+## New in rc7
+
+Three-step setup, searchable model classes, compatibility checks before suggestions, input dimensions checked against the LiteRT file and local recovery of a pending HF export. [Release details](docs/RC7_RELEASE.md).
 
 ## What you can do
 
@@ -21,7 +25,7 @@ Training is optional and off by default. **The APK includes no model weights or 
 
 ## Inside the app
 
-<img src="test-results/rc6-release/arm/home.png" alt="Cadryl rc6 running on the test emulator" width="260">
+<img src="test-results/rc7-release/visuals/home.png" alt="Cadryl rc7 running on the test emulator" width="260">
 
 This is a real emulator screenshot. The banner is an illustration; [visual sources are documented](docs/VISUALS.md).
 
@@ -29,13 +33,13 @@ This is a real emulator screenshot. The banner is an illustration; [visual sourc
 
 You need **Android 9 or later and an ARM64 phone**. Download `vision-dataset-studio.apk` from the release and start with a few images you have permission to use. The technical APK filename and Android application ID stay unchanged for continuity.
 
-**Already using rc4 or rc5?** Those Debug APKs use different signing keys. rc6 cannot update them directly; keep the installation and its data. [Installation and signing](docs/en/GETTING_STARTED.md#install-cadryl).
+**Already using rc4 or rc5?** Those Debug APKs use different signing keys. rc7 cannot update them directly; keep the installation and its data. [Installation and signing](docs/en/GETTING_STARTED.md#install-cadryl).
 
 The documented public model sources are [Charlbi’s conversions](https://huggingface.co/Charlbi/Lite_rt_prepared_for_android_dataset_builder) and [FireViewer’s models](https://huggingface.co/fireviewer/litert-models). Check each variant’s results before choosing it. Loading successfully says nothing about accuracy on your images.
 
 ## Project status
 
-**4.2.0-rc6 is a prerelease.** Both signed Release APKs pass 40 core tests and four UI scenarios on the Android 16 emulator with 16 KB pages. Strict native alignment checks also pass. ARM64 runs through translation there; a physical ARM 16 KB phone is still needed.
+**4.2.0-rc7 is a prerelease.** Both signed Release APKs pass 45 core tests and five UI scenarios on the Android 16 emulator with 16 KB pages. Strict native alignment checks also pass. ARM64 runs through translation there; a physical ARM 16 KB phone is still needed.
 
 Next up: the final candidate on a phone, longer sessions, model quality, remote CI and the remaining native licence notices. The historical ART crash has no confirmed root cause. [Test results](docs/en/VALIDATION.md) · [Known limits](docs/en/KNOWN_LIMITATIONS.md) · [Roadmap](docs/en/ROADMAP.md).
 

@@ -37,7 +37,7 @@ Pour l'émulateur x86_64 16 Ko, construire avec `--abi x86_64` et vérifier
 `--expected-page-size 16384`. La signature doit correspondre à son installation
 existante. Ne pas désinstaller pour contourner un conflit de certificat.
 
-Le lanceur exige **40 succès, aucun échec ni test ignoré**. Il conserve les sorties
+Le lanceur exige **45 succès, aucun échec ni test ignoré** pour rc7. Il conserve les sorties
 partielles et un reçu d'échec si le processus plante. Le périmètre est la suite
 métier commune : les tests opt-in de publication HF, modèles convertis, pannes
 externes et conservation après migration gardent leurs campagnes distinctes.
@@ -65,6 +65,10 @@ conservés. [Résultats et limites](NATIVE_FIX_2026_09.md). L'ARM exécuté par 
 
 Le pilote UI attend la stabilité de la position et le focus réel du champ avant
 la saisie. Cette attente conserve les scénarios et évite une course de défilement.
+Pour rc7, ses cinq scénarios couvrent l’accueil, les préférences persistantes,
+la création de projet, les accès modèle/export/qualité et le guide Images → Objectif → Vérifier.
+Le guide utilise un identifiant de dataset synthétique sans lancer de requête ni enregistrer le brouillon.
+Les repères des cinq destinations sont explicites : ils ne dépendent pas des noms de classes renommés par R8.
 
 ## Pourquoi conserver des API précises pour R8
 

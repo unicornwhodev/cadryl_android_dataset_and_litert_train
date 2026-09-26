@@ -130,7 +130,7 @@ def main() -> int:
                                 # conditions, including after a UI test closes it.
                                 ui_classes = ('EnglishLocaleComposeTest', 'FunctionalUiAuditTest',
                                               'NativePhotoInferenceUiTest', 'SegmentationCanvasTest',
-                                              'StudioComposeV4Test')
+                                              'StudioComposeV4Test', 'GuidedSetupTest')
                                 if active and active != foreground_test and active[0].split('.')[-1] not in ui_classes:
                                     info = subprocess.run([*adb, 'shell', 'am', 'start', '-f', '0x20000000', '-n', APP_ID + '/.qa.QaPresenceActivity'], capture_output=True, text=True, timeout=15)
                                     if info.returncode or 'Error' in info.stdout + info.stderr:

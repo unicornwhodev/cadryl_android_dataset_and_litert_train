@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.unicornwhodev.visiondatasetstudio.ModelClassCompatibilityTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-26T22:17:49.112Z" hostname="UNICORN-PC" time="0.004">
+  <properties/>
+  <testcase name="rfDetrReservedSlotsAreNeverSuggestedOrReindexed" classname="com.unicornwhodev.visiondatasetstudio.ModelClassCompatibilityTest" time="0.001"/>
+  <testcase name="spatialAndClassificationHeadsHaveDifferentVocabularies" classname="com.unicornwhodev.visiondatasetstudio.ModelClassCompatibilityTest" time="0.0"/>
+  <testcase name="freeTextAndInteractiveModelsDoNotClaimFixedVocabularyRecognition" classname="com.unicornwhodev.visiondatasetstudio.ModelClassCompatibilityTest" time="0.0"/>
+  <testcase name="exactClassCoverageKeepsModelIndicesAndAllowsPartialAssistance" classname="com.unicornwhodev.visiondatasetstudio.ModelClassCompatibilityTest" time="0.0"/>
+  <testcase name="quotedLabelsSurviveSelectionStorageAndExportParsing" classname="com.unicornwhodev.visiondatasetstudio.ModelClassCompatibilityTest" time="0.001"/>
+  <testcase name="filteringOnlyChangesNewMachineProposalsAndPreservesHumanLabels" classname="com.unicornwhodev.visiondatasetstudio.ModelClassCompatibilityTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
