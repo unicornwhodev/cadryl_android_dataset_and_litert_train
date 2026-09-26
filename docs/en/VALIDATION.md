@@ -2,32 +2,31 @@
 
 [Project home](../../README.en.md) · [Français](../../TEST_REPORT.md)
 
-Results belong to a specific build, APK and device. The current candidate is kept separate from earlier campaigns.
+## Current candidate: 4.2.0-rc7
 
-## Current candidate: 4.2.0-rc6
+27 September 2026. Tests use the actual minified, durable-signed Release APKs, version code 12.
 
 | Check | Result |
 |---|---|
-| JVM | 70 passed, no failures or skips |
-| Python tooling | 87 passed |
-| Android lint | 0 errors, 96 warnings |
-| Signed ARM64 Release | 40/40 core and 4/4 UI on API 36 / 16 KB emulator with ARM translation |
-| Signed x86_64 Release | 40/40 core and 4/4 UI on the same emulator |
+| JVM / Python | 84/84 / 87/87, no failures or skips |
+| Android lint | 0 errors, 124 warnings |
+| Signed ARM64 Release | 45/45 core and 5/5 UI on API 36 / 16 KB emulator, ARM translated |
+| Signed x86_64 Release | 45/45 core and 5/5 UI on the same emulator |
 | Native alignment | All four libraries per APK pass strict ELF and ZIP checks |
-| Model continuity | Original preserved, Save/Restore and continued training verified on synthetic data |
+| Model continuity | Original preserved, Save/Restore and continued training verified |
 
-[Release note](../RC6_RELEASE.md) · [Evidence](../../test-results/rc6-release/README.md) · [Summary](../../test-results/rc6-release/summary.json) · [Machine-readable status](../../QUALIFICATION_STATUS.json).
+[Release note](../RC7_RELEASE.md) · [Evidence](../../test-results/rc7-release/README.md) · [Summary](../../test-results/rc7-release/summary.json) · [Machine-readable status](../../QUALIFICATION_STATUS.json).
 
-ARM64 uses `libndk_translation` on an x86_64 host. **This is not phone acceptance.** These are the actual minified, signed Release APKs. External HF writes, fault campaigns and model catalogue coverage remain separate.
+Coverage includes guided setup, fixed and open class vocabularies, image dimensions, export preflight and recovery without changing human annotations or the HF parent. The independent UI driver checks five real app journeys.
 
-Early driver runs retained two keyboard-related failures: 39/40 x86_64 core and 3/4 ARM64 UI. The waits were fixed without removing scenarios. The final campaign uses Cadryl-branded APKs.
+The initial 43/45 core result is retained: two navigation tags depended on R8-renamed class names. Destinations now have explicit identifiers. The UI driver was also adapted to repeated Studio labels and signed with its existing test key to preserve the emulator installation. Initial failures remain alongside the complete final passes. The partial R8 trace retains missing framework/test references; reviewed app API rules are checked by real Release builds and execution.
+
+ARM64 uses `libndk_translation` on an x86_64 host. **This is not phone acceptance.** No ART crash was found in the final runs. Real HF publication, fault campaigns and catalogue accuracy remain separate.
 
 ## Earlier evidence
 
-[Native fixes](../NATIVE_FIX_2026_09.md), [native investigation](../NATIVE_FOLLOWUP_2026_09.md), [Release/Honor](../RELEASE_CLOSURE_2026_09.md), [background work](../RELEASE_HARDENING_2026_09.md), [data and interruptions](../P1_QUALIFICATION_2026_09.md), [Windows/rc5](../WINDOWS_QUALIFICATION_2026_09.md), [LiteRT catalogue](LITERT_QUALIFICATION.md) and [functional audit](../FUNCTIONAL_AUDIT_2026_09.md).
-
-Dated reports may use the old product name. Their original receipts remain unchanged; older successes do not automatically qualify rc6.
+[rc6](../RC6_RELEASE.md) retains its 70 JVM, 40 core and four UI results. The [26 September UX work](../UX_CONFIGURATION_2026_09.md) includes earlier Debug checks and phone observations. Older [native fixes](../NATIVE_FIX_2026_09.md), [Release/Honor](../RELEASE_CLOSURE_2026_09.md), [data and interruptions](../P1_QUALIFICATION_2026_09.md) and [catalogue tests](LITERT_QUALIFICATION.md) keep their original scope.
 
 ## Still pending
 
-The candidate on Honor and physical ARM 16 KB, longer sessions, catalogue tests on the new runtime, model quality and remote CI. The historical ART crash still has no confirmed cause. [Known limits](KNOWN_LIMITATIONS.md) · [Android matrix](../ANDROID_QUALIFICATION.md) · [Release testing](../RELEASE_TESTING.md).
+The candidate on a phone and physical ARM 16 KB, longer sessions, model quality, remote CI and native transitive notices. The historical ART crash has no confirmed cause. [Known limits](KNOWN_LIMITATIONS.md) · [Release testing](../RELEASE_TESTING.md).

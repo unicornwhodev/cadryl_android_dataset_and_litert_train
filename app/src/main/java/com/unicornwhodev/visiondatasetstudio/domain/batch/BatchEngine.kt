@@ -272,6 +272,8 @@ class BatchEngine(
                 (if(replaceExistingProposals) com.unicornwhodev.visiondatasetstudio.core.workflow.StudioWorkflow.isPending(it.annotationStatus)
                 else it.annotationStatus=="PENDING" && db.annotationDao().getAnnotationSync(it.sampleId)==null)
         }
+        if (samples.isEmpty()) return@withContext 0
+        com.unicornwhodev.visiondatasetstudio.domain.inference.ModelClassCompatibility.requireAssistance(config, projectPolicy.activeTasksCsv, projectPolicy.classesCsv)
         val ledger=if(ProjectSettings.read(projectPolicy).adaptiveCorrection)AdaptiveCorrectionStore(storageManager.context).read(projectId) else CorrectionLedger()
         var processed = 0
         onProgress(0, samples.size)
@@ -299,7 +301,8 @@ class BatchEngine(
             }
             val existing = getSampleAnnotations(sample.sampleId)
             val project=db.projectDao().getProjectSync(projectId) ?: error(tr("Projet absent", "Project not found"))
-            val updated=ProposalMerger.merge(existing,proposals,project.activeTasksCsv,config.captionLanguage,ModelContract.compatibility(config,project.activeTasksCsv).usableOutputs)
+            val selectedProposals=com.unicornwhodev.visiondatasetstudio.domain.inference.ModelClassCompatibility.forProject(proposals,config,project.classesCsv)
+            val updated=ProposalMerger.merge(existing,selectedProposals,project.activeTasksCsv,config.captionLanguage,ModelContract.compatibility(config,project.activeTasksCsv).usableOutputs)
             val status=if(updated.unreviewedCount==0) AnnotationStatus.IN_PROGRESS.name else AnnotationStatus.PROPOSALS_AVAILABLE.name
             val applied=db.withTransaction {
                 // A correction or decision made while inference was running wins over its result.
@@ -454,6 +457,20 @@ class BatchEngine(
         val root=storageManager.batchExportDir(projectId,batchNumber)
         return root.walkTopDown().filter{it.isFile}.map{"$prefix/${it.relativeTo(root).invariantSeparatorsPath}" to it}.sortedBy{it.first}.toList()
     }
+    /** A read-only recovery path for a failed or uncertain upload. Does not authorize cleanup. */
+    suspend fun recoverPendingArchive(projectId: Long, batchNumber: Int): File = withContext(Dispatchers.IO) {
+        val project = db.projectDao().getProjectSync(projectId) ?: error(tr("Projet absent", "Project not found"))
+        val batch = db.batchDao().getBatchSync(projectId, batchNumber) ?: error(tr("Lot absent", "Batch not found"))
+        check(batch.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT"))
+        check(batch.archiveSnapshot == snapshot(projectId, batchNumber)) { tr("Annotations modifiées après préparation.", "Annotations changed after preparation.") }
+        val root = storageManager.batchExportDir(projectId, batchNumber)
+        check(batch.preparedManifestSha256 == manifestHash(root)) { tr("Manifest modifié après préparation", "Manifest changed after preparation") }
+        val prefix = requireNotNull(batch.remotePrefix)
+        val recorded = batch.remoteReceiptJson?.let(receiptAdapter::fromJson) ?: error(tr("Reçu des fichiers absent", "Missing file receipt"))
+        check(receipt(remoteFiles(projectId, batchNumber, prefix)) == recorded) { tr("Contenus modifiés après préparation", "Contents changed after preparation") }
+        exporters.recoveryZip(project, batchNumber)
+    }
+
     /** Durable upload intent. A lost response never changes parent, repo, paths or bytes. */
     suspend fun publishAndVerifyBatch(projectId:Long,batchNumber:Int):BatchPublishResult = withContext(Dispatchers.IO) {
         val project=db.projectDao().getProjectSync(projectId) ?: return@withContext BatchPublishResult(false,tr("Projet absent", "Project not found"))

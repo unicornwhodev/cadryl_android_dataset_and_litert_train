@@ -1,0 +1,95 @@
+test_art_in_an_unrelated_crash_stack_is_not_an_art_fault (test_art_environment.ArtEnvironmentTest.test_art_in_an_unrelated_crash_stack_is_not_an_art_fault) ... ok
+test_empty_crash_buffer_is_clean (test_art_environment.ArtEnvironmentTest.test_empty_crash_buffer_is_clean) ... ok
+test_system_art_failure_is_not_hidden_by_successful_app_tests (test_art_environment.ArtEnvironmentTest.test_system_art_failure_is_not_hidden_by_successful_app_tests) ... ok
+test_any_visible_app_task_disqualifies_observation (test_background_observation.BackgroundObservationTests.test_any_visible_app_task_disqualifies_observation) ... ok
+test_ignores_visible_launcher_and_similarly_named_app (test_background_observation.BackgroundObservationTests.test_ignores_visible_launcher_and_similarly_named_app) ... ok
+test_missing_or_unknown_app_visibility_fails_closed (test_background_observation.BackgroundObservationTests.test_missing_or_unknown_app_visibility_fails_closed) ... ok
+test_visible_or_requested_app_is_not_background (test_background_observation.BackgroundObservationTests.test_visible_or_requested_app_is_not_background) ... ok
+test_absent_sdk_is_blocking (test_build_evidence.BuildEvidenceTests.test_absent_sdk_is_blocking) ... ok
+test_atomic_json_replaces_and_cleans_temp (test_build_evidence.BuildEvidenceTests.test_atomic_json_replaces_and_cleans_temp) ... ok
+test_attempt_does_not_reuse_prior_success (test_build_evidence.BuildEvidenceTests.test_attempt_does_not_reuse_prior_success) ... ok
+test_badging_identity_correct (test_build_evidence.BuildEvidenceTests.test_badging_identity_correct) ... ok
+test_badging_wrong_identity_refused (test_build_evidence.BuildEvidenceTests.test_badging_wrong_identity_refused) ... ok
+test_gradle_checksum_is_pinned_consistently (test_build_evidence.BuildEvidenceTests.test_gradle_checksum_is_pinned_consistently) ... ok
+test_invalid_java_version_refused (test_build_evidence.BuildEvidenceTests.test_invalid_java_version_refused) ... ok
+test_java_version_17 (test_build_evidence.BuildEvidenceTests.test_java_version_17) ... ok
+test_java_version_21 (test_build_evidence.BuildEvidenceTests.test_java_version_21) ... ok
+test_local_sdk_properties_win (test_build_evidence.BuildEvidenceTests.test_local_sdk_properties_win) ... ok
+test_missing_apk_never_promoted (test_build_evidence.BuildEvidenceTests.test_missing_apk_never_promoted) ... ok
+test_old_java_version (test_build_evidence.BuildEvidenceTests.test_old_java_version) ... ok
+test_preflight_block_writes_truthful_receipt (test_build_evidence.BuildEvidenceTests.test_preflight_block_writes_truthful_receipt) ... BLOCKED: The 16 KB Flex runtime is missing. Build it with tools/build_flex_runtime.py; see docs/FLEX_16K.md.
+ok
+test_resolver_refuses_latest_failed_attempt (test_build_evidence.BuildEvidenceTests.test_resolver_refuses_latest_failed_attempt) ... ok
+test_resolver_refuses_path_traversal_before_reading_artifacts (test_build_evidence.BuildEvidenceTests.test_resolver_refuses_path_traversal_before_reading_artifacts) ... ok
+test_runtime_and_configuration_are_allowed_without_weights (test_build_evidence.BuildEvidenceTests.test_runtime_and_configuration_are_allowed_without_weights) ... ok
+test_unix_sdk_tool_names (test_build_evidence.BuildEvidenceTests.test_unix_sdk_tool_names) ... ok
+test_weight_inventory_detects_renamed_litert_and_named_weights (test_build_evidence.BuildEvidenceTests.test_weight_inventory_detects_renamed_litert_and_named_weights) ... ok
+test_windows_sdk_tool_names (test_build_evidence.BuildEvidenceTests.test_windows_sdk_tool_names) ... ok
+test_assumption_is_not_a_pass (test_device_receipt.DeviceReceiptTests.test_assumption_is_not_a_pass) ... ok
+test_compact_french_home_does_not_require_studio_label (test_device_receipt.DeviceReceiptTests.test_compact_french_home_does_not_require_studio_label) ... ok
+test_debug_presence_is_not_product_startup (test_device_receipt.DeviceReceiptTests.test_debug_presence_is_not_product_startup) ... ok
+test_failure_or_truncated_execution_cannot_qualify (test_device_receipt.DeviceReceiptTests.test_failure_or_truncated_execution_cannot_qualify) ... ok
+test_full_success (test_device_receipt.DeviceReceiptTests.test_full_success) ... ok
+test_system_overlay_never_counts_as_app_startup (test_device_receipt.DeviceReceiptTests.test_system_overlay_never_counts_as_app_startup) ... ok
+test_coco_preserves_pixels_and_path (test_export_validator.ValidatorTests.test_coco_preserves_pixels_and_path) ... ok
+test_duplicate_ids (test_export_validator.ValidatorTests.test_duplicate_ids) ... ok
+test_invalid_coordinates (test_export_validator.ValidatorTests.test_invalid_coordinates) ... ok
+test_project_scoped_android_batch (test_export_validator.ValidatorTests.test_project_scoped_android_batch) ... ok
+test_tampered_image (test_export_validator.ValidatorTests.test_tampered_image) ... ok
+test_traversal_manifest (test_export_validator.ValidatorTests.test_traversal_manifest) ... ok
+test_valid_fixture (test_export_validator.ValidatorTests.test_valid_fixture) ... ok
+test_accepts_aligned_segments (test_flex_alignment.FlexAlignmentTest.test_accepts_aligned_segments) ... ok
+test_rejects_4k_relro_even_with_16k_loads (test_flex_alignment.FlexAlignmentTest.test_rejects_4k_relro_even_with_16k_loads) ... ok
+test_rejects_missing_arm64_in_distributable_aar (test_flex_alignment.FlexAlignmentTest.test_rejects_missing_arm64_in_distributable_aar) ... ok
+test_rejects_missing_flex (test_flex_alignment.FlexAlignmentTest.test_rejects_missing_flex) ... ok
+test_rejects_old_4k_load_segments (test_flex_alignment.FlexAlignmentTest.test_rejects_old_4k_load_segments) ... ok
+test_rejects_wrong_architecture (test_flex_alignment.FlexAlignmentTest.test_rejects_wrong_architecture) ... ok
+test_all_kotlin_packages_match_source_paths (test_identity.IdentityTests.test_all_kotlin_packages_match_source_paths) ... ok
+test_build_workflow_has_emulator_job_without_publication (test_identity.IdentityTests.test_build_workflow_has_emulator_job_without_publication) ... ok
+test_device_scripts_use_canonical_id (test_identity.IdentityTests.test_device_scripts_use_canonical_id) ... ok
+test_file_provider_uses_application_id (test_identity.IdentityTests.test_file_provider_uses_application_id) ... ok
+test_gradle_aliases_resolve (test_identity.IdentityTests.test_gradle_aliases_resolve) ... ok
+test_instrumented_provider_identity (test_identity.IdentityTests.test_instrumented_provider_identity) ... ok
+test_namespace_and_application_id_match (test_identity.IdentityTests.test_namespace_and_application_id_match) ... ok
+test_no_archived_docs_in_candidate (test_identity.IdentityTests.test_no_archived_docs_in_candidate) ... ok
+test_no_private_weights_or_signing_keys (test_identity.IdentityTests.test_no_private_weights_or_signing_keys) ... ok
+test_no_template_namespaces_in_sources (test_identity.IdentityTests.test_no_template_namespaces_in_sources) ... ok
+test_selected_apache_license_and_notices_are_present (test_identity.IdentityTests.test_selected_apache_license_and_notices_are_present) ... ok
+test_version_and_database_versions_distinct (test_identity.IdentityTests.test_version_and_database_versions_distinct) ... ok
+test_a_different_apk_cannot_reuse_successful_results (test_native_release.NativeReleaseTests.test_a_different_apk_cannot_reuse_successful_results) ... ok
+test_complete_matching_evidence_is_accepted (test_native_release.NativeReleaseTests.test_complete_matching_evidence_is_accepted) ... ok
+test_signed_payload_comparison_detects_code_tampering (test_native_release.NativeReleaseTests.test_signed_payload_comparison_detects_code_tampering) ... ok
+test_system_art_crash_blocks_publication_despite_passing_assertions (test_native_release.NativeReleaseTests.test_system_art_crash_blocks_publication_despite_passing_assertions) ... ok
+test_truncated_output_cannot_reuse_a_successful_receipt (test_native_release.NativeReleaseTests.test_truncated_output_cannot_reuse_a_successful_receipt) ... ok
+test_shared_writable_page_is_not_explained_away (test_relro_explanation.RelroExplanationTests.test_shared_writable_page_is_not_explained_away) ... ok
+test_whole_relro_load_with_gap_keeps_strict_warning (test_relro_explanation.RelroExplanationTests.test_whole_relro_load_with_gap_keeps_strict_warning) ... ok
+test_critical_english_workflows_are_not_french_fallbacks (test_ui_localization.UiLocalizationTest.test_critical_english_workflows_are_not_french_fallbacks) ... ok
+test_english_has_every_default_resource (test_ui_localization.UiLocalizationTest.test_english_has_every_default_resource) ... ok
+test_every_app_string_reference_exists (test_ui_localization.UiLocalizationTest.test_every_app_string_reference_exists) ... ok
+test_explicit_sqlite_default_values (test_v4_sqlite.MigrationTests.test_explicit_sqlite_default_values) ... ok
+test_failed_migration_rolls_back (test_v4_sqlite.MigrationTests.test_failed_migration_rolls_back) ... ok
+test_indexes_exist (test_v4_sqlite.MigrationTests.test_indexes_exist) ... ok
+test_legacy_table_definitions_match_after_migration (test_v4_sqlite.MigrationTests.test_legacy_table_definitions_match_after_migration) ... ok
+test_no_invented_verification (test_v4_sqlite.MigrationTests.test_no_invented_verification) ... ok
+test_page_query_uses_keyset_index (test_v4_sqlite.MigrationTests.test_page_query_uses_keyset_index) ... ok
+test_uncertain_v3_push_becomes_conflict (test_v4_sqlite.MigrationTests.test_uncertain_v3_push_becomes_conflict) ... ok
+test_v1_migrates_without_loss (test_v4_sqlite.MigrationTests.test_v1_migrates_without_loss) ... ok
+test_v2_migrates_without_loss (test_v4_sqlite.MigrationTests.test_v2_migrates_without_loss) ... ok
+test_android_source_newline_difference_is_rejected (test_verified_release.VerifiedReleaseTests.test_android_source_newline_difference_is_rejected) ... ok
+test_artifact_cannot_escape_its_receipt_directory (test_verified_release.VerifiedReleaseTests.test_artifact_cannot_escape_its_receipt_directory) ... ok
+test_bootstrap_line_endings_are_explicitly_recorded (test_verified_release.VerifiedReleaseTests.test_bootstrap_line_endings_are_explicitly_recorded) ... ok
+test_bootstrap_logic_difference_is_rejected (test_verified_release.VerifiedReleaseTests.test_bootstrap_logic_difference_is_rejected) ... ok
+test_device_evidence_from_another_apk_is_rejected (test_verified_release.VerifiedReleaseTests.test_device_evidence_from_another_apk_is_rejected) ... ok
+test_four_k_evidence_cannot_claim_sixteen_k (test_verified_release.VerifiedReleaseTests.test_four_k_evidence_cannot_claim_sixteen_k) ... ok
+test_modified_artifact_is_rejected (test_verified_release.VerifiedReleaseTests.test_modified_artifact_is_rejected) ... ok
+test_duplicate_path_is_rejected_even_with_matching_digest (test_workstation_package.SourceManifestTests.test_duplicate_path_is_rejected_even_with_matching_digest) ... ok
+test_explicit_records_preserve_source_hashes (test_workstation_package.SourceManifestTests.test_explicit_records_preserve_source_hashes) ... ok
+test_historical_manifests_remain_supported (test_workstation_package.SourceManifestTests.test_historical_manifests_remain_supported) ... ok
+test_invalid_digest_is_rejected (test_workstation_package.SourceManifestTests.test_invalid_digest_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 87 tests in 36.046s
+
+OK
+Evidence: C:\Users\charl\AppData\Local\Temp\tmpb6e1f7p4\dist\android\runs\20260926T220727Z-8e4e9a40a0db
+No APK was built or promoted by this attempt.

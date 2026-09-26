@@ -53,13 +53,14 @@ fun StudioHomeScreen(viewModel: MainViewModel) {
         ?: samples.firstOrNull()
     val previewEditable = preview?.let { StudioWorkflow.canEdit(it.acquisitionStatus, it.syncStatus, it.localImagePath != null) } == true
     var presetMenu by remember { mutableStateOf(false) }
+    var moreMenu by remember { mutableStateOf(false) }
     var presetId by remember { mutableStateOf<String?>(null) }
     val currentPreset = StudioWorkflow.presets.firstOrNull { it.tasks == StudioWorkflow.parseTasks(project?.activeTasksCsv ?: "DETECTION") }
     val openPreview: () -> Unit = {
         preview?.takeIf { previewEditable && !busy }?.let { viewModel.openSampleInEditor(it.sampleId) }
     }
     val primary: @Composable () -> Unit = {
-        StudioAction(if (!configured) tr("Importer", "Import") else if(samples.isEmpty()) tr("Préparer le lot", "Prepare batch") else if(previewEditable) tr("Annoter", "Annotate") else tr("Ouvrir le lot", "Open batch"),
+        StudioAction(if (!configured) tr("Configurer mon projet", "Set up my project") else if(samples.isEmpty()) tr("Préparer le lot", "Prepare batch") else if(previewEditable) tr("Annoter", "Annotate") else tr("Ouvrir le lot", "Open batch"),
             onClick = { if(!configured) viewModel.navigateTo(Screen.Setup) else if(samples.isEmpty()) viewModel.fetchAndPrepareBatch(batch)
                 else if(previewEditable) openPreview() else viewModel.navigateTo(Screen.BatchGrid) },
             icon = if(samples.isEmpty()) Icons.Default.Add else Icons.Default.ArrowForward,
@@ -80,16 +81,39 @@ fun StudioHomeScreen(viewModel: MainViewModel) {
         }
     }
     Scaffold(contentWindowInsets = WindowInsets(0), topBar = {
-        StudioTopBar(project?.name ?: tr("Atelier", "Studio"), tr("Cadryl  /  Lot ${batch.toString().padStart(2, '0')}", "Cadryl  /  Batch ${batch.toString().padStart(2, '0')}"), actions = {
-            IconButton(onClick = { viewModel.navigateTo(Screen.Workflow) }, enabled = !busy) { Icon(Icons.Default.AccountTree, tr("Workflows et agent", "Workflows and agent"), Modifier.size(19.dp)) }
+        WorkspaceTopBar(viewModel, project?.name ?: tr("Atelier", "Studio"), tr("Cadryl  /  Lot ${batch.toString().padStart(2, '0')}", "Cadryl  /  Batch ${batch.toString().padStart(2, '0')}"), actions = {
             IconButton(onClick = { viewModel.navigateTo(Screen.Controls) }, enabled = !busy, modifier = Modifier.testTag("controls_shortcut")) {
                 Icon(Icons.Default.FolderOpen, tr("Gérer les projets", "Manage projects"), Modifier.size(19.dp))
             }
-            IconButton(onClick = { viewModel.navigateTo(Screen.Preferences) }) { Icon(Icons.Default.Tune, tr("Réglages", "Settings"), Modifier.size(19.dp)) }
+            Box {
+                IconButton(onClick = { moreMenu = true }) { Icon(Icons.Default.MoreVert, tr("Plus d’options", "More options")) }
+                DropdownMenu(moreMenu, { moreMenu = false }) {
+                    DropdownMenuItem(text = { Text(tr("Réglages", "Settings")) }, onClick = { moreMenu = false; viewModel.navigateTo(Screen.Preferences) })
+                    DropdownMenuItem(text = { Text(tr("Workflows et agent", "Workflows and agent")) }, enabled = !busy, onClick = { moreMenu = false; viewModel.navigateTo(Screen.Workflow) })
+                    DropdownMenuItem(text = { Text(tr("Source et import avancé", "Source & advanced import")) }, enabled = !busy, onClick = { moreMenu = false; viewModel.navigateTo(Screen.SourceSettings) })
+                }
+            }
         })
     }) { inset ->
         BoxWithConstraints(Modifier.fillMaxSize().padding(inset)) {
-            if (maxWidth >= 760.dp) {
+            if (samples.isEmpty()) {
+                LazyColumn(Modifier.widthIn(max = 760.dp).fillMaxSize().align(Alignment.TopCenter), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                    item {
+                        Icon(Icons.Default.AutoAwesome, null, Modifier.size(32.dp), tint = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.height(12.dp))
+                        Text(if (configured) tr("Votre source est prête", "Your source is ready") else tr("De vos images à votre dataset", "From your images to your dataset"), style = MaterialTheme.typography.headlineSmall)
+                        Text(if (configured) tr("Préparez un lot pour commencer à annoter.", "Prepare a batch to start annotating.")
+                            else tr("Trois étapes pour démarrer. Aucun modèle n’est obligatoire.", "Three steps to get started. A model is optional."), Modifier.padding(vertical = 12.dp), style = MaterialTheme.typography.bodyLarge)
+                        primary()
+                    }
+                    item { StudioSection(tr("Votre parcours", "Your workflow"), icon = Icons.Default.Checklist) {
+                        HomeGuideStep("1", tr("Choisir les images", "Choose images"), tr("Un dossier sur l’appareil ou un dataset Hugging Face.", "A folder on this device or a Hugging Face dataset."))
+                        HomeGuideStep("2", tr("Choisir l’objectif et les classes", "Choose a task and classes"), tr("Entourer, classer ou décrire. Vérifier l’aide du modèle.", "Draw boxes, classify or describe. Check model assistance."))
+                        HomeGuideStep("3", tr("Annoter puis exporter", "Annotate, then export"), tr("Relire chaque image et enregistrer le résultat.", "Review each image and save the result."))
+                    } }
+                    item { details() }
+                }
+            } else if (maxWidth >= 760.dp) {
                 Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 8.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(tr("Espace d’annotation", "Annotation workspace"), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
@@ -156,6 +180,16 @@ fun StudioHomeScreen(viewModel: MainViewModel) {
         }, confirmButton = { Button(onClick = { viewModel.updateTasks(preset.tasks); presetId = null }) { Text(stringResource(R.string.common_apply)) } },
             dismissButton = { TextButton(onClick = { presetId = null }) { Text(stringResource(R.string.common_cancel)) } })
     } }
+}
+
+@Composable
+private fun HomeGuideStep(number: String, title: String, help: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(vertical = 6.dp)) {
+        Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(8.dp)) {
+            Text(number, Modifier.padding(horizontal = 12.dp, vertical = 8.dp), color = MaterialTheme.colorScheme.onSecondaryContainer)
+        }
+        Column { Text(title, style = MaterialTheme.typography.titleSmall); Text(help, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    }
 }
 
 @Composable

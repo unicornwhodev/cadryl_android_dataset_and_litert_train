@@ -187,7 +187,7 @@ class HfApiClient(
                 if (!response.isSuccessful) {
                     return@withContext HfRowsResult(
                         success = false,
-                        error = tr("Erreur lecture /rows HTTP ${response.code}: ${response.message}", "Error reading /rows HTTP ${response.code}: ${response.message}")
+                        error = HfFailureMessage.describe(response.code)
                     )
                 }
                 val body = response.body?.let(::boundedJson) ?: ""
@@ -217,7 +217,7 @@ class HfApiClient(
 
     /** Strong ETag + If-Range resume. A partial response can NEVER become the final file. */
     suspend fun downloadImage(url: String, destFile: File, onProgress: ((Long, Long) -> Unit)? = null,
-                              maxBytes: Long = 64L * 1024 * 1024): Boolean = withContext(Dispatchers.IO) {
+                              maxBytes: Long = 64L * 1024 * 1024, onFailure: ((String) -> Unit)? = null): Boolean = withContext(Dispatchers.IO) {
         require(maxBytes > 0)
         val temp = File(destFile.parentFile, destFile.name + ".part")
         val stateFile = File(destFile.parentFile, destFile.name + ".range")
@@ -239,7 +239,7 @@ class HfApiClient(
             }.get().build()
             client.newCall(request).execute().use { response ->
                 if (response.code == 416) { temp.delete(); stateFile.delete(); return@withContext false }
-                if (!response.isSuccessful) return@withContext false
+                if (!response.isSuccessful) { onFailure?.invoke(HfFailureMessage.describe(response.code)); return@withContext false }
                 val body = response.body ?: return@withContext false
                 val range = RangeSafety.parse(response.header("Content-Range"))
                 val tag = response.header("ETag")
@@ -284,7 +284,7 @@ class HfApiClient(
                 true
             }
         } catch (e: CancellationException) { throw e
-        } catch (_: Exception) { false
+        } catch (e: Exception) { onFailure?.invoke(if (e is java.io.IOException) tr("Connexion interrompue. Réessayez pour reprendre le téléchargement.", "Connection interrupted. Retry to resume the download.") else tr("Téléchargement incomplet ou limite de taille atteinte. Vérifiez le budget dans Sources.", "Download incomplete or size limit reached. Check the budget in Sources.")); false
         } finally {
             // Preserve resumable bytes across timeouts/process restarts, never an unvalidated body.
             if (!stateFile.isFile || temp.length() > maxBytes) { temp.delete(); stateFile.delete() }
@@ -376,7 +376,7 @@ class HfApiClient(
             client.newCall(newRequestBuilder("https://huggingface.co/api/datasets/$repo/commit/$encodedBranch").post(body).build()).execute().use { response ->
                 if (response.code == 409 || response.code == 412) return@withContext HfUploadResult(false,
                     message = tr("La branche a changé : conflit détecté. Aucun rebase automatique.", "The branch changed: conflict detected. No automatic rebase."), conflict = true)
-                check(response.isSuccessful) { tr("Commit refusé (HTTP ${response.code}). Fichiers locaux conservés.", "Commit refused (HTTP ${response.code}). Local files preserved.") }
+                check(response.isSuccessful) { HfFailureMessage.describe(response.code, writing = true) }
                 val parsed = parseObject(response.body?.let(::boundedJson) ?: error(tr("Réponse commit absente", "Missing commit response")))
                 val sha = parsed["commitOid"] as? String ?: error(tr("Aucun identifiant de commit vérifiable reçu.", "No verifiable commit identifier received."))
                 require(sha.matches(Regex("[a-fA-F0-9]{40}|[a-fA-F0-9]{64}")))
@@ -396,7 +396,7 @@ class HfApiClient(
     private fun parseObject(value: String) = moshi.adapter(Map::class.java).fromJson(value) as? Map<String, Any?> ?: error(tr("JSON distant invalide", "Invalid remote JSON"))
     private fun postJson(url: String, payload: Any, mediaType: String = "application/json", headers: Map<String, String> = emptyMap(), responseObject: Boolean = true): Map<String, Any?> {
         client.newCall(newRequestBuilder(url).apply { headers.forEach { (k,v) -> header(k,v) } }.header("Accept", mediaType).post(json(payload).toRequestBody(mediaType.toMediaType())).build()).execute().use { r ->
-            check(r.isSuccessful) { tr("Transfert refusé (HTTP ${r.code}).", "Transfer refused (HTTP ${r.code}).") }
+            check(r.isSuccessful) { HfFailureMessage.describe(r.code, writing = true) }
             val body = r.body?.let(::boundedJson) ?: ""
             // LFS completion/verification acknowledges success through HTTP status.
             // The real Hub returns text/plain "OK" for verification, not a JSON object.
@@ -453,7 +453,7 @@ class HfApiClient(
         }
         // Signed storage URLs never receive the user's HF token.
         client.newBuilder().followRedirects(false).build().newCall(Request.Builder().url(url).apply { headers.forEach { (k,v) -> header(k,v) } }.put(body).build()).execute().use { r ->
-            check(r.isSuccessful) { tr("Envoi binaire refusé (HTTP ${r.code})", "Binary upload refused (HTTP ${r.code})") }; return r.header("ETag")
+            check(r.isSuccessful) { HfFailureMessage.describe(r.code, writing = true) }; return r.header("ETag")
         }
     }
     suspend fun resolveModelRevision(repoId: String, revision: String = "main"): String = withContext(Dispatchers.IO) {

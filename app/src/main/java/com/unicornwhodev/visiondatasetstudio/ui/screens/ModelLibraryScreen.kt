@@ -35,9 +35,14 @@ fun ModelLibraryScreen(vm: MainViewModel) {
     var tab by rememberSaveable { mutableStateOf(0) }
     var url by rememberSaveable { mutableStateOf("") }
     var deleteId by remember { mutableStateOf<String?>(null) }
+    var search by rememberSaveable { mutableStateOf("") }
+    val visibleRemote = remote.filter { search.isBlank() || it.entry.title.contains(search, true) || it.entry.purpose.contains(search, true) }
+    val visibleLocal = local.filter { search.isBlank() || it.name.contains(search, true) }
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    LaunchedEffect(tab) { listState.scrollToItem(0) }
     val weights = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { it?.let(vm::importModel) }
     Scaffold(contentWindowInsets = WindowInsets(0), topBar = {
-        StudioTopBar(stringResource(R.string.screen_models), stringResource(R.string.models_summary,local.size), actions = {
+        WorkspaceTopBar(vm, stringResource(R.string.screen_models), stringResource(R.string.models_summary,local.size), actions = {
             IconButton(onClick = { vm.navigateTo(Screen.Training) }, enabled = !busy) { Icon(Icons.Default.ModelTraining, tr("Apprentissage sur cet appareil", "Training on this device"), Modifier.size(19.dp)) }
             IconButton(onClick = { editSource = true }, enabled = !busy) { Icon(Icons.Default.Storage, tr("Dépôt du catalogue", "Catalog repository"), Modifier.size(19.dp)) }
             IconButton(onClick = vm::refreshCommunityModelCatalog, enabled = !busy) { Icon(Icons.Default.Refresh, tr("Actualiser le catalogue", "Refresh catalog"), Modifier.size(19.dp)) }
@@ -46,8 +51,14 @@ fun ModelLibraryScreen(vm: MainViewModel) {
         Column(Modifier.fillMaxSize().padding(inset)) {
             StudioTabs(listOf(stringResource(R.string.models_tab_explore), stringResource(R.string.models_tab_installed), stringResource(R.string.models_tab_import)), tab, { tab = it }, Modifier.padding(horizontal = 16.dp))
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                LazyColumn(Modifier.widthIn(max = 1000.dp).fillMaxSize(), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    project?.takeIf { it.modelConfigJson!=null }?.let { p -> item { ModelSettingsPanel(p,busy,vm::saveModelConfig) } }
+                LazyColumn(Modifier.widthIn(max = 1000.dp).fillMaxSize(), state = listState, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    if (tab != 2) item {
+                        OutlinedTextField(search, { search = it }, label = { Text(tr("Rechercher un modèle", "Search models")) }, singleLine = true,
+                            leadingIcon = { Icon(Icons.Default.Search, null) }, modifier = Modifier.fillMaxWidth())
+                        Text(tr("Choisissez un modèle pour votre objectif. Ses classes seront vérifiées une fois installé.", "Choose a model for your task. Its classes will be checked once installed."),
+                            Modifier.padding(vertical = 8.dp), style = MaterialTheme.typography.bodySmall)
+                        if (search.isNotBlank() && (if (tab == 0) visibleRemote.isEmpty() else visibleLocal.isEmpty())) Text(tr("Aucun modèle ne correspond à cette recherche.", "No models match this search."))
+                    }
                     if (tab == 0) {
                         item {
                             Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -57,8 +68,8 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         }
                         if(remote.isEmpty()) item { EmptyWorkspace(stringResource(R.string.models_empty_title), stringResource(R.string.models_empty_body), Icons.Default.Memory, if (!busy) stringResource(R.string.models_explore) else null, vm::refreshCommunityModelCatalog) }
-                        items(remote.size, key = { remote[it].entry.id }) { index ->
-                            val item = remote[index]
+                        items(visibleRemote.size, key = { visibleRemote[it].entry.id }) { index ->
+                            val item = visibleRemote[index]
                             var showInfo by remember { mutableStateOf(false) }
                             val state = stringResource(when {
                                 !item.available -> R.string.model_state_upcoming
@@ -105,8 +116,8 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                         }
                     } else if(tab == 1) {
                         if(local.isEmpty()) item { EmptyWorkspace(stringResource(R.string.models_none_installed), stringResource(R.string.models_import_compatible), Icons.Default.Memory, stringResource(R.string.models_tab_import), { tab = 2 }) }
-                        items(local.size, key = { local[it].id }) { index ->
-                            val profile = local[index]
+                        items(visibleLocal.size, key = { visibleLocal[it].id }) { index ->
+                            val profile = visibleLocal[index]
                             val active = project?.modelPath == profile.modelPath && profile.modelPath.isNotBlank()
                             Column {
                                 Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -115,11 +126,14 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                         Text(profile.name, style = MaterialTheme.typography.titleSmall)
                                         Text(profile.tensorReport.lineSequence().firstOrNull().orEmpty(), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         val config=remember(profile.configJson){runCatching{com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig::class.java).fromJson(profile.configJson)}.getOrNull()}
+                                        config?.let { cfg -> Text(com.unicornwhodev.visiondatasetstudio.domain.inference.ModelClassCompatibility.inspect(cfg, project?.activeTasksCsv.orEmpty(), project?.classesCsv.orEmpty()).summary,
+                                            style=MaterialTheme.typography.bodySmall, color=MaterialTheme.colorScheme.primary) }
                                         config?.let { cfg -> val names=mutableListOf<String>();for(cap in com.unicornwhodev.visiondatasetstudio.domain.inference.ModelCapabilities.fromConfig(cfg).values)names+=when(cap){
                                             ModelCapability.DETECTION->stringResource(R.string.cap_detection);ModelCapability.POINTING->stringResource(R.string.cap_pointing);ModelCapability.SEGMENTATION->stringResource(R.string.cap_segmentation);ModelCapability.CLASSIFICATION->stringResource(R.string.cap_classification);ModelCapability.CAPTIONING->stringResource(R.string.cap_captioning);ModelCapability.VQA->stringResource(R.string.cap_vqa);ModelCapability.COUNTING->stringResource(R.string.cap_counting);ModelCapability.GROUNDING->stringResource(R.string.cap_grounding);ModelCapability.EMBEDDING->stringResource(R.string.cap_embedding);ModelCapability.SIMILARITY->stringResource(R.string.cap_similarity);ModelCapability.INTERACTIVE_SEGMENTATION->stringResource(R.string.cap_interactive_segmentation);ModelCapability.TRAINING->stringResource(R.string.cap_training);ModelCapability.INSPECTION_ONLY->stringResource(R.string.cap_inspection)};Text(names.joinToString(" · "),style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant) }
                                         if(active) Text(stringResource(R.string.models_active), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                                     }
                                     if(!active) StudioAction(stringResource(R.string.models_use), { vm.selectModelProfile(profile.id) }, enabled = !busy)
+                                    else StudioAction(tr("Configurer", "Setup"), { vm.navigateTo(Screen.ModelSettings) }, enabled = !busy)
                                     IconButton(onClick = { deleteId = profile.id }, enabled = !busy) { Icon(Icons.Default.DeleteOutline, stringResource(R.string.models_delete,profile.name), Modifier.size(18.dp)) }
                                 }
                                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -147,7 +161,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                             OutlinedTextField(url, { url = it }, label = { Text(stringResource(R.string.models_url_label)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                             StudioAction(stringResource(R.string.models_import_url), { vm.importModelUrl(url) }, enabled = !busy && url.startsWith("https://"))
                         } }
-                        item { TextButton(onClick = { vm.navigateTo(Screen.Controls) }, enabled = !busy) { Text(stringResource(R.string.models_advanced), style = MaterialTheme.typography.labelMedium) } }
+                        item { TextButton(onClick = { vm.navigateTo(Screen.ModelAdvanced) }, enabled = !busy) { Text(stringResource(R.string.models_advanced), style = MaterialTheme.typography.labelMedium) } }
                     }
                 }
             }

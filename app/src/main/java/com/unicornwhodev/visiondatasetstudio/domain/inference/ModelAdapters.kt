@@ -78,6 +78,7 @@ object ModelContract {
         require(c.prompt.isBlank() || ModelPrompts.supportsText(c)) { tr("Ce modèle ne consomme pas de prompt textuel", "This model does not consume text prompts") }
         require(c.captionLanguage.matches(Regex("[a-z]{2,3}(-[A-Za-z0-9]{2,8})*"))) { tr("Code de langue invalide", "Invalid language code") }
         require(c.bundleKind in setOf("","tinyclip","efficientvit_sam","florence2"))
+        if (c.bundleKind == "efficientvit_sam") require(c.spatialLabel.isNotBlank()) { tr("Choisissez la classe du masque.", "Choose a mask class.") }
         require(c.cropFraction.isFinite() && c.cropFraction in .5f..1f)
         require(c.embeddingOutputIndex in -1..128 && c.patchOutputIndex in -1..128)
         require(c.dynamicMinSize in 1..2048 && c.dynamicMaxSize in c.dynamicMinSize..2048 && c.dynamicStride in 1..128)

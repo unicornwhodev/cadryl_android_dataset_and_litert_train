@@ -125,7 +125,7 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
     var tab by rememberSaveable { mutableStateOf(tabs.first()) }
     LaunchedEffect(tabs) { if (tab !in tabs) tab = tabs.first() }
     var tool by rememberSaveable { mutableStateOf(EditorTool.SELECT) }
-    val classes = remember(project?.classesCsv) { project?.classesCsv?.split(',')?.map(String::trim)?.filter(String::isNotBlank).orEmpty().ifEmpty { listOf("object") } }
+    val classes = remember(project?.classesCsv) { com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(project?.classesCsv.orEmpty()).ifEmpty { listOf("object") } }
     var label by rememberSaveable { mutableStateOf(classes.first()) }
     LaunchedEffect(classes) { if (label !in classes) label = classes.first() }
     var selected by remember(sampleId) { mutableStateOf<String?>(null) }

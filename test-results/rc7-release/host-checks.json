@@ -1,0 +1,16 @@
+{
+  "jvm": {
+    "passed": 84,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 124
+  },
+  "python": {
+    "passed": 87,
+    "failed": 0
+  }
+}

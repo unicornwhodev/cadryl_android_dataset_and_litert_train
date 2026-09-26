@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-09-26T22:17:48.726Z" hostname="UNICORN-PC" time="0.383">
+  <properties/>
+  <testcase name="fullResponseRestartsInsteadOfAppending" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.211"/>
+  <testcase name="realHubPlainTextLfsAcknowledgementAllowsCommit" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.022"/>
+  <testcase name="emptyLfsAcknowledgementAllowsCommit" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.014"/>
+  <testcase name="commitConflictPreservesPinnedParent" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.011"/>
+  <testcase name="wrongRangeNeverOverwritesFinalFile" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.017"/>
+  <testcase name="overSizeResponseRejected" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.007"/>
+  <testcase name="occupiedPathIsNeverOverwritten" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.023"/>
+  <testcase name="failedLfsAcknowledgementForbidsCommit" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.012"/>
+  <testcase name="disconnectedDownloadResumesHashedPrefix" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.036"/>
+  <testcase name="forbiddenDownloadHasActionableDiagnosticAndPreservesExistingFile" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.008"/>
+  <testcase name="remoteReceiptVerifiesWithoutLocalPayload" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.012"/>
+  <testcase name="lostCommitReplyIsNotAutomaticallyReplayed" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -52,8 +52,10 @@ class FunctionalUiAuditTest {
             return roots.fetchSemanticsNodes().indices.joinToString("\n") { roots[it].printToString() }
         }
         fun englishScreen(title:String) {
-            rule.waitForIdle()
-            rule.onAllNodesWithText(title,useUnmergedTree=true).onFirst().assertExists()
+            val heading = if (title == "Annotations") hasText(title) else hasTestTag("screen_title") and hasText(title)
+            rule.waitUntil(10_000) { rule.onAllNodes(heading,useUnmergedTree=true).fetchSemanticsNodes().isNotEmpty() }
+            rule.onNode(heading,useUnmergedTree=true).assertIsDisplayed()
+            InstrumentationRegistry.getInstrumentation().uiAutomation.waitForIdle(300,3000)
             val tree=screenTree()
             assertFalse("French application text on $title",Regex("Réglages|Réinitialiser|Télécharger|Apprentissage|Supprimer|Données locales|Légendes|Modèles").containsMatchIn(tree))
             val folder=File(app.filesDir,"qa-evidence/english").apply{mkdirs()}
@@ -64,7 +66,7 @@ class FunctionalUiAuditTest {
         try {
             act { createProject("QA English A") };val first=vm.activeProjectId.value;created+=first
             rule.setStudioTestContent { val registry=requireNotNull(LocalActivityResultRegistryOwner.current); CompositionLocalProvider(LocalActivityResultRegistryOwner provides registry,LocalContext provides english,LocalConfiguration provides englishConfig) { VisionDatasetStudioTheme(darkTheme=true) { StudioRoot(vm) } } }
-            englishScreen("Workspace")
+            englishScreen("My projects")
             // Create through the actual form, rather than replacing Room with a mock.
             rule.onNodeWithText(english.getString(R.string.controls_new_project_name)).performScrollTo().performTextInput("QA English B")
             // Wait for IME dismissal before scrolling/clicking: its opening
@@ -78,12 +80,18 @@ class FunctionalUiAuditTest {
             act { selectProject(first) }
             val config=ModelConfig(task="classification",adapter="tinyclip",bundleKind="tinyclip",labels=listOf("cat","dog"),prompt="a photo of {label}",threshold=0f)
             act { saveModelConfig(StudioJson.moshi.adapter(ModelConfig::class.java).toJson(config)) }
-            act { navigateTo(Screen.Models) };englishScreen("Models")
+            act { navigateTo(Screen.ModelSettings) };englishScreen("Model settings")
             rule.onNodeWithText("Model prompt").performScrollTo().performTextReplacement("a drawing of {label}")
-            rule.onNodeWithText("Save model settings").performScrollTo().performClick()
+            androidx.test.espresso.Espresso.closeSoftKeyboard()
+            rule.waitForIdle()
+            rule.onNodeWithText("Save model settings").performScrollTo().assertIsDisplayed().performClick()
             rule.waitUntil(10_000){!vm.isBusy.value && vm.projectFlow.value?.modelConfigJson?.contains("a drawing of") == true}
             val stored=StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(vm.db.projectDao().getProjectSync(first)!!.modelConfigJson!!)!!
             assertEquals("a drawing of {label}",stored.prompt)
+            rule.onNodeWithText("Add 2 model classes").performScrollTo().performClick()
+            rule.onNodeWithText("Save classes").performScrollTo().performClick()
+            rule.waitUntil(10_000) { !vm.isBusy.value && vm.projectFlow.value?.classesCsv == "object,cat,dog" }
+            assertEquals(listOf("cat","dog"),StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(vm.db.projectDao().getProjectSync(first)!!.modelConfigJson!!)!!.labels)
             act { startWorkflow("manual","Review every proposed cat before accepting") }
             act { selectProject(second) }
             assertNull(vm.workflow.value);assertNull(vm.currentSample.value);assertNull(vm.db.projectDao().getProjectSync(second)!!.modelConfigJson)

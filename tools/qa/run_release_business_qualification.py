@@ -98,7 +98,7 @@ def main():
                         classes = re.findall(r'INSTRUMENTATION_STATUS: class=(.*)', progress)
                         tests = re.findall(r'INSTRUMENTATION_STATUS: test=(.*)', progress)
                         active = (classes[-1], tests[-1]) if classes and tests else None
-                        ui = ('EnglishLocaleComposeTest', 'FunctionalUiAuditTest', 'NativePhotoInferenceUiTest', 'SegmentationCanvasTest', 'StudioComposeV4Test')
+                        ui = ('EnglishLocaleComposeTest', 'FunctionalUiAuditTest', 'NativePhotoInferenceUiTest', 'SegmentationCanvasTest', 'StudioComposeV4Test', 'GuidedSetupTest')
                         if active and active != foreground_test and active[0].split('.')[-1] not in ui:
                             run('foreground-' + str(len(seen)) + '-' + str(time.monotonic_ns()) + '.txt',
                                 'shell', 'am', 'start', '-f', '0x20000000', '-n', APP_ID + '/.MainActivity')
@@ -109,13 +109,13 @@ def main():
                     run('stop-after-interruption.txt', 'shell', 'am', 'force-stop', APP_ID)
                     process.kill()
         state['tests'] = parse_instrumentation(log_path.read_text(encoding='utf-8', errors='replace'))
-        if not state['tests']['complete'] or state['tests']['passed'] != 40:
-            raise RuntimeError('The expected 40 core tests did not all pass')
+        if not state['tests']['complete'] or state['tests']['passed'] != 45:
+            raise RuntimeError('The expected 45 core tests did not all pass')
         state['art_crashes_after'] = art_crashes(run('crash-after.txt', 'logcat', '-d', '-b', 'crash'))
         if state['art_crashes_after']:
             raise RuntimeError('ART crashed during qualification; passing app tests cannot qualify this environment.')
         state['outcome'] = 'release_core_suite_passed'
-        print('Actual minified Release core: 40/40 passed', flush=True)
+        print('Actual minified Release core: 45/45 passed', flush=True)
     except Exception as error:
         state.update(outcome='failed', error=str(error))
         raise

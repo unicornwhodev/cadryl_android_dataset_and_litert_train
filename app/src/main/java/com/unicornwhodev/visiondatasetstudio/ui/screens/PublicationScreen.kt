@@ -39,6 +39,7 @@ fun PublicationScreen(viewModel: MainViewModel) {
     val training by viewModel.trainingRun.collectAsState()
     val lastZip by viewModel.lastExportedZip.collectAsState()
     val preview by viewModel.previewSnippet.collectAsState()
+    val readiness by viewModel.exportReadiness.collectAsState()
     val policy = project?.let(ProjectSettings::read)
     val batch = batches.firstOrNull { it.batchNumber == number }
     val validated = samples.count { it.annotationStatus == "VALIDATED" }
@@ -47,10 +48,14 @@ fun PublicationScreen(viewModel: MainViewModel) {
     val learningDone=training?.let{it.sourceBatchNumber==number && com.unicornwhodev.visiondatasetstudio.domain.training.TrainingPolicy.finished(it.phase) && (it.phase=="abandoned" || it.exportSnapshot==batch?.archiveSnapshot)}==true
     val learningRequired=validated>0 && (project?.let(com.unicornwhodev.visiondatasetstudio.domain.training.TrainingPolicy::enabled)==true || training?.let{it.sourceBatchNumber==number && !com.unicornwhodev.visiondatasetstudio.domain.training.TrainingPolicy.finished(it.phase)}==true)
     val available = samples.count { it.annotationStatus == "VALIDATED" && it.localImagePath != null }
-    var tar by rememberSaveable { mutableStateOf(false) }
-    var coco by rememberSaveable { mutableStateOf(false) }
-    var yolo by rememberSaveable { mutableStateOf(false) }
-    var vl by rememberSaveable { mutableStateOf(true) }
+    val tar = policy?.hfWebDataset ?: false
+    val coco = policy?.hfCoco ?: false
+    val yolo = policy?.hfYolo ?: false
+    val vl = policy?.hfVl ?: true
+    val formatsLocked = batch?.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT", "PURGING", "PURGED")
+    val missingClasses = readiness?.missingFor(coco, yolo).orEmpty()
+    val formatsReady = readiness != null && (!(coco || yolo) || missingClasses.isEmpty())
+    LaunchedEffect(project?.id, project?.classesCsv, number, samples) { viewModel.refreshExportReadiness() }
     var previewKey by rememberSaveable { mutableStateOf("CANONICAL_JSON") }
     var showPreview by rememberSaveable { mutableStateOf(false) }
     var confirmIsolate by remember { mutableStateOf(false) }
@@ -62,7 +67,7 @@ fun PublicationScreen(viewModel: MainViewModel) {
     }
     LaunchedEffect(showPreview, previewKey, number, samples) { if (showPreview) viewModel.loadPreviewSnippet(previewKey) }
     Scaffold(contentWindowInsets = WindowInsets(0, 0, 0, 0), topBar = {
-        StudioTopBar(stringResource(R.string.screen_export), tr("LOT $number", "BATCH $number"))
+        WorkspaceTopBar(viewModel, stringResource(R.string.screen_export), tr("LOT $number", "BATCH $number"))
     }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = 800.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -73,12 +78,27 @@ fun PublicationScreen(viewModel: MainViewModel) {
             if(samples.isNotEmpty() && rejected==samples.size && batch?.status !in setOf("VERIFIED","PURGED")) OutlinedButton(onClick={confirmRejected=true},enabled=!busy,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.publication_close_rejections))}
             StudioSection(stringResource(R.string.publication_local_archive), tr("Sans publication, avec choix de l’emplacement Android.", "Choose an Android destination without publishing."), Icons.Default.FolderZip) {
                 Text(tr("ZIP · Images et annotations JSONL", "ZIP · Images and JSONL annotations"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                ExportToggle("WebDataset TAR", tr("Lecture par shards. Demande de l’espace supplémentaire.", "Read by shards. Requires additional storage."), tar, !busy) { tar = it }
-                ExportToggle("COCO", tr("Boîtes uniquement; ne remplace pas les points ou légendes.", "Boxes only; does not replace points or captions."), coco, !busy) { coco = it }
-                ExportToggle("YOLO", tr("Boîtes et classes. Une classe inconnue bloque l’export.", "Boxes and classes. An unknown class blocks export."), yolo, !busy) { yolo = it }
-                ExportToggle(tr("Vision-langage", "Vision-language"), tr("Conserve les paires saisies et les abstentions; n’invente pas de réponse.", "Preserves entered pairs and abstentions; never invents answers."), vl, !busy) { vl = it }
-                Button(onClick = { viewModel.exportActiveBatchToLocalZip(tar, true, coco, yolo, vl) }, enabled = !busy && available > 0 && batch?.status !in com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety.lockedStates, modifier = Modifier.heightIn(min = 40.dp)) {
+                ExportToggle("WebDataset TAR", tr("Lecture par shards. Demande de l’espace supplémentaire.", "Read by shards. Requires additional storage."), tar, !busy && !formatsLocked) { viewModel.saveExportFormats(it, coco, yolo, vl) }
+                ExportToggle("COCO", tr("Boîtes et masques. Points et légendes restent dans le JSONL complet.", "Boxes and masks. Points and captions remain in the full JSONL."), coco, !busy && !formatsLocked) { viewModel.saveExportFormats(tar, it, yolo, vl) }
+                ExportToggle("YOLO", tr("Boîtes et classes. Une classe inconnue bloque l’export.", "Boxes and classes. An unknown class blocks export."), yolo, !busy && !formatsLocked) { viewModel.saveExportFormats(tar, coco, it, vl) }
+                ExportToggle(tr("Vision-langage", "Vision-language"), tr("Conserve les paires saisies et les abstentions; n’invente pas de réponse.", "Preserves entered pairs and abstentions; never invents answers."), vl, !busy && !formatsLocked) { viewModel.saveExportFormats(tar, coco, yolo, it) }
+                Text(tr("Ces formats s’appliquent à l’archive et à la publication HF.", "These formats apply to both the archive and HF publication."), style = MaterialTheme.typography.bodySmall)
+                if (missingClasses.isNotEmpty() && (coco || yolo)) {
+                    Text(tr("Classes à ajouter pour COCO / YOLO : ${missingClasses.joinToString()}", "Classes to add for COCO / YOLO: ${missingClasses.joinToString()}"), color = MaterialTheme.colorScheme.error)
+                    OutlinedButton(onClick = { viewModel.saveProjectClasses(com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.append(project?.classesCsv.orEmpty(), missingClasses)) }, enabled = !busy && !formatsLocked) {
+                        Text(tr("Ajouter ces classes au projet", "Add these classes to the project"))
+                    }
+                    Text(tr("Vous pouvez aussi désactiver COCO et YOLO pour conserver l’archive JSONL complète.", "You can also turn off COCO and YOLO to keep the full JSONL archive."), style = MaterialTheme.typography.bodySmall)
+                }
+                if (available == 0 && samples.isNotEmpty()) Text(tr("Validez au moins une image pour préparer une archive.", "Approve at least one image to prepare an archive."), style = MaterialTheme.typography.bodySmall)
+                Button(onClick = { viewModel.exportActiveBatchToLocalZip(tar, true, coco, yolo, vl) }, enabled = !busy && formatsReady && available > 0 && batch?.status !in com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety.lockedStates, modifier = Modifier.heightIn(min = 40.dp)) {
                     Icon(Icons.Default.Archive, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(tr("Créer l’archive · $available", "Create archive · $available"))
+                }
+                if (batch?.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT")) {
+                    Text(tr("Un envoi est en attente. Vous pouvez sauvegarder son paquet sans modifier la publication.", "An upload is pending. You can save its package without changing the publication."), style = MaterialTheme.typography.bodySmall)
+                    OutlinedButton(onClick = viewModel::recoverPendingTransferArchive, enabled = !busy) {
+                        Text(tr("Récupérer une archive locale", "Recover a local archive"))
+                    }
                 }
                 lastZip?.takeIf { it.isFile }?.let { file ->
                     Text(tr("Archive prête · %.1f Mo", "Archive ready · %.1f MB").format(file.length() / 1048576.0), style = MaterialTheme.typography.labelLarge)
@@ -97,11 +117,11 @@ fun PublicationScreen(viewModel: MainViewModel) {
             }
             StudioDisclosure(stringResource(R.string.publication_hf), Icons.Default.CloudUpload, initiallyExpanded = batch?.status in setOf("PUBLISHING", "CONFLICT", "VERIFIED", "PURGING")) {
                 Text((batch?.remoteRepoId ?: project?.hfDestRepo)?.ifBlank { tr("Destination à configurer", "Configure destination") } ?: tr("Destination à configurer", "Configure destination"), style = MaterialTheme.typography.bodyMedium)
-                TextButton(onClick = { viewModel.navigateTo(Screen.Controls) },enabled=!busy){Text(stringResource(R.string.publication_transfer_options))}
-                if (project?.hfDestRepo.isNullOrBlank()) OutlinedButton(onClick = { viewModel.navigateTo(Screen.Setup) }) { Text(stringResource(R.string.publication_configure_destination)) }
-                StudioDetails(tr("Le lot distant utilise les formats enregistrés dans Moteur et transferts, avec images et JSONL canonique obligatoires. Tous les cas doivent avoir une décision finale. Les fichiers sont relus à distance et comparés par SHA-256.", "The remote batch uses the formats saved in Transfers; images and canonical JSONL are required. Every sample needs a final decision. Remote files are read back and compared by SHA-256."), style = MaterialTheme.typography.bodyMedium)
+                TextButton(onClick = { viewModel.navigateTo(Screen.TransferSettings) },enabled=!busy){Text(stringResource(R.string.publication_transfer_options))}
+                if (project?.hfDestRepo.isNullOrBlank()) OutlinedButton(onClick = { viewModel.navigateTo(Screen.TransferSettings) }) { Text(stringResource(R.string.publication_configure_destination)) }
+                StudioDetails(tr("Le lot distant utilise les formats choisis ci-dessus, avec images et JSONL canonique obligatoires. Tous les cas doivent avoir une décision finale. Les fichiers sont relus à distance et comparés par SHA-256.", "The remote batch uses the formats selected above; images and canonical JSONL are required. Every sample needs a final decision. Remote files are read back and compared by SHA-256."), style = MaterialTheme.typography.bodyMedium)
                 if (unfinished > 0) Text(tr("$unfinished cas non terminés : reprenez les différés ou rejetez-les avec un motif.", "$unfinished unfinished samples: resume deferred samples or reject them with a reason."), color = MaterialTheme.colorScheme.error)
-                Button(onClick = { confirmPublish = true }, enabled = !busy && validated > 0 && unfinished == 0 && !project?.hfDestRepo.isNullOrBlank() && batch?.status !in setOf("PURGING","PURGED") && (batch?.status != "VERIFIED" || batch.verificationKind == "local"), modifier = Modifier.heightIn(min = 40.dp)) { Text(when(batch?.status) { "PUBLISHED" -> tr("Reprendre la vérification", "Resume verification"); "PREPARED","PUBLISHING","CONFLICT" -> tr("Réconcilier l’envoi", "Reconcile upload"); else -> tr("Publier & vérifier", "Publish & verify") }) }
+                Button(onClick = { confirmPublish = true }, enabled = !busy && (formatsReady || formatsLocked) && validated > 0 && unfinished == 0 && !project?.hfDestRepo.isNullOrBlank() && batch?.status !in setOf("PURGING","PURGED") && (batch?.status != "VERIFIED" || batch.verificationKind == "local"), modifier = Modifier.heightIn(min = 40.dp)) { Text(when(batch?.status) { "PUBLISHED" -> tr("Reprendre la vérification", "Resume verification"); "PREPARED","PUBLISHING","CONFLICT" -> tr("Réconcilier l’envoi", "Reconcile upload"); else -> tr("Publier & vérifier", "Publish & verify") }) }
                 batch?.lastTransferError?.let { Text(it, color=MaterialTheme.colorScheme.error) }
                 if(batch?.status=="CONFLICT" && batch.hfCommitSha==null) OutlinedButton(onClick={confirmIsolate=true},enabled=!busy) { Text(stringResource(R.string.publication_isolate_retry)) }
                 batch?.hfCommitSha?.let { sha -> SelectionContainer { Text("Commit : $sha", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace) } }

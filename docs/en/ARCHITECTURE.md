@@ -39,4 +39,4 @@ The optional HTTP planner receives counts, instructions and templates on `localh
 
 ## Where the evidence lives
 
-The [current report](VALIDATION.md) identifies the exact rc6 APKs and separates them from earlier phone and interruption campaigns. The [model matrix](LITERT_QUALIFICATION.md) records individual conversion results. This architecture describes responsibilities; it does not claim every integration has been qualified.
+The [current report](VALIDATION.md) identifies the exact rc7 APKs and separates them from earlier phone and interruption campaigns. The [model matrix](LITERT_QUALIFICATION.md) records individual conversion results. This architecture describes responsibilities; it does not claim every integration has been qualified.

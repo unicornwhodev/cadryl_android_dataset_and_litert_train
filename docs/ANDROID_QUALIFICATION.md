@@ -4,7 +4,7 @@
 
 Cette page décrit les essais à faire et leurs critères de réussite. Les résultats exécutés sont dans le rapport, avec les builds et appareils concernés. Utilise un appareil dédié et des données de test autorisées.
 
-rc6 passe ses suites Release et l’audit strict sur émulateur API 36/16 Ko. La recette du candidat final sur Honor et sur ARM 16 Ko physique reste ouverte. Les anciennes campagnes [P1](P1_QUALIFICATION_2026_09.md), [Honor](RELEASE_CLOSURE_2026_09.md) et [arrière-plan](RELEASE_HARDENING_2026_09.md) conservent leur propre portée. La CI est préparée mais n’a pas été exécutée. Aucune écriture HF n’est déclenchée automatiquement par ce guide.
+rc7 passe ses suites Release et l’audit strict sur émulateur API 36/16 Ko. La recette du candidat final sur Honor et sur ARM 16 Ko physique reste ouverte. Les anciennes campagnes [P1](P1_QUALIFICATION_2026_09.md), [Honor](RELEASE_CLOSURE_2026_09.md) et [arrière-plan](RELEASE_HARDENING_2026_09.md) conservent leur propre portée. La CI est préparée mais n’a pas été exécutée. Aucune écriture HF n’est déclenchée automatiquement par ce guide.
 
 ## P0 : assembler, résoudre et installer
 

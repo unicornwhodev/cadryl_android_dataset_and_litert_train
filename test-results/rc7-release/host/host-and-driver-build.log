@@ -1,0 +1,123 @@
+Picked up JAVA_TOOL_OPTIONS: -Drobolectric.offline=true -Drobolectric.dependency.dir=D:/Dev/project/vision-dataset-studio/dist/ux-20260926/robolectric
+Calculating task graph as no cached configuration is available for tasks: :release-qa:assembleRelease :app:testDebugUnitTest :app:lintDebug
+> Task :release-qa:generateReleaseAssets UP-TO-DATE
+> Task :release-qa:preBuild UP-TO-DATE
+> Task :release-qa:preReleaseBuild UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :release-qa:checkTestedAppObfuscationRelease UP-TO-DATE
+> Task :release-qa:generateReleaseResources UP-TO-DATE
+> Task :release-qa:packageReleaseResources UP-TO-DATE
+> Task :release-qa:javaPreCompileRelease UP-TO-DATE
+> Task :release-qa:processReleaseNavigationResources UP-TO-DATE
+> Task :release-qa:parseReleaseLocalResources UP-TO-DATE
+> Task :release-qa:generateReleaseRFile UP-TO-DATE
+> Task :release-qa:mergeReleaseAssets UP-TO-DATE
+> Task :release-qa:compressReleaseAssets UP-TO-DATE
+> Task :release-qa:compileReleaseKotlin NO-SOURCE
+> Task :release-qa:checkReleaseDuplicateClasses UP-TO-DATE
+> Task :release-qa:desugarReleaseFileDependencies UP-TO-DATE
+> Task :release-qa:mergeExtDexRelease UP-TO-DATE
+> Task :release-qa:mergeLibDexRelease UP-TO-DATE
+> Task :release-qa:checkReleaseAarMetadata UP-TO-DATE
+> Task :release-qa:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :release-qa:compileReleaseNavigationResources UP-TO-DATE
+> Task :release-qa:mergeReleaseResources UP-TO-DATE
+> Task :release-qa:processReleaseManifest UP-TO-DATE
+> Task :release-qa:processReleaseResources UP-TO-DATE
+> Task :release-qa:processReleaseJavaRes NO-SOURCE
+> Task :release-qa:mergeReleaseJavaResource UP-TO-DATE
+> Task :release-qa:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :release-qa:mergeReleaseNativeLibs NO-SOURCE
+> Task :release-qa:stripReleaseDebugSymbols NO-SOURCE
+> Task :release-qa:validateSigningRelease UP-TO-DATE
+> Task :release-qa:writeReleaseSigningConfigVersions UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+
+> Task :release-qa:compileReleaseJavaWithJavac
+Note: D:\Dev\project\vision-dataset-studio\release-qa\src\main\java\com\unicornwhodev\visiondatasetstudio\releaseqa\ReleaseWorkflowTest.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :release-qa:dexBuilderRelease
+> Task :release-qa:mergeProjectDexRelease
+> Task :release-qa:packageRelease
+> Task :release-qa:createReleaseApkListingFileRedirect UP-TO-DATE
+> Task :release-qa:assembleRelease
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:packageDebugUnitTestForUnitTest
+> Task :app:processDebugUnitTestManifest
+> Task :app:generateDebugUnitTestConfig
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :app:kspDebugKotlin
+> Task :app:compileDebugKotlin
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/domain/inference/LiteRtTrainingSession.kt:63:80 Java type mismatch: inferred type is 'Any?', but 'Any' was expected.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/domain/inference/MaskCodec.kt:74:83 Condition is always 'true'.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/components/StudioComponents.kt:88:36 'val Icons.Filled.HelpOutline: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.HelpOutline.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/AnnotationEditorScreen.kt:310:142 'val Icons.Filled.Assignment: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Assignment.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/AnnotationEditorScreen.kt:586:38 'val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/AnnotationEditorScreen.kt:586:185 'val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/ModelConfigurationScreen.kt:45:92 'val Icons.Filled.Label: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Label.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/ModelLibraryScreen.kt:149:56 'val Icons.Filled.InsertDriveFile: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.InsertDriveFile.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/QualityDashboardScreen.kt:54:131 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/SetupScreen.kt:210:156 'val Icons.Filled.Label: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Label.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/SetupScreen.kt:247:102 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/StudioHomeScreen.kt:66:79 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/main/java/com/unicornwhodev/visiondatasetstudio/ui/screens/StudioHomeScreen.kt:213:42 Condition is always 'true'.
+
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:generateDebugLintReportModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:kspDebugUnitTestKotlin
+
+> Task :app:compileDebugUnitTestKotlin
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/test/java/com/unicornwhodev/visiondatasetstudio/MoshiV4Test.kt:35:22 'fun createTempFile(prefix: String = ..., suffix: String? = ..., directory: File? = ...): File' is deprecated. Avoid creating temporary files in the default temp location with this function due to too wide permissions on the newly created file. Use kotlin.io.path.createTempFile instead or resort to java.io.File.createTempFile.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/test/java/com/unicornwhodev/visiondatasetstudio/RuntimeSmokeTest.kt:82:86 Unchecked cast of 'Map<*, *>?' to 'Map<String, Any>'.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/test/java/com/unicornwhodev/visiondatasetstudio/StabilizationTest.kt:15:17 'fun createTempDir(prefix: String = ..., suffix: String? = ..., directory: File? = ...): File' is deprecated. Avoid creating temporary directories in the default temp location with this function due to too wide permissions on the newly created directory. Use kotlin.io.path.createTempDirectory instead.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/test/java/com/unicornwhodev/visiondatasetstudio/StabilizationTest.kt:25:17 'fun createTempDir(prefix: String = ..., suffix: String? = ..., directory: File? = ...): File' is deprecated. Avoid creating temporary directories in the default temp location with this function due to too wide permissions on the newly created directory. Use kotlin.io.path.createTempDirectory instead.
+w: file:///D:/Dev/project/vision-dataset-studio/app/src/test/java/com/unicornwhodev/visiondatasetstudio/StabilizationTest.kt:202:18 'fun createTempDir(prefix: String = ..., suffix: String? = ..., directory: File? = ...): File' is deprecated. Avoid creating temporary directories in the default temp location with this function due to too wide permissions on the newly created directory. Use kotlin.io.path.createTempDirectory instead.
+
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:lintAnalyzeDebug
+
+Picked up JAVA_TOOL_OPTIONS: -Drobolectric.offline=true -Drobolectric.dependency.dir=D:/Dev/project/vision-dataset-studio/dist/ux-20260926/robolectric
+> Task :app:testDebugUnitTest
+
+> Task :app:finalizeTestRoborazziDebug SKIPPED
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:lintAnalyzeDebugAndroidTest
+
+> Task :app:lintReportDebug
+Wrote HTML report to file:///D:/Dev/project/vision-dataset-studio/app/build/reports/lint-results-debug.html
+
+> Task :app:lintDebug
+
+[Incubating] Problems report is available at: file:///D:/Dev/project/vision-dataset-studio/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 2m 9s
+69 actionable tasks: 29 executed, 40 up-to-date
+Configuration cache entry stored.

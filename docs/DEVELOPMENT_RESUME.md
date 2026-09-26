@@ -2,7 +2,7 @@
 
 [Documentation](README.md) · [English](en/DEVELOPMENT_RESUME.md)
 
-Le projet est sur `main`. La version actuelle est **4.2.0-rc6**, code Android **11**. Le nom affiché est Cadryl ; le package reste `com.unicornwhodev.visiondatasetstudio`. Garde cette identité pour les mises à jour et les données.
+Le projet est sur `main`. La version actuelle est **4.2.0-rc7**, code Android **12**. Le nom affiché est Cadryl ; le package reste `com.unicornwhodev.visiondatasetstudio`. Garde cette identité pour les mises à jour et les données.
 
 ## Préparer le poste
 
@@ -24,7 +24,7 @@ Les deux chemins sont des exemples : adapte-les à ton poste.
 
 Gradle utilise trois AAR locaux avec des contrôles de provenance : Flex `2.16.1-vds16k1`, Graphics Path `1.0.1-vds16k1` et LiteRT `2.2.0-vds16k2`. Ils ne sont pas stockés dans Git.
 
-La [release rc6](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc6) fournit un ZIP pour chacun. Vérifie `SHA256SUMS`, puis extrais leurs chemins `dist/native-*/maven/...` à la racine du clone. Garde l’AAR, le POM et le reçu ensemble. Les scripts Android vérifient leurs empreintes et leur recette avant compilation.
+La [release rc7](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc7) fournit un ZIP pour chacun. Vérifie `SHA256SUMS`, puis extrais leurs chemins `dist/native-*/maven/...` à la racine du clone. Garde l’AAR, le POM et le reçu ensemble. Les scripts Android vérifient leurs empreintes et leur recette avant compilation.
 
 Pour les reconstruire, suis [Flex](FLEX_16K.md), [Graphics Path](GRAPHICS_PATH_16K.md) et [LiteRT](LITERT_16K_STATUS.md). Cette étape demande Linux ou WSL et les outils épinglés. Les builds Android suivants peuvent tourner directement sous Windows.
 
@@ -44,7 +44,7 @@ python -X utf8 tools/qa/build_release_test_apks.py --abi arm64-v8a
 python -X utf8 tools/qa/build_release_test_apks.py --abi x86_64
 ```
 
-Exécute ces builds l’un après l’autre. La [procédure Release](RELEASE_TESTING.md) explique la signature commune app/tests, le mapping R8 et les 40 tests métier. Le pilote indépendant `release-qa` couvre quatre scénarios UI. Les clés privées restent hors du dépôt ; un clone n’en contient aucune.
+Exécute ces builds l’un après l’autre. La [procédure Release](RELEASE_TESTING.md) explique la signature commune app/tests, le mapping R8 et les 45 tests métier. Le pilote indépendant `release-qa` couvre cinq scénarios UI. Les clés privées restent hors du dépôt ; un clone n’en contient aucune.
 
 Sous Linux, utilise `python3` et les variables d’environnement de ton shell. Le script `tools/build_android.sh` appelle le même build Python.
 
@@ -62,4 +62,4 @@ Avant une modification, garde ces règles en tête : les corrections humaines re
 
 ## La reprise actuelle
 
-Les correctifs natifs et la suite Release sont dans rc6. Restent la recette du candidat sur téléphone, ARM 16 Ko physique, les essais longs, la qualité du catalogue, la CI distante et la revue des notices. Les résultats détaillés sont dans [TEST_REPORT.md](../TEST_REPORT.md) ; la [feuille de route](ROADMAP.md) fixe l’ordre.
+Les correctifs natifs et la suite Release sont dans rc7. Restent la recette du candidat sur téléphone, ARM 16 Ko physique, les essais longs, la qualité du catalogue, la CI distante et la revue des notices. Les résultats détaillés sont dans [TEST_REPORT.md](../TEST_REPORT.md) ; la [feuille de route](ROADMAP.md) fixe l’ordre.

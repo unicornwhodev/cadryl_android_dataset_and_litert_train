@@ -12,6 +12,8 @@ Le [symbole SVG](brand/cadryl-mark.svg), le [logo](brand/cadryl-lockup.svg) et l
 
 ## L’application réelle
 
+Les captures [accueil rc7](../test-results/rc7-release/visuals/home.png) et [Images rc7](../test-results/rc7-release/visuals/images.png) ont été prises le 27 septembre sur la Release x86_64 signée, en français, puis inspectées sans retouche. Elles utilisent un projet de démonstration vide sur l’émulateur API 36/16 Ko. Le [reçu](../test-results/rc7-release/visuals/binding.json) relie l’APK installée et les fichiers à leurs empreintes. Les captures rc6 ci-dessous restent historiques.
+
 | Visuel | Ce qu’il montre |
 |---|---|
 | [Accueil rc6](../test-results/rc6-release/arm/home.png) | APK Cadryl Release ARM64 signée, émulateur API 36/16 Ko, ARM traduit |

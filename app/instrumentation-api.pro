@@ -925,8 +925,6 @@
   int qualification_training;
   int quality_open_batches;
   int quality_storage;
-  int screen_controls;
-  int screen_models;
   int setup_project_name;
   int training_activate;
   int training_scope_classification;
@@ -967,6 +965,7 @@
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings {
   public <init>(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,int,int,int,int,int,boolean,boolean,boolean,long,java.lang.String,java.lang.String,boolean,boolean,boolean,boolean,boolean,boolean,boolean,boolean,java.lang.String,int,int,int,kotlin.jvm.internal.DefaultConstructorMarker);
   public static com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings copy$default(com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,int,int,int,int,int,boolean,boolean,boolean,long,java.lang.String,java.lang.String,boolean,boolean,boolean,boolean,boolean,boolean,boolean,boolean,java.lang.String,int,int,int,java.lang.Object);
+  public boolean getAutoPreannotate();
   public boolean getContinuousTraining();
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety {
@@ -1003,6 +1002,7 @@
 -keep,allowaccessmodification interface com.unicornwhodev.visiondatasetstudio.data.db.BatchDao {
   public java.lang.Object getBatchSync(long,int,kotlin.coroutines.Continuation);
   public java.lang.Object insertOrReplace(com.unicornwhodev.visiondatasetstudio.data.model.BatchEntity,kotlin.coroutines.Continuation);
+  public java.lang.Object updateBatch(com.unicornwhodev.visiondatasetstudio.data.model.BatchEntity,kotlin.coroutines.Continuation);
 }
 -keep,allowaccessmodification interface com.unicornwhodev.visiondatasetstudio.data.db.ImageIdentityDao {
   public java.lang.Object owner(long,java.lang.String,java.lang.String,kotlin.coroutines.Continuation);
@@ -1033,8 +1033,7 @@
   public <init>(okhttp3.OkHttpClient,kotlin.jvm.functions.Function0);
   public java.lang.Object checkDatasetAccess(java.lang.String,kotlin.coroutines.Continuation);
   public java.lang.Object createDatasetRepo(java.lang.String,boolean,kotlin.coroutines.Continuation);
-  public static java.lang.Object downloadImage$default(com.unicornwhodev.visiondatasetstudio.data.hf.HfApiClient,java.lang.String,java.io.File,kotlin.jvm.functions.Function2,long,kotlin.coroutines.Continuation,int,java.lang.Object);
-  public java.lang.Object downloadImage(java.lang.String,java.io.File,kotlin.jvm.functions.Function2,long,kotlin.coroutines.Continuation);
+  public static java.lang.Object downloadImage$default(com.unicornwhodev.visiondatasetstudio.data.hf.HfApiClient,java.lang.String,java.io.File,kotlin.jvm.functions.Function2,long,kotlin.jvm.functions.Function1,kotlin.coroutines.Continuation,int,java.lang.Object);
   public java.lang.Object requirePathsAbsent(java.lang.String,java.lang.String,java.util.List,kotlin.coroutines.Continuation);
   public static java.lang.Object resolveRevision$default(com.unicornwhodev.visiondatasetstudio.data.hf.HfApiClient,java.lang.String,java.lang.String,kotlin.coroutines.Continuation,int,java.lang.Object);
   public static java.lang.Object uploadBatchFiles$default(com.unicornwhodev.visiondatasetstudio.data.hf.HfApiClient,java.lang.String,java.lang.String,java.lang.String,java.util.List,java.lang.String,kotlin.coroutines.Continuation,int,java.lang.Object);
@@ -1058,6 +1057,12 @@
   public java.util.List getOrgs();
   public java.lang.String getUsername();
   public boolean isValid();
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.data.hf.RemoteFileDigest {
+  public <init>(java.lang.String,long,java.lang.String);
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.data.hf.RemoteReceipt {
+  public <init>(int,java.util.List,int,kotlin.jvm.internal.DefaultConstructorMarker);
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.data.json.StudioJson {
   public com.squareup.moshi.Moshi getMoshi();
@@ -1111,7 +1116,10 @@
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity {
   public <init>(long,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,long,java.lang.String,java.lang.String,boolean,java.lang.String,long,long,long,int,kotlin.jvm.internal.DefaultConstructorMarker);
   public static com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity copy$default(com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity,long,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,long,java.lang.String,java.lang.String,boolean,java.lang.String,long,long,long,int,java.lang.Object);
+  public java.lang.String getActiveTasksCsv();
   public java.lang.String getClassesCsv();
+  public java.lang.String getHfDestRepo();
+  public java.lang.String getHfSourceRepo();
   public long getId();
   public long getLastRowCursor();
   public java.lang.String getModelConfigJson();
@@ -1179,9 +1187,11 @@
   public java.lang.Object publishAndVerifyBatch(long,int,kotlin.coroutines.Continuation);
   public java.lang.Object purgeReviewedBatch(long,int,boolean,kotlin.coroutines.Continuation);
   public java.lang.Object recordLocalArchive(long,int,java.io.File,kotlin.coroutines.Continuation);
+  public java.lang.Object recoverPendingArchive(long,int,kotlin.coroutines.Continuation);
   public java.lang.Object requireUniqueExport(java.util.List,kotlin.coroutines.Continuation);
   public static java.lang.Object runBatchInference$default(com.unicornwhodev.visiondatasetstudio.domain.batch.BatchEngine,long,int,com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig,boolean,kotlin.jvm.functions.Function2,kotlin.coroutines.Continuation,int,java.lang.Object);
   public java.lang.Object saveSampleAnnotations(java.lang.String,com.unicornwhodev.visiondatasetstudio.data.model.SampleAnnotations,kotlin.coroutines.Continuation);
+  public java.lang.Object snapshot(long,int,kotlin.coroutines.Continuation);
   public java.lang.Object validateSample(java.lang.String,int,kotlin.coroutines.Continuation);
   public java.lang.Object verifyLocalArchive(long,int,java.lang.String,kotlin.coroutines.Continuation);
 }
@@ -1200,6 +1210,7 @@
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.domain.batch.ProjectMaintenance {
   public <init>(android.content.Context,com.unicornwhodev.visiondatasetstudio.data.db.AppDatabase,com.unicornwhodev.visiondatasetstudio.core.storage.StorageManager,kotlin.jvm.functions.Function1);
   public <init>(android.content.Context,com.unicornwhodev.visiondatasetstudio.data.db.AppDatabase,com.unicornwhodev.visiondatasetstudio.core.storage.StorageManager,kotlin.jvm.functions.Function1,int,kotlin.jvm.internal.DefaultConstructorMarker);
+  public java.lang.Object deleteProject(long,kotlin.coroutines.Continuation);
   public java.lang.Object discardBatch(long,int,kotlin.coroutines.Continuation);
   public java.lang.Object resetBatch(long,int,kotlin.coroutines.Continuation);
   public java.lang.Object resetProject(long,kotlin.coroutines.Continuation);
@@ -1211,9 +1222,15 @@
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.domain.export.DatasetExporters {
   public <init>(com.unicornwhodev.visiondatasetstudio.core.storage.StorageManager,com.unicornwhodev.visiondatasetstudio.data.hf.HfApiClient);
+  public java.lang.Object packageBatchForHf(com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity,int,java.util.List,boolean,boolean,boolean,boolean,boolean,kotlin.coroutines.Continuation);
   public static java.lang.Object packageBatchToLocalZip$default(com.unicornwhodev.visiondatasetstudio.domain.export.DatasetExporters,com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity,int,java.util.List,boolean,boolean,boolean,boolean,boolean,kotlin.coroutines.Continuation,int,java.lang.Object);
   public java.lang.Object packageBatchToLocalZip(com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity,int,java.util.List,boolean,boolean,boolean,boolean,boolean,kotlin.coroutines.Continuation);
   public boolean verifyPreparedPackage(java.io.File);
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.domain.export.DatasetExporters$ExportPackageResult {
+  public java.lang.String getError();
+  public java.util.List getGeneratedFiles();
+  public boolean getSuccess();
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.domain.export.DatasetExporters$LocalZipExportResult {
   public java.lang.String getError();
@@ -1321,10 +1338,12 @@
   public java.lang.String getLastNote();
   public com.unicornwhodev.visiondatasetstudio.domain.inference.TensorValues getLastPatches();
   public com.unicornwhodev.visiondatasetstudio.domain.inference.InferenceResult getLastResult();
+  public com.unicornwhodev.visiondatasetstudio.domain.inference.ModelInputSpec inputSpec(com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig);
   public static boolean loadModel$default(com.unicornwhodev.visiondatasetstudio.domain.inference.LiteRtEngine,java.io.File,int,int,java.lang.Object);
   public boolean loadModel(java.io.File,int);
   public java.lang.Object runInference(android.graphics.Bitmap,com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig,kotlin.coroutines.Continuation);
   public java.lang.String tensorReport();
+  public kotlin.Unit validateInput(com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig);
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.domain.inference.LiteRtTrainingSession {
   public <init>(java.io.File,com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig);
@@ -1375,6 +1394,8 @@
   public java.lang.String resize(com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig);
   public void validate(com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig);
   com.unicornwhodev.visiondatasetstudio.domain.inference.ModelContract INSTANCE;
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.domain.inference.ModelInputSpec {
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.domain.inference.ModelProposal {
   public <init>(java.lang.String,java.lang.String,float,float,float,float,float,float,float,java.lang.String,java.lang.String,int,java.lang.String,java.lang.Float,java.lang.Float,float,float,com.unicornwhodev.visiondatasetstudio.data.model.MaskTarget,java.lang.Integer,java.lang.Float,java.lang.Float,java.lang.Float,java.lang.Float,java.lang.String,java.util.List,int,kotlin.jvm.internal.DefaultConstructorMarker);
@@ -1523,6 +1544,7 @@
   public com.unicornwhodev.visiondatasetstudio.domain.batch.BatchEngine getBatchEngine();
   public kotlinx.coroutines.flow.StateFlow getCurrentAnnotations();
   public kotlinx.coroutines.flow.StateFlow getCurrentSample();
+  public kotlinx.coroutines.flow.StateFlow getCurrentScreen();
   public com.unicornwhodev.visiondatasetstudio.data.db.AppDatabase getDb();
   public com.unicornwhodev.visiondatasetstudio.domain.training.OnDeviceTraining getDeviceTraining();
   public kotlinx.coroutines.flow.StateFlow getEditorBusy();
@@ -1565,8 +1587,8 @@
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.ui.Screen$Home {
   com.unicornwhodev.visiondatasetstudio.ui.Screen$Home INSTANCE;
 }
--keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.ui.Screen$Models {
-  com.unicornwhodev.visiondatasetstudio.ui.Screen$Models INSTANCE;
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.ui.Screen$ModelSettings {
+  com.unicornwhodev.visiondatasetstudio.ui.Screen$ModelSettings INSTANCE;
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.ui.Screen$Preferences {
   com.unicornwhodev.visiondatasetstudio.ui.Screen$Preferences INSTANCE;
@@ -1896,6 +1918,7 @@
 -keep,allowaccessmodification class kotlin.io.FilesKt {
 }
 -keep,allowaccessmodification class kotlin.io.FilesKt__FileReadWriteKt {
+  public static void appendText$default(java.io.File,java.lang.String,java.nio.charset.Charset,int,java.lang.Object);
   public static byte[] readBytes(java.io.File);
   public static java.lang.String readText$default(java.io.File,java.nio.charset.Charset,int,java.lang.Object);
   public static void writeBytes(java.io.File,byte[]);
@@ -2071,6 +2094,7 @@
 -keep,allowaccessmodification class kotlin.text.StringsKt__StringsJVMKt {
   public static boolean endsWith$default(java.lang.String,java.lang.String,boolean,int,java.lang.Object);
   public static boolean equals(java.lang.String,java.lang.String,boolean);
+  public static java.lang.String repeat(java.lang.CharSequence,int);
   public static java.lang.String replace$default(java.lang.String,java.lang.String,java.lang.String,boolean,int,java.lang.Object);
   public static boolean startsWith$default(java.lang.String,java.lang.String,boolean,int,java.lang.Object);
   public static boolean startsWith(java.lang.String,java.lang.String,boolean);

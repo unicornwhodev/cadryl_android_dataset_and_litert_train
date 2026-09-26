@@ -56,7 +56,7 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
             for((n,row) in response.rows.withIndex()) {
                 check(project.imageColumn !in row.truncatedCells) { tr("Cellule image tronquée : ligne ${row.rowIdx}", "Truncated image cell: row ${row.rowIdx}") }
                 val raw=row.rowData[project.imageColumn]
-                val ref=when(raw){is Map<*,*>->raw["src"] as? String ?: raw["url"] as? String;is String->raw;else->null}
+                val ref=SourceImageColumn.reference(raw)
                 check(ref?.startsWith("https://")==true) { tr("Colonne ${project.imageColumn} sans URL HTTPS exploitable. Utilisez une source manifeste.", "Column ${project.imageColumn} has no usable HTTPS URL. Use a manifest source.") }
                 val id=SourceIdentity.string(row.rowData[project.idColumn]) ?: "${project.sourceConfig}:${project.sourceSplit}:${row.rowIdx}"
                 val a=if(settings.importAnnotations) row.rowData["annotations"]?.let{annotationJson(it)} else null
@@ -193,7 +193,12 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
         ordinal
     }
     suspend fun copyAsset(ref:String,dest:File,maxBytes:Long):Boolean = withContext(Dispatchers.IO) {
-        if(ref.startsWith("https://")) return@withContext hf.downloadImage(ref,dest,maxBytes=maxBytes)
+        if(ref.startsWith("https://")) {
+            var failure: String? = null
+            val downloaded = hf.downloadImage(ref,dest,maxBytes=maxBytes,onFailure={failure=it})
+            check(downloaded) { failure ?: tr("Téléchargement incomplet. Réessayez.", "Download incomplete. Retry.") }
+            return@withContext true
+        }
         require(ref.startsWith("content://")){tr("Source non autorisée", "Source not authorized")}
         val copyContext=coroutineContext
         context.contentResolver.openInputStream(Uri.parse(ref))?.use { input ->

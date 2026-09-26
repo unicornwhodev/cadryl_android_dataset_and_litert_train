@@ -27,7 +27,7 @@ public final class ReleaseWorkflowTest {
     private static final class Node {
         String text, description, className;
         Rect bounds = new Rect();
-        boolean enabled, checkable, checked, scrollable, focused;
+        boolean enabled, checkable, checked, scrollable, focused, clickable;
         Node parent;
     }
 
@@ -65,7 +65,7 @@ public final class ReleaseWorkflowTest {
             node.className=String.valueOf(source.getClassName());
             source.getBoundsInScreen(node.bounds);
             node.enabled=source.isEnabled();node.checkable=source.isCheckable();node.checked=source.isChecked();node.scrollable=source.isScrollable();
-            node.focused=source.isFocused();
+            node.focused=source.isFocused();node.clickable=source.isClickable();
             result.add(node);
             for(int i=0;i<source.getChildCount();i++) {
                 AccessibilityNodeInfo child=source.getChild(i);
@@ -118,7 +118,7 @@ public final class ReleaseWorkflowTest {
         automation.waitForIdle(200,5000);
         shell("am force-stop "+APP);
         shell("am start -W -n "+APP+"/.MainActivity");
-        text("Atelier|Studio",false);
+        find(n->n.description.matches("Gérer les projets|Manage projects"),"Home project shortcut",false);
     }
 
     @Before public void launchActualRelease() throws Exception {
@@ -140,7 +140,7 @@ public final class ReleaseWorkflowTest {
         click("Qualité|Quality");text("Stockage|Storage",false);
     }
 
-    @Test public void createdProjectSurvivesProcessRestart() throws Exception {
+    private String createProject() throws Exception {
         String name="QA_Release_instrumented_"+System.currentTimeMillis();
         description("Gérer les projets|Manage projects");
         text("Nom du nouveau projet|New project name",true);
@@ -174,10 +174,43 @@ public final class ReleaseWorkflowTest {
         tap(create);
         find(n->!n.className.equals("android.widget.EditText")&&n.text.equals(name),"Created project outside input",false,false);
         restart();text(Pattern.quote(name),false);
+        return name;
+    }
+
+    @Test public void createdProjectSurvivesProcessRestart() throws Exception {
+        createProject();
+    }
+
+    @Test public void guidedSetupValidatesSourceAndReachesReviewWithoutModel() throws Exception {
+        createProject();
+        click("Configurer|Setup");
+        text("D’où viennent vos images \\?|Where are your images\\?",false);
+        Node next=text("Continuer|Continue",false);
+        while(next!=null&&!next.clickable)next=next.parent;
+        assertNotNull("Continue action",next);
+        assertFalse("A local folder is required before continuing",next.enabled);
+        click("Sur Hugging Face|On Hugging Face");
+        Node source=find(n->n.className.equals("android.widget.EditText")&&n.text.isEmpty(),"Empty dataset input",true);
+        tap(source);
+        find(n->n.className.equals("android.widget.EditText")&&n.focused,"Focused dataset input",false);
+        shell("input text example/qa-guide");
+        find(n->n.text.equals("example/qa-guide"),"Entered synthetic dataset identifier",false);
+        if(shell("dumpsys input_method").contains("mInputShown=true"))shell("input keyevent KEYCODE_BACK");
+        automation.waitForIdle(300,5000);
+        click("Continuer|Continue");
+        text("Que voulez-vous annoter \\?|What do you want to annotate\\?",false);
+        tap(find(n->n.text.contains("Décrire des images")||n.text.contains("Describe images"),"Caption task",false,false));
+        click("Continuer|Continue");
+        text("Vérifiez avant de démarrer|Review before you start",false);
+        text("La source n’est pas encore vérifiée.*|The source is not checked yet.*",true);
+        text("Vous commencerez à la main.*|You will start manually.*",true);
+        // Review only: no synthetic repository is queried and the draft is not saved.
+        restart();
     }
 
     private Node guidance() throws Exception {
-        description("Réglages|Settings");
+        description("Plus d’options|More options");
+        click("Réglages|Settings");
         return currentGuidance();
     }
 
