@@ -6,7 +6,7 @@ Start with a few images and no model. Add AI assistance once you are comfortable
 
 ## Install Cadryl
 
-Get **`vision-dataset-studio.apk`** from the [rc7 release](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc7). This is the signed Release app for Android 9+ on ARM64. Model weights are downloaded separately.
+Get **`vision-dataset-studio.apk`** from the [rc7 release](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7). This is the signed Release app for Android 9+ on ARM64. Model weights are downloaded separately.
 
 Check the download against `SHA256SUMS`. In PowerShell:
 
@@ -78,4 +78,4 @@ Confirm cleanup after the copy is verified. Complete or explicitly abandon any u
 | HF access refused | Authentication, repository permissions, access terms and write permission for publication |
 | Viewer offers no usable image column | Use a local folder or JSONL manifest through advanced source options |
 
-[Known limits](KNOWN_LIMITATIONS.md) · [Workflows](WORKFLOWS.md) · [Report a problem](https://github.com/unicornwhodev/vision-dataset-studio/issues).
+[Known limits](KNOWN_LIMITATIONS.md) · [Workflows](WORKFLOWS.md) · [Report a problem](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/issues).

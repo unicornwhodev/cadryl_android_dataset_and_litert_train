@@ -110,5 +110,15 @@
     "receipt": "docs/RC6_PUBLICATION_RECEIPT.json",
     "oci_digest": "sha256:8e81c74bd267156a28d167a32e40342262c62cece2123761de9d579b4484a0a5",
     "package_visibility": "private"
+  },
+  "publication": {
+    "tag": "v4.2.0-rc7",
+    "release": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7",
+    "source_commit": "b380778c321d220a2a8bac315473098a9fd2c02a",
+    "verified_at": "2026-09-26T22:43:46.851754+00:00",
+    "assets_verified": 10,
+    "receipt": "docs/RC7_PUBLICATION_RECEIPT.json",
+    "oci_digest": "sha256:d344b5be448297cbda183b8054ed087aab52db47793a35bca55cc8f49484c1e5",
+    "package_visibility": "private"
   }
 }

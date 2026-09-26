@@ -31,7 +31,7 @@ Pour découvrir l’app, pars du **[premier lot](GETTING_STARTED.md)**. Tu peux 
 
 [État des tests](../TEST_REPORT.md) · [Recette Android](ANDROID_QUALIFICATION.md) · [Tester la Release](RELEASE_TESTING.md) · [Signature](SIGNING.md) · [Distribution](RELEASE_PLAN.md) · [Contrôles avant publication](PUBLICATION_CHECKS.md) · [Feuille de route](ROADMAP.md).
 
-La **[note rc7](RC7_RELEASE.md)** décrit le candidat actuel. Le [reçu rc6](RC6_PUBLICATION_RECEIPT.json) reste la preuve de la publication précédente. Les comptes rendus datés restent accessibles depuis le rapport de tests : ils gardent leurs APK, leurs appareils et leurs limites d’origine. Un ancien succès ne valide pas automatiquement une nouvelle version.
+La **[note rc7](RC7_RELEASE.md)** décrit le candidat actuel. Le [reçu rc7](RC7_PUBLICATION_RECEIPT.json) confirme les dix assets GitHub et les huit couches GHCR vérifiés. Le [reçu rc6](RC6_PUBLICATION_RECEIPT.json) reste la preuve de la publication précédente. Les comptes rendus datés restent accessibles depuis le rapport de tests : ils gardent leurs APK, leurs appareils et leurs limites d’origine. Un ancien succès ne valide pas automatiquement une nouvelle version.
 
 ## Modèles et licences
 

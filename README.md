@@ -8,7 +8,7 @@ Tu importes tes images, tu vérifies ce que propose le modèle, tu corriges et t
 
 Un projet indépendant de **Unicorn Who Dev**, auparavant nommé *Vision Dataset Studio*.
 
-[Télécharger rc7](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc7) · [Faire son premier lot](docs/GETTING_STARTED.md) · [Documentation](docs/README.md) · [English](README.en.md)
+[Télécharger rc7](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7) · [Faire son premier lot](docs/GETTING_STARTED.md) · [Documentation](docs/README.md) · [English](README.en.md)
 
 ## Nouveautés rc7
 
@@ -47,6 +47,6 @@ Les prochaines étapes sont la recette du nouveau candidat sur téléphone, les 
 
 L’app utilise **Kotlin, Compose, Room et LiteRT**. Le [guide de développement](docs/DEVELOPMENT_RESUME.md) explique les dépendances natives, le build Windows/Linux et les tests. L’[architecture](docs/ARCHITECTURE.md) donne les repères pour trouver le bon endroit dans le code.
 
-Un bug, une idée ou une amélioration ? [Ouvre une issue](https://github.com/unicornwhodev/vision-dataset-studio/issues) avec la version, l’appareil et les étapes pour reproduire. Les contributions sont les bienvenues ; les règles utiles tiennent dans [CONTRIBUTING.md](CONTRIBUTING.md).
+Un bug, une idée ou une amélioration ? [Ouvre une issue](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/issues) avec la version, l’appareil et les étapes pour reproduire. Les contributions sont les bienvenues ; les règles utiles tiennent dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Le code est sous [Apache-2.0](LICENSE). Les modèles, datasets et composants tiers gardent leurs propres conditions. [Licences et attributions](LICENSING_STATUS.md).
