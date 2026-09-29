@@ -7,6 +7,11 @@ import org.tensorflow.lite.Interpreter
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 
 private val executedQualifications=mapOf(
     "repvit_m1" to QualificationStatus.INFERENCE_ONLY,
@@ -135,33 +140,54 @@ object CommunityModelCatalog {
         }
     }
 
+    private suspend fun inspectContract(hf:HfApiClient,item:Availability):Availability {
+        val contract=discoveryContractNames.firstNotNullOfOrNull { name ->
+            item.files.firstOrNull{it.path.removePrefix(item.sourcePrefix)==name}
+        } ?: return item
+        val temp=File.createTempFile("vds-model-contract-",".json")
+        return try {
+            runCatching {
+                check(hf.downloadModelFile(item.sourceRepo,item.repoSha,contract.path,temp,1024L*1024)){
+                    tr("Téléchargement du contrat interrompu", "Contract download interrupted")
+                }
+                val config=if(contract.path.substringAfterLast('/')=="runtime_contract.json") {
+                    val metadata=com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(Any::class.java)
+                        .fromJson(temp.readText()) as? Map<*,*> ?: error(tr("Contrat vide", "Empty contract"))
+                    if(!RuntimeModelContracts.isDynamicYolo(metadata)) return item
+                    val labels=item.files.singleOrNull{it.path==item.sourcePrefix+"labels.json"}
+                        ?: error(tr("Classes YOLO absentes", "YOLO labels missing"))
+                    val labelFile=File(temp.path+".labels")
+                    check(hf.downloadModelFile(item.sourceRepo,item.repoSha,labels.path,labelFile,1024L*1024)) {
+                        tr("Téléchargement des classes interrompu", "Label download interrupted")
+                    }
+                    val vocabulary=com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(Any::class.java)
+                        .fromJson(labelFile.readText()) as? Map<*,*> ?: error(tr("Classes YOLO invalides", "Invalid YOLO labels"))
+                    RuntimeModelContracts.dynamicYolo(metadata,vocabulary)
+                } else com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(ModelConfig::class.java)
+                    .failOnUnknown().fromJson(temp.readText()) ?: error(tr("Contrat vide", "Empty contract"))
+                ModelContract.validate(config)
+                val qualification=qualification(item.sourceRepo,item.repoSha,item.entry.id)
+                item.copy(entry=item.entry.copy(capabilities=ModelCapabilities.fromConfig(config,qualification)),
+                    note=tr("Contrat validé · essai sur image requis", "Contract validated · image trial required"))
+            }.getOrElse{
+                item.copy(installableNow=false,note=tr("Contrat invalide ou inaccessible : ${it.message ?: "erreur inconnue"}",
+                    "Invalid or inaccessible contract: ${it.message ?: "unknown error"}"))
+            }
+        } finally {
+            temp.delete()
+            File(temp.path+".labels").delete()
+        }
+    }
+
     suspend fun discover(hf: HfApiClient, source: Source = Source()): List<Availability> = withContext(Dispatchers.IO) {
         source.validate()
         val sha = hf.resolveModelRevision(source.repository, source.revision)
         val discovered=fromTree(source, sha, hf.listModelTree(source.repository, sha, source.folder))
-        discovered.map { item ->
-            val contract=discoveryContractNames.firstNotNullOfOrNull { name ->
-                item.files.firstOrNull{it.path.removePrefix(item.sourcePrefix)==name}
-            } ?: return@map item
-            val temp=File.createTempFile("vds-model-contract-",".json")
-            try {
-                val result=runCatching {
-                    check(hf.downloadModelFile(item.sourceRepo,item.repoSha,contract.path,temp,1024L*1024)){tr("Téléchargement du contrat interrompu", "Contract download interrupted")}
-                    val config=if(contract.path.substringAfterLast('/')=="runtime_contract.json") {
-                        val metadata=com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(Any::class.java).fromJson(temp.readText()) as? Map<*,*> ?: error(tr("Contrat vide", "Empty contract"))
-                        if(!RuntimeModelContracts.isDynamicYolo(metadata)) return@map item
-                        val labels=item.files.singleOrNull{it.path==item.sourcePrefix+"labels.json"} ?: error(tr("Classes YOLO absentes", "YOLO labels missing"))
-                        val labelFile=File(temp.path+".labels")
-                        check(hf.downloadModelFile(item.sourceRepo,item.repoSha,labels.path,labelFile,1024L*1024)) { tr("Téléchargement des classes interrompu", "Label download interrupted") }
-                        val vocabulary=com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(Any::class.java).fromJson(labelFile.readText()) as? Map<*,*> ?: error(tr("Classes YOLO invalides", "Invalid YOLO labels"))
-                        RuntimeModelContracts.dynamicYolo(metadata,vocabulary)
-                    } else com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(ModelConfig::class.java).failOnUnknown().fromJson(temp.readText()) ?: error(tr("Contrat vide", "Empty contract"))
-                    ModelContract.validate(config)
-                    val qualification=qualification(item.sourceRepo,item.repoSha,item.entry.id)
-                    item.copy(entry=item.entry.copy(capabilities=ModelCapabilities.fromConfig(config,qualification)),note=tr("Contrat validé · essai sur image requis", "Contract validated · image trial required"))
-                }
-                result.getOrElse{item.copy(installableNow=false,note=tr("Contrat invalide ou inaccessible : ${it.message ?: "erreur inconnue"}", "Invalid or inaccessible contract: ${it.message ?: "unknown error"}"))}
-            } finally { temp.delete();File(temp.path+".labels").delete() }
+        coroutineScope {
+            val gate=Semaphore(4)
+            discovered.map { item ->
+                async { gate.withPermit { inspectContract(hf,item) } }
+            }.awaitAll()
         }
     }
 
