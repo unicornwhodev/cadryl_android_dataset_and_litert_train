@@ -81,7 +81,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         }
                         if(remote.isEmpty()) item { EmptyWorkspace(stringResource(R.string.models_empty_title), stringResource(R.string.models_empty_body), Icons.Default.Memory, if (!busy) stringResource(R.string.models_explore) else null, vm::refreshCommunityModelCatalog) }
-                        items(visibleRemote.size, key = { visibleRemote[it].sourceRepo + ":" + visibleRemote[it].entry.id }) { index ->
+                        items(visibleRemote.size, key = { visibleRemote[it].sourceRepo + "@" + visibleRemote[it].repoSha + ":" + visibleRemote[it].entry.id }) { index ->
                             val item = visibleRemote[index]
                             var showInfo by remember { mutableStateOf(false) }
                             val state = stringResource(when {
@@ -130,7 +130,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                         Text(capabilityText,style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant,maxLines=2)
                                     }
                                     IconButton(onClick = { showInfo = true }) { Icon(Icons.Default.Info, stringResource(R.string.models_details,item.entry.title), Modifier.size(17.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-                                    if(item.installableNow) IconButton(onClick = { vm.downloadCommunityModel(item.entry.id,item.sourceRepo) }, enabled = !busy) {
+                                    if(item.installableNow) IconButton(onClick = { vm.downloadCommunityModel(item.entry.id,item.sourceRepo,item.repoSha) }, enabled = !busy) {
                                         Icon(Icons.Default.Download, stringResource(R.string.models_install,item.entry.title), Modifier.size(19.dp), tint = MaterialTheme.colorScheme.primary)
                                     }
                                 }
