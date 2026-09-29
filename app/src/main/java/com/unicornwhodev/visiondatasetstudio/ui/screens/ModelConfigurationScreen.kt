@@ -36,10 +36,15 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
         Box(Modifier.fillMaxSize().padding(inset), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 800.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                if (config == null || ModelContract.adapter(config) == "inspect_only") {
-                    Text(tr("Choisissez un modèle du catalogue pour obtenir ses réglages. Un fichier brut demande le contrat de son auteur.",
-                        "Choose a catalog model to get its settings. A raw file needs its author's contract."))
-                    OutlinedButton(onClick = { vm.navigateTo(Screen.Models) }) { Text(tr("Choisir un modèle", "Choose a model")) }
+                if (config == null) {
+                    Text(tr("Aucun modèle actif. Installez un modèle, importez un .tflite ou configurez un endpoint local.",
+                        "No active model. Install a model, import a .tflite file, or configure a local endpoint."))
+                    OutlinedButton(onClick = { vm.navigateTo(Screen.Models) }) { Text(tr("Ouvrir Modèles et presets", "Open Models & presets")) }
+                } else if(ModelContract.adapter(config)=="inspect_only") {
+                    StudioDetails(tr("Le fichier LiteRT est chargé, mais Cadryl ne devine pas la sémantique de ses sorties. Utilisez l’assistant ci-dessous avec la documentation du modèle, ou appliquez un preset compatible depuis Modèles.",
+                        "The LiteRT file is loaded, but Cadryl does not guess its output semantics. Use the guided settings below with the model documentation, or apply a compatible preset from Models."),
+                        style=MaterialTheme.typography.bodyMedium)
+                    OutlinedButton(onClick = { vm.navigateTo(Screen.Models) }) { Text(tr("Parcourir les presets", "Browse presets")) }
                 }
                 StudioSection(tr("Compatibilité avec le projet", "Project compatibility"),
                     tr("Les tâches et classes du dataset se configurent à un seul endroit : Configuration du projet. Ici, vous vérifiez uniquement ce que le modèle peut proposer.",
