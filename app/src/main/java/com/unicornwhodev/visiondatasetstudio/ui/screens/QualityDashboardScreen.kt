@@ -38,6 +38,10 @@ fun QualityDashboardScreen(viewModel: MainViewModel) {
     val validated = samples.count { it.annotationStatus == "VALIDATED" }
     val rejected = samples.count { it.annotationStatus == "REJECTED" }
     val deferred = samples.count { it.annotationStatus == "DEFERRED" }
+    val drafts = samples.count { it.annotationStatus == "DRAFTS_AVAILABLE" }
+    val proposals = samples.count { it.annotationStatus == "PROPOSALS_AVAILABLE" }
+    val manualPending = samples.count { it.annotationStatus == "IN_PROGRESS" }
+    val untouched = samples.count { it.annotationStatus == "PENDING" }
     val reviewed = validated + rejected
     val progress by animateFloatAsState(if (samples.isEmpty()) 0f else reviewed.toFloat() / samples.size, tween(600), label = "review progress")
     val metrics by produceState(0L to 0L, samples) {
@@ -67,9 +71,15 @@ fun QualityDashboardScreen(viewModel: MainViewModel) {
                             }
                             LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth().height(4.dp), trackColor = MaterialTheme.colorScheme.surfaceVariant)
                             Row(Modifier.fillMaxWidth()) {
-                                MetricTile("$validated", tr("Validés", "Approved"), Modifier.weight(1f))
+                                MetricTile("$validated", tr("Traités", "Reviewed"), Modifier.weight(1f))
                                 MetricTile("$deferred", tr("À revoir", "To review"), Modifier.weight(1f))
                                 MetricTile("$rejected", tr("Rejetés", "Rejected"), Modifier.weight(1f))
+                            }
+                            FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                                if(untouched>0) StatusPill(tr("$untouched à traiter", "$untouched untouched"),Icons.Default.Edit)
+                                if(drafts>0) StatusPill(tr("$drafts brouillon(s) importé(s)", "$drafts imported draft(s)"),Icons.Default.Description)
+                                if(proposals>0) StatusPill(tr("$proposals suggestion(s) IA", "$proposals AI suggestion(s)"),Icons.Default.AutoAwesome)
+                                if(manualPending>0) StatusPill(tr("$manualPending traité(s) à valider", "$manualPending manually handled, needs approval"),Icons.Default.EditNote)
                             }
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         }
