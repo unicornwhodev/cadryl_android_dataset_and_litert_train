@@ -13,7 +13,7 @@ class HumanAnnotationReviewTest {
         val corrected=HumanAnnotationReview.markEdited(before,after).boxes.single()
         assertTrue(corrected.isHumanVerified)
         assertTrue(corrected.explicitlyAdjusted)
-        assertEquals("human_correction",corrected.sourceProvenance)
+        assertEquals("human_correction:model_litert",corrected.sourceProvenance)
         assertEquals(.4f,corrected.modelXmax!!,0f)
         assertEquals(.6f,corrected.xmax,0f)
     }
@@ -32,8 +32,15 @@ class HumanAnnotationReviewTest {
         val reviewed=HumanAnnotationReview.validateAll(value)
         assertTrue(reviewed.points.single().isHumanVerified)
         assertTrue(reviewed.tags.single().isHumanVerified)
-        assertEquals("human_validated",reviewed.points.single().sourceProvenance)
-        assertEquals("human_validated",reviewed.tags.single().sourceProvenance)
+        assertEquals("human_validated:model_litert",reviewed.points.single().sourceProvenance)
+        assertEquals("human_validated:import",reviewed.tags.single().sourceProvenance)
         assertTrue(HumanAnnotationReview.isManuallyTreated(reviewed))
+        assertTrue(HumanAnnotationReview.wasModelAssisted(reviewed))
+    }
+
+    @Test fun importedReviewIsHumanButNotModelAssisted() {
+        val reviewed=HumanAnnotationReview.validateAll(SampleAnnotations(tags=listOf(TagTarget("t","smoke",sourceProvenance="import"))))
+        assertEquals("human_validated:import",reviewed.tags.single().sourceProvenance)
+        assertFalse(HumanAnnotationReview.wasModelAssisted(reviewed))
     }
 }
