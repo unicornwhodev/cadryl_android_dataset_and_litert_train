@@ -82,6 +82,14 @@ fun SetupScreen(viewModel: MainViewModel) {
     val sourceOk = if (sourceKind == "local") policy.sourceMode == "LOCAL_INDEX" && policy.sourceIndexReady else StudioWorkflow.normalizeRepo(source) != null
     val coverage = modelConfig?.let { ModelClassCompatibility.inspect(it, tasksCsv, classes) }
     val modelLabels = coverage?.available.orEmpty()
+    val setupModels=remember(models,tasksCsv,classes) {
+        models.sortedByDescending { profile ->
+            runCatching {
+                StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(profile.configJson)
+                    ?.let { ModelClassCompatibility.inspect(it,tasksCsv,classes).canAssist } == true
+            }.getOrDefault(false)
+        }
+    }
     val canAutomate = coverage?.canAssist == true && coverage.kind != ModelVocabularyKind.INTERACTIVE &&
         (!p.modelPath.isNullOrBlank() || modelConfig?.runtime == "local_http")
     val hfPreviewReady = inspection.isInspected && inspection.repoId == StudioWorkflow.normalizeRepo(source) &&
@@ -264,7 +272,7 @@ fun SetupScreen(viewModel: MainViewModel) {
 
                         if(models.isNotEmpty()) {
                             StudioSection(tr("Modèles installés", "Installed models"), tr("Choisissez le modèle utilisé pour les propositions.", "Choose the model used for suggestions."), Icons.Default.Memory) {
-                                models.take(4).forEach { profile ->
+                                setupModels.take(4).forEach { profile ->
                                     val cfg=remember(profile.configJson){runCatching{StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(profile.configJson)}.getOrNull()}
                                     val selectedProfile=if(profile.modelPath.isNotBlank()) p.modelPath==profile.modelPath && p.modelConfigJson==profile.configJson
                                         else p.modelPath.isNullOrBlank() && p.modelConfigJson==profile.configJson
