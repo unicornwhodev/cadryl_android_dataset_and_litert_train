@@ -477,6 +477,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _destRepoStatus.value = hfApiClient.checkDatasetAccess(clean)
     }
 
+    private suspend fun normalizeLegacyPendingStatuses(projectId:Long,batchNumber:Int) {
+        val rows=db.sampleDao().getSamplesForBatchSync(projectId,batchNumber)
+        for(sample in rows) {
+            if(sample.annotationStatus !in setOf("DRAFTS_AVAILABLE","PROPOSALS_AVAILABLE","IN_PROGRESS"))continue
+            val record=db.annotationDao().getAnnotationSync(sample.sampleId) ?: continue
+            val annotations=runCatching { moshi.adapter(SampleAnnotations::class.java).fromJson(record.dataJson) }.getOrNull() ?: continue
+            val normalized=HumanAnnotationReview.pendingStatus(annotations)
+            if(normalized!=sample.annotationStatus) db.sampleDao().updateSample(sample.copy(annotationStatus=normalized,updatedAt=sample.updatedAt))
+        }
+    }
+
     fun loadBatch(batchNumber: Int) {
         _activeBatchNumber.value = batchNumber
         _lastExportedZip.value = null
@@ -491,6 +502,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val projectId = _activeProjectId.value
         _batchSamples.value = emptyList()
         batchObserver = viewModelScope.launch {
+            withContext(Dispatchers.IO) { normalizeLegacyPendingStatuses(projectId,batchNumber) }
             _lastExportedZip.value = db.batchDao().getBatchSync(projectId,batchNumber)?.archivePath?.let(::File)?.takeIf { it.isFile }
             db.sampleDao().getSamplesForBatch(projectId, batchNumber).collect { _batchSamples.value = it.filter { sample -> sample.annotationStatus != "DUPLICATE" } }
         }
