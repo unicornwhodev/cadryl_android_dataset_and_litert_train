@@ -171,7 +171,7 @@ fun SetupScreen(viewModel: MainViewModel) {
                             }
                             OutlinedTextField(source, { source = it }, label = { Text(stringResource(R.string.setup_dataset_link)) }, placeholder = { Text(tr("organisation/dataset", "organization/dataset")) },
                                 isError = source.isNotBlank() && !sourceOk, supportingText = { Text(stringResource(R.string.setup_dataset_url_help)) },
-                                enabled = !busy, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("source_repo_input"))
+                                enabled = !busy && batches.isEmpty(), singleLine = true, modifier = Modifier.fillMaxWidth().testTag("source_repo_input"))
                             FilledTonalButton(onClick = { viewModel.inspectSourceDataset(source, config, split) }, enabled = sourceOk && source.isNotBlank() && !busy, modifier = Modifier.fillMaxWidth()) {
                                 Icon(Icons.Default.Search, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.setup_inspect_source))
                             }
@@ -196,14 +196,14 @@ fun SetupScreen(viewModel: MainViewModel) {
                                 }
                                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     inspection.splits.forEach { item ->
-                                        FilterChip(selected = config == item.config && split == item.split, onClick = {
+                                        FilterChip(selected = config == item.config && split == item.split, enabled=!busy && batches.isEmpty(), onClick = {
                                             config = item.config; split = item.split
                                             viewModel.inspectSourceDataset(source, item.config, item.split)
                                         }, label = { Text("${item.config} / ${item.split}") })
                                     }
                                 }
                                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.candidates(inspection.availableColumns, inspection.previewRows).forEach { column -> FilterChip(selected = imageColumn == column, onClick = { imageColumn = column }, label = { Text(column) }) }
+                                    com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.candidates(inspection.availableColumns, inspection.previewRows).forEach { column -> FilterChip(selected = imageColumn == column, enabled=!busy && batches.isEmpty(), onClick = { imageColumn = column }, label = { Text(column) }) }
                                 }
                                 Text(stringResource(R.string.setup_verify_image_column,imageColumn), style = MaterialTheme.typography.bodySmall)
                             }
@@ -211,9 +211,9 @@ fun SetupScreen(viewModel: MainViewModel) {
                             if (inspection.isInspected && inspection.repoId == StudioWorkflow.normalizeRepo(source) && inspection.selectedImageColumn.isBlank()) Text(tr("Choisissez la colonne image. Pour plusieurs images par ligne ou une source sans Viewer, utilisez Source > manifeste JSONL.", "Choose the image column. For multiple images per row or a source without a Viewer, use Source > JSONL manifest."), style = MaterialTheme.typography.bodySmall)
                             TextButton(onClick = { advanced = !advanced }) { Text(if (advanced) stringResource(R.string.setup_collapse) else stringResource(R.string.setup_advanced)) }
                             if (advanced) {
-                                OutlinedTextField(config, { config = it }, label = { Text(stringResource(R.string.setup_hf_config)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                                OutlinedTextField(split, { split = it }, label = { Text(stringResource(R.string.setup_source_split)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                                OutlinedTextField(imageColumn, { imageColumn = it }, label = { Text(stringResource(R.string.setup_image_column)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                                OutlinedTextField(config, { config = it }, enabled=!busy && batches.isEmpty(), label = { Text(stringResource(R.string.setup_hf_config)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                                OutlinedTextField(split, { split = it }, enabled=!busy && batches.isEmpty(), label = { Text(stringResource(R.string.setup_source_split)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                                OutlinedTextField(imageColumn, { imageColumn = it }, enabled=!busy && batches.isEmpty(), label = { Text(stringResource(R.string.setup_image_column)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                                 TextButton(onClick = { viewModel.navigateTo(Screen.SourceSettings) }) { Text(tr("Autres sources et manifeste JSONL", "Other sources & JSONL manifest")) }
                             }
                             if (batches.isNotEmpty()) StudioDetails(stringResource(R.string.setup_provenance_locked), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
