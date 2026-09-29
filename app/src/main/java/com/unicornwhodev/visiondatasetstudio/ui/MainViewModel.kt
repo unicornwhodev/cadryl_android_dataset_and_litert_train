@@ -291,6 +291,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private suspend fun requireTaskSetSafe(projectId:Long,tasks:Set<StudioTask>) {
+        for(batch in db.batchDao().getBatches(projectId).first()) {
+            for(sample in db.sampleDao().getSamplesForBatchSync(projectId,batch.batchNumber)) {
+                val record=db.annotationDao().getAnnotationSync(sample.sampleId) ?: continue
+                val a=runCatching { moshi.adapter(SampleAnnotations::class.java).fromJson(record.dataJson) }.getOrElse {
+                    error(tr("Annotations existantes illisibles pour ${sample.assetId}; modification des tâches refusée pour préserver les données.",
+                        "Existing annotations for ${sample.assetId} are unreadable; task changes are blocked to preserve data."))
+                } ?: error(tr("Annotations existantes vides pour ${sample.assetId}; modification des tâches refusée.",
+                    "Existing annotations for ${sample.assetId} are empty; task changes are blocked."))
+
+                fun requireAny(options:Set<StudioTask>,label:String) {
+                    check(tasks.any(options::contains)) {
+                        tr("La tâche « $label » ne peut pas être retirée : des annotations existantes en dépendent.",
+                            "The “$label” task cannot be removed because existing annotations depend on it.")
+                    }
+                }
+                if(a.masks.isNotEmpty())requireAny(setOf(StudioTask.SEGMENTATION),tr("Masques","Masks"))
+                if(a.tags.isNotEmpty())requireAny(setOf(StudioTask.CLASSIFICATION),tr("Classification","Classification"))
+                if(a.captions.isNotEmpty())requireAny(setOf(StudioTask.CAPTIONING),tr("Légendes","Captions"))
+                if(a.vqaList.isNotEmpty())requireAny(setOf(StudioTask.VQA),tr("Questions / réponses","Questions / answers"))
+                if(a.counts.isNotEmpty())requireAny(setOf(StudioTask.COUNTING),tr("Comptage","Counting"))
+                if(a.groundings.isNotEmpty())requireAny(setOf(StudioTask.GROUNDING),tr("Texte ↔ région","Text ↔ region"))
+                if(a.boxes.isNotEmpty())requireAny(setOf(StudioTask.DETECTION,StudioTask.GROUNDING),tr("Détection ou grounding","Detection or grounding"))
+                if(a.points.isNotEmpty()) {
+                    val options=if(a.points.size>1) setOf(StudioTask.POINTING_MULTI,StudioTask.GROUNDING)
+                        else setOf(StudioTask.POINTING,StudioTask.POINTING_MULTI,StudioTask.GROUNDING)
+                    requireAny(options,tr("Pointing","Pointing"))
+                }
+            }
+        }
+    }
+
     fun saveSetup(name: String, sourceRepo: String, destRepo: String, sourceConfig: String, sourceSplit: String,
                   imageColumn: String, classesCsv: String, diskBudgetMb: Long, tasks: Set<StudioTask>, startBatch: Boolean = false,
                   autoPreannotate: Boolean? = null, sourceModeOverride: String? = null) = operation {
@@ -305,6 +337,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val parsedClasses=ProjectVocabulary.parse(classesCsv)
         check(!ProjectVocabulary.requiredFor(tasks) || parsedClasses.isNotEmpty()) { tr("Définissez au moins une classe.", "Define at least one class.") }
         requireClassVocabularySafe(old.id,parsedClasses)
+        requireTaskSetSafe(old.id,tasks)
         val p = old
         check(db.batchDao().getBatches(p.id).first().none{it.status in setOf("PREPARED","PUBLISHING","PUBLISHED","CONFLICT","PURGING")}) { tr("Terminez le transfert interrompu avant de modifier le projet", "Complete the interrupted transfer before changing the project") }
         val hasBatches = db.batchDao().getLatestBatchSync(_activeProjectId.value) != null
@@ -355,6 +388,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun updateTasks(tasks: Set<StudioTask>) = operation {
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@operation
+        requireTaskSetSafe(p.id,tasks)
         check(db.batchDao().getBatches(p.id).first().none{it.status in setOf("PUBLISHING","PUBLISHED")}) { tr("Transfert en attente : profil verrouillé", "Transfer pending: profile locked") }
         db.projectDao().saveProject(p.copy(activeTasksCsv = StudioWorkflow.tasksCsv(tasks), updatedAt = System.currentTimeMillis()))
         _operationProgress.value = null
