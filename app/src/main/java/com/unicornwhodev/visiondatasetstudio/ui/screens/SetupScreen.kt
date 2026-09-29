@@ -311,6 +311,32 @@ fun SetupScreen(viewModel: MainViewModel) {
                     }
                     3 -> {
                         Text(tr("Vérifiez avant de démarrer", "Review before you start"), style = MaterialTheme.typography.headlineSmall)
+                        val budgetOk=(budget.toLongOrNull() ?: 0L) in 128L..65536L
+                        val sourceReady=!prepare || sourceReadyToPrepare
+                        StudioSection(tr("État de préparation", "Readiness"),
+                            tr("Chaque bloc doit être clair avant de créer le premier lot.", "Each block should be clear before creating the first batch."),
+                            Icons.Default.FactCheck) {
+                            StatusPill(
+                                if(sourceReady) tr("Source prête", "Source ready") else tr("Source à vérifier", "Source needs review"),
+                                if(sourceReady) Icons.Default.CheckCircleOutline else Icons.Default.ErrorOutline,
+                                attention=!sourceReady)
+                            StatusPill(
+                                if(classesOk) tr("Annotations configurées", "Annotations configured") else tr("Classes manquantes", "Missing classes"),
+                                if(classesOk) Icons.Default.CheckCircleOutline else Icons.Default.ErrorOutline,
+                                attention=!classesOk)
+                            StatusPill(
+                                if(assistance && canAutomate) tr("Aide IA prête · propositions à relire", "AI assistance ready · suggestions require review")
+                                else tr("Mode manuel prêt", "Manual mode ready"),
+                                if(!assistance || canAutomate) Icons.Default.CheckCircleOutline else Icons.Default.ErrorOutline,
+                                attention=assistance && !canAutomate)
+                            StatusPill(
+                                if(budgetOk) tr("Stockage : $budget Mio", "Storage: $budget MiB") else tr("Budget stockage invalide", "Invalid storage budget"),
+                                if(budgetOk) Icons.Default.CheckCircleOutline else Icons.Default.ErrorOutline,
+                                attention=!budgetOk)
+                            if(!sourceReady) TextButton(onClick={step=0},enabled=!busy){Text(tr("Corriger la source", "Fix source"))}
+                            if(!classesOk) TextButton(onClick={step=1},enabled=!busy){Text(tr("Corriger les annotations", "Fix annotations"))}
+                            if(assistance && !canAutomate) TextButton(onClick={step=2},enabled=!busy){Text(tr("Corriger le modèle", "Fix model"))}
+                        }
                         StudioSection(name, icon = Icons.Default.CheckCircleOutline) {
                             Text(if (sourceKind == "local") policy.localSourceLabel.ifBlank { tr("Dossier local", "Local folder") } else source)
                             Text(tasks.joinToString { it.title })
