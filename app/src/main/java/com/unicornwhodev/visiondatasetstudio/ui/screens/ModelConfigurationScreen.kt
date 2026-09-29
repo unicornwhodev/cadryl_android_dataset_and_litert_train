@@ -25,11 +25,13 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
     val diagnostics by vm.modelDiagnostics.collectAsState()
     val receipts by vm.inferenceReceipts.collectAsState()
     val spec by vm.modelInputSpec.collectAsState()
+    val samples by vm.batchSamples.collectAsState()
     val p = project ?: return
     val config = remember(p.modelConfigJson) { runCatching {
         p.modelConfigJson?.let { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(it) }
     }.getOrNull() }
     val runtimeReady=config?.let { it.runtime=="local_http" || !p.modelPath.isNullOrBlank() } == true
+    val testImageReady=samples.any { it.acquisitionStatus=="AVAILABLE" && it.localImagePath!=null }
     LaunchedEffect(p.id, p.modelPath, p.modelConfigJson) { vm.isBusy.first { !it }; vm.inspectActiveModelInput() }
     Scaffold(contentWindowInsets = WindowInsets(0), modifier = Modifier.imePadding(), topBar = {
         WorkspaceTopBar(vm, tr("Réglages du modèle", "Model settings"), p.name)
@@ -68,7 +70,9 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
                             style=MaterialTheme.typography.bodySmall)
                         OutlinedButton(onClick={vm.navigateTo(Screen.Models)},enabled=!busy) { Text(tr("Ouvrir Modèles", "Open Models")) }
                     }
-                    Button(onClick = vm::dryRunActiveModel, enabled = !busy && runtimeReady && config != null && ModelContract.adapter(config) != "inspect_only") {
+                    if(runtimeReady && !testImageReady) Text(tr("Préparez au moins une image du lot pour activer l’essai.",
+                        "Prepare at least one batch image to enable the trial."),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                    Button(onClick = vm::dryRunActiveModel, enabled = !busy && runtimeReady && testImageReady && config != null && ModelContract.adapter(config) != "inspect_only") {
                         Text(tr("Tester le modèle", "Test model"))
                     }
                     result?.let { Text(if (!it.success) it.error.orEmpty() else if (it.proposals.isEmpty())
