@@ -80,7 +80,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                             Modifier.padding(vertical = 8.dp), style = MaterialTheme.typography.bodySmall)
                         if(tab==0) {
                             FilterChip(selected=compatibleOnly,onClick={compatibleOnly=!compatibleOnly},
-                                leadingIcon=if(compatibleOnly){{Icon(Icons.Default.FilterAlt,null,Modifier.size(16.dp))}}else null,
+                                leadingIcon=if(compatibleOnly)({{ Icon(Icons.Default.FilterAlt,null,Modifier.size(16.dp)) }}) else null,
                                 label={Text(tr("Compatibles avec le projet", "Compatible with project"))})
                         }
                         if(tab==0 && warnings.isNotEmpty()) {
