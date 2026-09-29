@@ -915,8 +915,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _operationProgress.value=OperationProgress(tr("Catalogue actualisé : ${_communityModels.value.count{it.available}} conversion(s) sur $sourceCount source(s).",
             "Catalog refreshed: ${_communityModels.value.count{it.available}} conversion(s) across $sourceCount source(s)."),1,1)
     }
-    fun downloadCommunityModel(id:String, sourceRepo:String?=null)=operation {
-        fun matches(item:CommunityModelCatalog.Availability)=item.entry.id==id && (sourceRepo==null || item.sourceRepo==sourceRepo)
+    fun downloadCommunityModel(id:String, sourceRepo:String?=null, repoSha:String?=null)=operation {
+        fun matches(item:CommunityModelCatalog.Availability)=item.entry.id==id &&
+            (sourceRepo==null || item.sourceRepo==sourceRepo) && (repoSha==null || item.repoSha==repoSha)
         val item=_communityModels.value.firstOrNull { matches(it) } ?: discoverModelCatalogs().firstOrNull { matches(it) } ?: error(tr("Modèle absent du catalogue", "Model not found in the catalog"))
         require(item.available && item.installableNow){item.note}
         val project=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
