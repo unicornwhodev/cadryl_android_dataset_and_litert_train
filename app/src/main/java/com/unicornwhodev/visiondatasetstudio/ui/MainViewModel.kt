@@ -313,10 +313,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 if(a.vqaList.isNotEmpty())requireAny(setOf(StudioTask.VQA),tr("Questions / réponses","Questions / answers"))
                 if(a.counts.isNotEmpty())requireAny(setOf(StudioTask.COUNTING),tr("Comptage","Counting"))
                 if(a.groundings.isNotEmpty())requireAny(setOf(StudioTask.GROUNDING),tr("Texte ↔ région","Text ↔ region"))
-                if(a.boxes.isNotEmpty())requireAny(setOf(StudioTask.DETECTION,StudioTask.GROUNDING),tr("Détection ou grounding","Detection or grounding"))
+                if(a.boxes.isNotEmpty())requireAny(setOf(StudioTask.DETECTION,StudioTask.GROUNDING,StudioTask.SEGMENTATION),tr("Détection, grounding ou segmentation","Detection, grounding, or segmentation"))
                 if(a.points.isNotEmpty()) {
-                    val options=if(a.points.size>1) setOf(StudioTask.POINTING_MULTI,StudioTask.GROUNDING)
-                        else setOf(StudioTask.POINTING,StudioTask.POINTING_MULTI,StudioTask.GROUNDING)
+                    val options=if(a.points.size>1) setOf(StudioTask.POINTING_MULTI,StudioTask.GROUNDING,StudioTask.SEGMENTATION)
+                        else setOf(StudioTask.POINTING,StudioTask.POINTING_MULTI,StudioTask.GROUNDING,StudioTask.SEGMENTATION)
                     requireAny(options,tr("Pointing","Pointing"))
                 }
             }
@@ -340,15 +340,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         requireTaskSetSafe(old.id,tasks)
         val p = old
         check(db.batchDao().getBatches(p.id).first().none{it.status in setOf("PREPARED","PUBLISHING","PUBLISHED","CONFLICT","PURGING")}) { tr("Terminez le transfert interrompu avant de modifier le projet", "Complete the interrupted transfer before changing the project") }
+        val cleanConfig=sourceConfig.trim().ifBlank { "default" }
+        val cleanSplit=sourceSplit.trim().ifBlank { "train" }
+        val cleanImageColumn=imageColumn.trim().ifBlank { "image" }
         val hasBatches = db.batchDao().getLatestBatchSync(_activeProjectId.value) != null
         val published = db.batchDao().getBatches(_activeProjectId.value).first().any { it.hfCommitSha != null || it.remotePrefix != null }
         check(!published || destination == p.hfDestRepo) { tr("La destination d’un atelier déjà publié est verrouillée pour préserver les preuves de publication.", "A published project's destination is locked to preserve publication evidence.") }
-        check(!hasBatches || (currentSettings.sourceMode==targetSourceMode && p.hfSourceRepo == source && p.sourceConfig == sourceConfig.trim() && p.sourceSplit == sourceSplit.trim() && p.imageColumn == imageColumn.trim())) {
-            tr("La source est verrouillée après l’import pour conserver la provenance. Pour changer de source, créez un projet dans Projets.", "The source is locked after import to preserve provenance. To change sources, create a project in Projects.")
+        check(!hasBatches || (currentSettings.sourceMode==targetSourceMode && p.hfSourceRepo == source && p.sourceConfig == cleanConfig && p.sourceSplit == cleanSplit && p.imageColumn == cleanImageColumn)) {
+            tr("La source est verrouillée après le premier lot pour conserver la provenance. Pour changer de source, créez un projet dans Projets.",
+                "The source is locked after the first batch to preserve provenance. To change sources, create a project in Projects.")
         }
-        val cleanConfig=sourceConfig.trim().ifBlank { "default" }
-        val cleanSplit=sourceSplit.trim().ifBlank { "train" }
-        val sourceUnchanged=p.hfSourceRepo==source && p.sourceConfig==cleanConfig && p.sourceSplit==cleanSplit
+        val sourceUnchanged=p.hfSourceRepo==source && p.sourceConfig==cleanConfig && p.sourceSplit==cleanSplit && p.imageColumn==cleanImageColumn
         val inspection=_sourceInspection.value
         val inspectionMatches=inspection.isInspected && inspection.repoId==source &&
             inspection.selectedConfig==cleanConfig && inspection.selectedSplit==cleanSplit
@@ -372,7 +374,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
         val updated = p.copy(name = name.trim().ifBlank { tr("Mon atelier", "My studio") }, hfSourceRepo = source, hfDestRepo = destination,
             sourceConfig = cleanConfig, sourceSplit = cleanSplit,
-            imageColumn = imageColumn.trim().ifBlank { "image" }, classesCsv = ProjectVocabulary.format(parsedClasses),
+            imageColumn = cleanImageColumn, classesCsv = ProjectVocabulary.format(parsedClasses),
             diskBudgetMb = diskBudgetMb.coerceIn(128L, 65536L), activeTasksCsv = StudioWorkflow.tasksCsv(tasks),
             settingsJson = ProjectSettings.write(nextSettings), updatedAt = System.currentTimeMillis())
         if (autoPreannotate == true) ModelClassCompatibility.requireAssistance(modelConfig(updated), updated.activeTasksCsv, updated.classesCsv)
