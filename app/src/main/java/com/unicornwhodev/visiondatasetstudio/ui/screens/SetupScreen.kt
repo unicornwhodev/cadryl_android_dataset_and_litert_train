@@ -110,7 +110,11 @@ fun SetupScreen(viewModel: MainViewModel) {
                 Button(onClick = {
                     if (step < 3) step++ else viewModel.saveSetup(name, if (sourceKind == "local") "" else source, p.hfDestRepo, config, split, imageColumn, classes,
                         budget.toLongOrNull() ?: 500L, tasks, prepare, assistance && canAutomate,
-                        if(sourceKind=="local") "LOCAL_INDEX" else "HF_VIEWER")
+                        when {
+                            sourceKind=="local" -> "LOCAL_INDEX"
+                            policy.sourceMode=="HF_MANIFEST" && policy.sourceIndexReady && source==p.hfSourceRepo -> "HF_MANIFEST"
+                            else -> "HF_VIEWER"
+                        })
                 }, enabled = !busy && !frozen && when(step) {
                     0 -> sourceOk
                     1 -> classesOk
@@ -150,6 +154,15 @@ fun SetupScreen(viewModel: MainViewModel) {
                         }
                         } else {
                         StudioSection(stringResource(R.string.setup_hf_dataset), icon = Icons.Default.CloudDownload) {
+                            if(policy.sourceMode=="HF_MANIFEST" && policy.sourceIndexReady && source==p.hfSourceRepo) {
+                                StatusPill(tr("Manifeste HF indexé · révision épinglée", "HF manifest indexed · revision pinned"),Icons.Default.CheckCircleOutline)
+                                Text(tr("Ce projet utilise le manifeste JSONL configuré dans Source avancée. L’assistant conserve ce mode tant que la source n’est pas remplacée.",
+                                    "This project uses the JSONL manifest configured in Advanced source. Guided setup keeps this mode until the source is replaced."),
+                                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                TextButton(onClick={viewModel.navigateTo(Screen.SourceSettings)},enabled=!busy) {
+                                    Text(tr("Ouvrir les réglages du manifeste", "Open manifest settings"))
+                                }
+                            }
                             OutlinedTextField(source, { source = it }, label = { Text(stringResource(R.string.setup_dataset_link)) }, placeholder = { Text(tr("organisation/dataset", "organization/dataset")) },
                                 isError = source.isNotBlank() && !sourceOk, supportingText = { Text(stringResource(R.string.setup_dataset_url_help)) },
                                 enabled = !busy, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("source_repo_input"))
