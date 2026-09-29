@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun QualityDashboardScreen(viewModel: MainViewModel) {
     val samples by viewModel.batchSamples.collectAsState()
