@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.AtomicFile
 import com.unicornwhodev.visiondatasetstudio.core.storage.StorageManager
 import com.unicornwhodev.visiondatasetstudio.data.model.*
+import com.unicornwhodev.visiondatasetstudio.domain.validation.HumanAnnotationReview
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.Dispatchers
@@ -26,15 +27,17 @@ class AdaptiveCorrectionStore(private val context:Context) {
         val additions=mutableMapOf<String,MutableList<CorrectionExample>>()
         pairs.filter{it.first.annotationStatus=="VALIDATED"}.forEach{(s,a)->
             val image=s.sha256 ?: return@forEach
-            a.points.filter{it.explicitlyAdjusted && it.isHumanVerified && it.canProvideCoordinates && it.modelX!=null && it.modelY!=null && it.modelLabel==it.label && it.sourceProvenance.startsWith("model_litert:")}.forEach{p->
-                val key=AdaptiveCorrection.groupKey(p.sourceProvenance,p.label)
+            a.points.filter{it.explicitlyAdjusted && it.isHumanVerified && it.canProvideCoordinates && it.modelX!=null && it.modelY!=null && it.modelLabel==it.label}.forEach{p->
+                val modelSource=HumanAnnotationReview.modelSource(p.sourceProvenance)?.takeIf{it.startsWith("model_litert:")} ?: return@forEach
+                val key=AdaptiveCorrection.groupKey(modelSource,p.label)
                 additions.getOrPut(key){mutableListOf()}.add(CorrectionExample(AdaptiveCorrection.hash("$image:${p.id}"),image,p.modelX!!.toDouble(),p.modelY!!.toDouble(),p.boxWidth.toDouble(),p.boxHeight.toDouble(),(p.modelScore ?: .5f).toDouble(),p.x.toDouble(),p.y.toDouble(),true,true))
             }
-            a.boxes.filter{(it.correctionGeneration==null || it.modelCoordinatesVersion>=1) && it.explicitlyAdjusted && it.isHumanVerified && it.modelXmin!=null && it.modelYmin!=null && it.modelXmax!=null && it.modelYmax!=null && it.sourceProvenance.startsWith("model_litert:")}.forEach{b->
+            a.boxes.filter{(it.correctionGeneration==null || it.modelCoordinatesVersion>=1) && it.explicitlyAdjusted && it.isHumanVerified && it.modelXmin!=null && it.modelYmin!=null && it.modelXmax!=null && it.modelYmax!=null}.forEach{b->
+                val modelSource=HumanAnnotationReview.modelSource(b.sourceProvenance)?.takeIf{it.startsWith("model_litert:")} ?: return@forEach
                 val mx=(b.modelXmin!!+b.modelXmax!!)/2.0;val my=(b.modelYmin!!+b.modelYmax!!)/2.0
                 val mw=(b.modelXmax!!-b.modelXmin!!).toDouble();val mh=(b.modelYmax!!-b.modelYmin!!).toDouble()
                 val cx=(b.xmin+b.xmax)/2.0;val cy=(b.ymin+b.ymax)/2.0;val w=(b.xmax-b.xmin).toDouble();val h=(b.ymax-b.ymin).toDouble()
-                val key=AdaptiveCorrection.groupKey(b.sourceProvenance,b.label,"box")
+                val key=AdaptiveCorrection.groupKey(modelSource,b.label,"box")
                 additions.getOrPut(key){mutableListOf()}.add(CorrectionExample(AdaptiveCorrection.hash("$image:${b.id}:box"),image,mx,my,mw,mh,(b.modelScore ?: .5f).toDouble(),cx,cy,true,true,"box",w,h))
             }
         }
