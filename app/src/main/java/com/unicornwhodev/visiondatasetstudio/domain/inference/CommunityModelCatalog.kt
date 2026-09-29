@@ -7,6 +7,11 @@ import org.tensorflow.lite.Interpreter
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 
 private val executedQualifications=mapOf(
     "repvit_m1" to QualificationStatus.INFERENCE_ONLY,
@@ -41,8 +46,12 @@ private fun declaredCapabilities(id:String,adapter:String):ModelCapabilities {
  * Availability is discovered from the remote tree; this file does not pretend unpublished conversions exist.
  */
 object CommunityModelCatalog {
+    private val modelConfigNames = listOf("android_model_config.json","model_config.json","model_contract.json","android_contract.json","contract.json")
+    private val discoveryContractNames = modelConfigNames + "runtime_contract.json"
+
     val cocoSlots = listOf("background","person","bicycle","car","motorcycle","airplane","bus","train","truck","boat","traffic light","fire hydrant","unused_12","stop sign","parking meter","bench","bird","cat","dog","horse","sheep","cow","elephant","bear","zebra","giraffe","unused_26","backpack","umbrella","unused_29","unused_30","handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat","baseball glove","skateboard","surfboard","tennis racket","bottle","unused_45","wine glass","cup","fork","knife","spoon","bowl","banana","apple","sandwich","orange","broccoli","carrot","hot dog","pizza","donut","cake","chair","couch","potted plant","bed","unused_66","dining table","unused_68","unused_69","toilet","unused_71","tv","laptop","mouse","remote","keyboard","cell phone","microwave","oven","toaster","sink","refrigerator","unused_83","book","clock","vase","scissors","teddy bear","hair drier","toothbrush")
     const val repoId = "Charlbi/Lite_rt_prepared_for_android_dataset_builder"
+    const val fireviewerRepoId = "fireviewer/litert-models"
     // The second revision changes documentation only: all 118 runtime artifact hashes were
     // reverified in test-results/functional-audit-20260922/public-revision-equivalence.json.
     private val qualifiedRevisions=setOf("1244117f490e36ce321d70baa672753caeaef028","36026262693de56b2cf45a6337a405297bfcfff6")
@@ -96,6 +105,33 @@ object CommunityModelCatalog {
         Entry("table_transformer_structure", "Table Transformer Structure", tr("Reconnaissance de structure de tableaux", "Table structure recognition"), "MIT", listOf("model.tflite"), "inspect", "Document")
     )
 
+    /** Official FireViewer Android conversions. App qualification stays UNTESTED until Cadryl executes them. */
+    val fireviewerEntries get() = listOf(
+        Entry("fireviewer_dfine_m_strict_v1_learning", "FireViewer D-FINE-M strict v1 · learning",
+            tr("Détection fumée/flamme · tête d’adaptation entraînable", "Smoke/flame detection · trainable adaptation head"),
+            tr("Voir CHECKPOINT_RIGHTS / THIRD_PARTY_NOTICES", "See CHECKPOINT_RIGHTS / THIRD_PARTY_NOTICES"), listOf("model.tflite"), "contract", "FireViewer"),
+        Entry("fireviewer_rtdetr_v2_r50_learning", "FireViewer RT-DETRv2-R50 · learning",
+            tr("Détection fumée/flamme · tête d’adaptation entraînable", "Smoke/flame detection · trainable adaptation head"),
+            tr("Voir CHECKPOINT_RIGHTS / THIRD_PARTY_NOTICES", "See CHECKPOINT_RIGHTS / THIRD_PARTY_NOTICES"), listOf("model.tflite"), "contract", "FireViewer"),
+        Entry("fireviewer_rfdetr_medium_v110_learning", "FireViewer RF-DETR Medium 1.10 · learning",
+            tr("Détection fumée/flamme · tête d’adaptation entraînable", "Smoke/flame detection · trainable adaptation head"),
+            tr("Voir CHECKPOINT_RIGHTS / THIRD_PARTY_NOTICES", "See CHECKPOINT_RIGHTS / THIRD_PARTY_NOTICES"), listOf("model.tflite"), "contract", "FireViewer"),
+        Entry("fireviewer_yolo11m_strict_v1", "FireViewer YOLO11-M strict v1",
+            tr("Détection fumée/flamme · inférence", "Smoke/flame detection · inference"),
+            "AGPL-3.0 · voir THIRD_PARTY_NOTICES", listOf("model.tflite"), "contract", "FireViewer"),
+        Entry("fireviewer_yolo11m_strict_v1_learning", "FireViewer YOLO11-M strict v1 · learning",
+            tr("Détection fumée/flamme · adaptation locale", "Smoke/flame detection · local adaptation"),
+            "AGPL-3.0 · voir THIRD_PARTY_NOTICES", listOf("model.tflite"), "contract", "FireViewer"),
+        Entry("fireviewer_dinov3_pointing_pilot_v1_learning", "FireViewer DINOv3 pointing pilot v1 · learning",
+            tr("Présence, segmentation et pointing fumée/flamme · pilote recherche", "Smoke/flame presence, segmentation and pointing · research pilot"),
+            tr("Voir RIGHTS_AND_ATTRIBUTION · restrictions recherche", "See RIGHTS_AND_ATTRIBUTION · research restrictions"), listOf("model.tflite"), "contract", "FireViewer")
+    )
+
+    val standardSources get() = listOf(
+        Source(repoId, "main", "models"),
+        Source(fireviewerRepoId, "main", "models")
+    )
+
     data class Source(val repository: String = repoId, val revision: String = "main", val folder: String = "models") {
         fun validate() {
             require(repository.matches(Regex("[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*"))) { tr("Dépôt attendu : compte/modèle", "Expected repository: account/model") }
@@ -104,33 +140,54 @@ object CommunityModelCatalog {
         }
     }
 
+    private suspend fun inspectContract(hf:HfApiClient,item:Availability):Availability {
+        val contract=discoveryContractNames.firstNotNullOfOrNull { name ->
+            item.files.firstOrNull{it.path.removePrefix(item.sourcePrefix)==name}
+        } ?: return item
+        val temp=File.createTempFile("vds-model-contract-",".json")
+        return try {
+            runCatching {
+                check(hf.downloadModelFile(item.sourceRepo,item.repoSha,contract.path,temp,1024L*1024)){
+                    tr("Téléchargement du contrat interrompu", "Contract download interrupted")
+                }
+                val config=if(contract.path.substringAfterLast('/')=="runtime_contract.json") {
+                    val metadata=com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(Any::class.java)
+                        .fromJson(temp.readText()) as? Map<*,*> ?: error(tr("Contrat vide", "Empty contract"))
+                    if(!RuntimeModelContracts.isDynamicYolo(metadata)) return item
+                    val labels=item.files.singleOrNull{it.path==item.sourcePrefix+"labels.json"}
+                        ?: error(tr("Classes YOLO absentes", "YOLO labels missing"))
+                    val labelFile=File(temp.path+".labels")
+                    check(hf.downloadModelFile(item.sourceRepo,item.repoSha,labels.path,labelFile,1024L*1024)) {
+                        tr("Téléchargement des classes interrompu", "Label download interrupted")
+                    }
+                    val vocabulary=com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(Any::class.java)
+                        .fromJson(labelFile.readText()) as? Map<*,*> ?: error(tr("Classes YOLO invalides", "Invalid YOLO labels"))
+                    RuntimeModelContracts.dynamicYolo(metadata,vocabulary)
+                } else com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(ModelConfig::class.java)
+                    .failOnUnknown().fromJson(temp.readText()) ?: error(tr("Contrat vide", "Empty contract"))
+                ModelContract.validate(config)
+                val qualification=qualification(item.sourceRepo,item.repoSha,item.entry.id)
+                item.copy(entry=item.entry.copy(capabilities=ModelCapabilities.fromConfig(config,qualification)),
+                    note=tr("Contrat validé · essai sur image requis", "Contract validated · image trial required"))
+            }.getOrElse{
+                item.copy(installableNow=false,note=tr("Contrat invalide ou inaccessible : ${it.message ?: "erreur inconnue"}",
+                    "Invalid or inaccessible contract: ${it.message ?: "unknown error"}"))
+            }
+        } finally {
+            temp.delete()
+            File(temp.path+".labels").delete()
+        }
+    }
+
     suspend fun discover(hf: HfApiClient, source: Source = Source()): List<Availability> = withContext(Dispatchers.IO) {
         source.validate()
         val sha = hf.resolveModelRevision(source.repository, source.revision)
         val discovered=fromTree(source, sha, hf.listModelTree(source.repository, sha, source.folder))
-        discovered.map { item ->
-            val contract=listOf("android_model_config.json","model_config.json","runtime_contract.json").firstNotNullOfOrNull { name ->
-                item.files.firstOrNull{it.path.removePrefix(item.sourcePrefix)==name}
-            } ?: return@map item
-            val temp=File.createTempFile("vds-model-contract-",".json")
-            try {
-                val result=runCatching {
-                    check(hf.downloadModelFile(item.sourceRepo,item.repoSha,contract.path,temp,1024L*1024)){tr("Téléchargement du contrat interrompu", "Contract download interrupted")}
-                    val config=if(contract.path.substringAfterLast('/')=="runtime_contract.json") {
-                        val metadata=com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(Any::class.java).fromJson(temp.readText()) as? Map<*,*> ?: error(tr("Contrat vide", "Empty contract"))
-                        if(!RuntimeModelContracts.isDynamicYolo(metadata)) return@map item
-                        val labels=item.files.singleOrNull{it.path==item.sourcePrefix+"labels.json"} ?: error(tr("Classes YOLO absentes", "YOLO labels missing"))
-                        val labelFile=File(temp.path+".labels")
-                        check(hf.downloadModelFile(item.sourceRepo,item.repoSha,labels.path,labelFile,1024L*1024)) { tr("Téléchargement des classes interrompu", "Label download interrupted") }
-                        val vocabulary=com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(Any::class.java).fromJson(labelFile.readText()) as? Map<*,*> ?: error(tr("Classes YOLO invalides", "Invalid YOLO labels"))
-                        RuntimeModelContracts.dynamicYolo(metadata,vocabulary)
-                    } else com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(ModelConfig::class.java).failOnUnknown().fromJson(temp.readText()) ?: error(tr("Contrat vide", "Empty contract"))
-                    ModelContract.validate(config)
-                    val qualification=qualification(item.sourceRepo,item.repoSha,item.entry.id)
-                    item.copy(entry=item.entry.copy(capabilities=ModelCapabilities.fromConfig(config,qualification)),note=tr("Contrat validé · essai sur image requis", "Contract validated · image trial required"))
-                }
-                result.getOrElse{item.copy(installableNow=false,note=tr("Contrat invalide ou inaccessible : ${it.message ?: "erreur inconnue"}", "Invalid or inaccessible contract: ${it.message ?: "unknown error"}"))}
-            } finally { temp.delete();File(temp.path+".labels").delete() }
+        coroutineScope {
+            val gate=Semaphore(4)
+            discovered.map { item ->
+                async { gate.withPermit { inspectContract(hf,item) } }
+            }.awaitAll()
         }
     }
 
@@ -144,8 +201,12 @@ object CommunityModelCatalog {
             val id = folder.removePrefix(root).ifBlank { source.repository.substringAfter('/') }
             val files = tree.filter { it.type != "directory" && it.path.startsWith(prefix) }
             val names = files.map { it.path.removePrefix(prefix) }.toSet()
-            val explicit = "android_model_config.json" in names || "model_config.json" in names
-            val known = if (source.repository == repoId) entries.firstOrNull { it.id == id } else null
+            val explicit = modelConfigNames.any(names::contains) || "runtime_contract.json" in names
+            val known = when(source.repository) {
+                repoId -> entries.firstOrNull { it.id == id }
+                fireviewerRepoId -> fireviewerEntries.firstOrNull { it.id == id }
+                else -> null
+            }
             val spec = known ?: Entry(id, id.replace('_', ' '), tr("Conversion LiteRT", "LiteRT conversion"), tr("Voir la model card", "See the model card"), graphs.map { it.path.removePrefix(prefix) }, if (explicit) "contract" else "inspect", tr("Dépôt HF", "HF repository"))
             val installable = graphs.size == 1 || known?.adapterStatus == "bundle"
             val qualified=spec.copy(capabilities=ModelCapabilities(spec.capabilities.values,qualification(source.repository,sha,id)))
@@ -170,7 +231,7 @@ object CommunityModelCatalog {
                 else -> error(tr("Bundle non pris en charge", "Unsupported bundle"))
             }.also(ModelContract::validate)
         }
-        val explicit = listOf("android_model_config.json", "model_config.json").map { File(file.parentFile, it) }.firstOrNull { it.isFile }
+        val explicit = modelConfigNames.map { File(file.parentFile, it) }.firstOrNull { it.isFile }
         if (explicit != null) {
             val c = com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi.adapter(ModelConfig::class.java).failOnUnknown().fromJson(explicit.readText()) ?: error(tr("Contrat Android invalide", "Invalid Android contract"))
             ModelContract.validate(c)

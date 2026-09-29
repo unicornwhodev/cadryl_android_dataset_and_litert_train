@@ -25,11 +25,13 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
     val diagnostics by vm.modelDiagnostics.collectAsState()
     val receipts by vm.inferenceReceipts.collectAsState()
     val spec by vm.modelInputSpec.collectAsState()
+    val samples by vm.batchSamples.collectAsState()
     val p = project ?: return
     val config = remember(p.modelConfigJson) { runCatching {
         p.modelConfigJson?.let { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(it) }
     }.getOrNull() }
-    var classes by remember(p.id, p.classesCsv) { mutableStateOf(p.classesCsv) }
+    val runtimeReady=config?.let { it.runtime=="local_http" || !p.modelPath.isNullOrBlank() } == true
+    val testImageReady=samples.any { it.acquisitionStatus=="AVAILABLE" && it.localImagePath!=null }
     LaunchedEffect(p.id, p.modelPath, p.modelConfigJson) { vm.isBusy.first { !it }; vm.inspectActiveModelInput() }
     Scaffold(contentWindowInsets = WindowInsets(0), modifier = Modifier.imePadding(), topBar = {
         WorkspaceTopBar(vm, tr("Réglages du modèle", "Model settings"), p.name)
@@ -37,22 +39,40 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
         Box(Modifier.fillMaxSize().padding(inset), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 800.dp).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                if (config == null || ModelContract.adapter(config) == "inspect_only") {
-                    Text(tr("Choisissez un modèle du catalogue pour obtenir ses réglages. Un fichier brut demande le contrat de son auteur.",
-                        "Choose a catalog model to get its settings. A raw file needs its author's contract."))
-                    OutlinedButton(onClick = { vm.navigateTo(Screen.Models) }) { Text(tr("Choisir un modèle", "Choose a model")) }
+                if (config == null) {
+                    Text(tr("Aucun modèle actif. Installez un modèle, importez un .tflite ou configurez un endpoint local.",
+                        "No active model. Install a model, import a .tflite file, or configure a local endpoint."))
+                    OutlinedButton(onClick = { vm.navigateTo(Screen.Models) }) { Text(tr("Ouvrir Modèles et presets", "Open Models & presets")) }
+                } else if(ModelContract.adapter(config)=="inspect_only") {
+                    StudioDetails(tr("Le fichier LiteRT est chargé, mais Cadryl ne devine pas la sémantique de ses sorties. Utilisez l’assistant ci-dessous avec la documentation du modèle, ou appliquez un preset compatible depuis Modèles.",
+                        "The LiteRT file is loaded, but Cadryl does not guess its output semantics. Use the guided settings below with the model documentation, or apply a compatible preset from Models."),
+                        style=MaterialTheme.typography.bodyMedium)
+                    OutlinedButton(onClick = { vm.navigateTo(Screen.Models) }) { Text(tr("Parcourir les presets", "Browse presets")) }
                 }
-                StudioDisclosure(tr("Classes du projet", "Project classes"), Icons.Default.Label, true) {
-                    ModelCompatibilityPanel(config, p.activeTasksCsv, classes)
-                    ClassVocabularyEditor(classes, { classes = it }, !busy, config?.let { ModelClassCompatibility.inspect(it, p.activeTasksCsv, classes).available }.orEmpty())
-                    Button(onClick = { vm.saveProjectClasses(classes) }, enabled = !busy && classes.isNotBlank() && classes != p.classesCsv) {
-                        Text(tr("Enregistrer les classes", "Save classes"))
+                StudioSection(tr("Compatibilité avec le projet", "Project compatibility"),
+                    tr("Les tâches et classes du dataset se configurent à un seul endroit : Configuration du projet. Ici, vous vérifiez uniquement ce que le modèle peut proposer.",
+                        "Dataset tasks and classes are configured in one place: Project setup. Here you only check what the model can propose."),
+                    Icons.Default.Checklist) {
+                    ModelCompatibilityPanel(config, p.activeTasksCsv, p.classesCsv)
+                    val classCount=com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv).size
+                    Text(tr("${p.activeTasksCsv.ifBlank{"Aucune tâche"}} · $classCount classe(s)",
+                        "${p.activeTasksCsv.ifBlank{"No task"}} · $classCount class(es)"),style=MaterialTheme.typography.bodySmall)
+                    OutlinedButton(onClick={vm.navigateTo(Screen.Setup)},enabled=!busy,modifier=Modifier.fillMaxWidth()) {
+                        Text(tr("Modifier tâches et classes", "Edit tasks and classes"))
                     }
                 }
                 ModelSettingsPanel(p, busy, vm::saveModelConfig, spec)
                 StudioSection(tr("Essayer sur une image", "Try on an image"),
                     tr("Utilise les réglages enregistrés. Les annotations sont conservées.", "Uses saved settings. Annotations are preserved."), Icons.Default.Science) {
-                    Button(onClick = vm::dryRunActiveModel, enabled = !busy && config != null && ModelContract.adapter(config) != "inspect_only") {
+                    if(config!=null && ModelContract.adapter(config)!="inspect_only" && !runtimeReady) {
+                        StudioDetails(tr("Le contrat est configuré, mais aucun poids LiteRT ou endpoint local n’est actif. Installez ou importez le modèle avant l’essai.",
+                            "The contract is configured, but no LiteRT weights or local endpoint is active. Install or import the model before testing."),
+                            style=MaterialTheme.typography.bodySmall)
+                        OutlinedButton(onClick={vm.navigateTo(Screen.Models)},enabled=!busy) { Text(tr("Ouvrir Modèles", "Open Models")) }
+                    }
+                    if(runtimeReady && !testImageReady) Text(tr("Préparez au moins une image du lot pour activer l’essai.",
+                        "Prepare at least one batch image to enable the trial."),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                    Button(onClick = vm::dryRunActiveModel, enabled = !busy && runtimeReady && testImageReady && config != null && ModelContract.adapter(config) != "inspect_only") {
                         Text(tr("Tester le modèle", "Test model"))
                     }
                     result?.let { Text(if (!it.success) it.error.orEmpty() else if (it.proposals.isEmpty())

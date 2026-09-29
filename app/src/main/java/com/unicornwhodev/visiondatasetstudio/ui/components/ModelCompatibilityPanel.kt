@@ -26,8 +26,8 @@ fun ModelCompatibilityPanel(config: ModelConfig?, tasks: String, classes: String
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Text(when (check.kind) {
-            ModelVocabularyKind.FIXED -> tr("Vérifié avec la liste du modèle. Les noms doivent correspondre exactement. Un essai sur image permet de contrôler le résultat.",
-                "Checked against the model's class list. Names must match exactly. An image trial lets you check the result.")
+            ModelVocabularyKind.FIXED -> tr("Vérifié avec la liste du modèle. La casse et les espaces sont normalisés, mais les classes restent liées aux indices exacts du modèle. Un essai sur image permet de contrôler le résultat.",
+                "Checked against the model's class list. Case and whitespace are normalized, while classes remain tied to the model's exact indices. An image trial lets you check the result.")
             ModelVocabularyKind.TEXT_CANDIDATES -> tr("Ce modèle compare vos textes à l’image. La liste est configurable ; un essai reste nécessaire.",
                 "This model compares your text with the image. The candidate list is editable; an image trial is still needed.")
             ModelVocabularyKind.INTERACTIVE -> tr("Dessinez d’abord une boîte ou placez un point sur l’objet. Le masque utilisera la classe choisie dans les réglages du modèle.",

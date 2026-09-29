@@ -23,41 +23,79 @@ import com.unicornwhodev.visiondatasetstudio.ui.Screen
 import com.unicornwhodev.visiondatasetstudio.ui.components.*
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelCapability
 import com.unicornwhodev.visiondatasetstudio.domain.inference.QualificationStatus
+import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelPresets
+import com.unicornwhodev.visiondatasetstudio.domain.inference.CommunityModelCatalog
+import com.unicornwhodev.visiondatasetstudio.domain.inference.PublicModelCatalog
 
 @Composable
 fun ModelLibraryScreen(vm: MainViewModel) {
     val source by vm.catalogSource.collectAsState()
     var editSource by remember { mutableStateOf(false) }
     val remote by vm.communityModels.collectAsState()
+    val warnings by vm.modelCatalogWarnings.collectAsState()
+    val catalogLoading by vm.modelCatalogLoading.collectAsState()
     val local by vm.modelProfiles.collectAsState()
     val project by vm.projectFlow.collectAsState()
     val busy by vm.isBusy.collectAsState()
     var tab by rememberSaveable { mutableStateOf(0) }
     var url by rememberSaveable { mutableStateOf("") }
+    var profileName by rememberSaveable { mutableStateOf("") }
     var deleteId by remember { mutableStateOf<String?>(null) }
     var search by rememberSaveable { mutableStateOf("") }
-    val visibleRemote = remote.filter { search.isBlank() || it.entry.title.contains(search, true) || it.entry.purpose.contains(search, true) }
+    var compatibleOnly by rememberSaveable { mutableStateOf(false) }
+    val activeTasks=project?.activeTasksCsv.orEmpty()
+    val visibleRemote = remote.filter {
+        (search.isBlank() || it.entry.title.contains(search, true) || it.entry.purpose.contains(search, true) || it.sourceRepo.contains(search,true)) &&
+            (!compatibleOnly || it.entry.capabilities.supports(activeTasks))
+    }
     val visibleLocal = local.filter { search.isBlank() || it.name.contains(search, true) }
+    val visiblePublic = PublicModelCatalog.entries.filter {
+        (search.isBlank() || it.title.contains(search,true) || it.purpose.contains(search,true)) &&
+            (!compatibleOnly || when(it.family) {
+                "ssd" -> activeTasks.split(',').any { task -> task.trim() in setOf("DETECTION","GROUNDING") }
+                "classification" -> "CLASSIFICATION" in activeTasks.split(',').map(String::trim)
+                else -> true
+            })
+    }
+    val activeConfig=remember(project?.modelConfigJson) {
+        runCatching {
+            project?.modelConfigJson?.let { com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi
+                .adapter(com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig::class.java).fromJson(it) }
+        }.getOrNull()
+    }
+    val visiblePresets = ModelPresets.recommended(project?.activeTasksCsv.orEmpty()).filter {
+        search.isBlank() || it.title.contains(search,true) || it.description.contains(search,true) || it.category.contains(search,true)
+    }
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
     LaunchedEffect(tab) { listState.scrollToItem(0) }
     val weights = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { it?.let(vm::importModel) }
     Scaffold(contentWindowInsets = WindowInsets(0), topBar = {
         WorkspaceTopBar(vm, stringResource(R.string.screen_models), stringResource(R.string.models_summary,local.size), actions = {
             IconButton(onClick = { vm.navigateTo(Screen.Training) }, enabled = !busy) { Icon(Icons.Default.ModelTraining, tr("Apprentissage sur cet appareil", "Training on this device"), Modifier.size(19.dp)) }
-            IconButton(onClick = { editSource = true }, enabled = !busy) { Icon(Icons.Default.Storage, tr("Dépôt du catalogue", "Catalog repository"), Modifier.size(19.dp)) }
-            IconButton(onClick = vm::refreshCommunityModelCatalog, enabled = !busy) { Icon(Icons.Default.Refresh, tr("Actualiser le catalogue", "Refresh catalog"), Modifier.size(19.dp)) }
+            IconButton(onClick = { editSource = true }, enabled = !busy) { Icon(Icons.Default.Storage, tr("Source HF supplémentaire", "Additional HF source"), Modifier.size(19.dp)) }
+            IconButton(onClick = vm::refreshCommunityModelCatalog, enabled = !busy && !catalogLoading) { Icon(Icons.Default.Refresh, tr("Actualiser le catalogue", "Refresh catalog"), Modifier.size(19.dp)) }
         })
     }) { inset ->
         Column(Modifier.fillMaxSize().padding(inset)) {
-            StudioTabs(listOf(stringResource(R.string.models_tab_explore), stringResource(R.string.models_tab_installed), stringResource(R.string.models_tab_import)), tab, { tab = it }, Modifier.padding(horizontal = 16.dp))
+            StudioTabs(listOf(tr("Catalogue","Catalog"),tr("Installés","Installed"),tr("Presets","Presets"),tr("Importer","Import")), tab, { tab = it }, Modifier.padding(horizontal = 16.dp))
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                 LazyColumn(Modifier.widthIn(max = 1000.dp).fillMaxSize(), state = listState, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    if (tab != 2) item {
+                    if (tab != 3) item {
                         OutlinedTextField(search, { search = it }, label = { Text(tr("Rechercher un modèle", "Search models")) }, singleLine = true,
                             leadingIcon = { Icon(Icons.Default.Search, null) }, modifier = Modifier.fillMaxWidth())
                         Text(tr("Choisissez un modèle pour votre objectif. Ses classes seront vérifiées une fois installé.", "Choose a model for your task. Its classes will be checked once installed."),
                             Modifier.padding(vertical = 8.dp), style = MaterialTheme.typography.bodySmall)
-                        if (search.isNotBlank() && (if (tab == 0) visibleRemote.isEmpty() else visibleLocal.isEmpty())) Text(tr("Aucun modèle ne correspond à cette recherche.", "No models match this search."))
+                        if(tab==0) {
+                            FilterChip(selected=compatibleOnly,onClick={compatibleOnly=!compatibleOnly},
+                                leadingIcon=if(compatibleOnly)({ Icon(Icons.Default.FilterAlt,null,Modifier.size(16.dp)) }) else null,
+                                label={Text(tr("Compatibles avec le projet", "Compatible with project"))})
+                        }
+                        if(tab==0 && warnings.isNotEmpty()) {
+                            StudioDetails(tr("Certaines sources HF n’ont pas pu être chargées :\n", "Some HF sources could not be loaded:\n") + warnings.joinToString("\n"),
+                                style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.error)
+                        }
+                        val emptySearch=when(tab){0->visibleRemote.isEmpty() && visiblePublic.isEmpty();1->visibleLocal.isEmpty();2->visiblePresets.isEmpty();else->false}
+                        if (search.isNotBlank() && emptySearch) Text(tr("Aucun résultat ne correspond à cette recherche.", "No results match this search."))
                     }
                     if (tab == 0) {
                         item {
@@ -67,8 +105,20 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                             }
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         }
-                        if(remote.isEmpty()) item { EmptyWorkspace(stringResource(R.string.models_empty_title), stringResource(R.string.models_empty_body), Icons.Default.Memory, if (!busy) stringResource(R.string.models_explore) else null, vm::refreshCommunityModelCatalog) }
-                        items(visibleRemote.size, key = { visibleRemote[it].entry.id }) { index ->
+                        if(remote.isEmpty() && catalogLoading) item {
+                            Column(Modifier.fillMaxWidth().padding(vertical=36.dp),horizontalAlignment=Alignment.CenterHorizontally,
+                                verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                                CircularProgressIndicator()
+                                Text(tr("Chargement des catalogues…", "Loading catalogs…"),style=MaterialTheme.typography.bodyMedium)
+                                Text(tr("Inspection de FireViewer, du catalogue communautaire et de la source HF supplémentaire.",
+                                    "Inspecting FireViewer, the community catalog, and the additional HF source."),
+                                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        } else if(remote.isEmpty()) item {
+                            EmptyWorkspace(stringResource(R.string.models_empty_title), stringResource(R.string.models_empty_body), Icons.Default.Memory,
+                                if (!busy) stringResource(R.string.models_explore) else null, vm::refreshCommunityModelCatalog)
+                        }
+                        items(visibleRemote.size, key = { visibleRemote[it].sourceRepo + "@" + visibleRemote[it].repoSha + ":" + visibleRemote[it].entry.id }) { index ->
                             val item = visibleRemote[index]
                             var showInfo by remember { mutableStateOf(false) }
                             val state = stringResource(when {
@@ -99,12 +149,25 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                     Icon(Icons.Default.Memory, null, Modifier.size(18.dp), tint = if(item.installableNow) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant)
                                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                         Text(item.entry.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        Text(item.entry.purpose, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                        val sourceName=when(item.sourceRepo) {
+                                            CommunityModelCatalog.fireviewerRepoId -> "FireViewer"
+                                            CommunityModelCatalog.repoId -> tr("Conversions communautaires","Community conversions")
+                                            else -> item.sourceRepo
+                                        }
+                                        val bytes=item.files.filter { it.path.endsWith(".tflite",true) }.sumOf { it.size }
+                                        val sizeText=when {
+                                            bytes>=1024L*1024*1024 -> "%.1f Gio".format(java.util.Locale.ROOT,bytes/1073741824.0)
+                                            bytes>=1024L*1024 -> "%.0f Mio".format(java.util.Locale.ROOT,bytes/1048576.0)
+                                            else -> ""
+                                        }
+                                        Text(sourceName + if(sizeText.isNotBlank()) " · $sizeText" else "",style=MaterialTheme.typography.labelSmall,
+                                            color=if(item.sourceRepo==CommunityModelCatalog.fireviewerRepoId) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(item.entry.purpose, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
                                         Text("$state  ·  ${item.entry.upstreamLicense}", style = MaterialTheme.typography.labelSmall, color = if(item.installableNow) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant)
                                         Text(capabilityText,style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant,maxLines=2)
                                     }
                                     IconButton(onClick = { showInfo = true }) { Icon(Icons.Default.Info, stringResource(R.string.models_details,item.entry.title), Modifier.size(17.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-                                    if(item.installableNow) IconButton(onClick = { vm.downloadCommunityModel(item.entry.id) }, enabled = !busy) {
+                                    if(item.installableNow) IconButton(onClick = { vm.downloadCommunityModel(item.entry.id,item.sourceRepo,item.repoSha) }, enabled = !busy) {
                                         Icon(Icons.Default.Download, stringResource(R.string.models_install,item.entry.title), Modifier.size(19.dp), tint = MaterialTheme.colorScheme.primary)
                                     }
                                 }
@@ -114,11 +177,35 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                 text = { Text((item.entry.purpose)+"\n\n$capabilityText\n"+stringResource(R.string.model_files,item.entry.expectedFiles.size)+"\n\n"+(item.note)) },
                                 confirmButton = { TextButton(onClick = { showInfo = false }) { Text(stringResource(R.string.action_close)) } })
                         }
+                        if(visiblePublic.isNotEmpty()) {
+                            item {
+                                Spacer(Modifier.height(14.dp))
+                                Row(Modifier.fillMaxWidth().padding(vertical=10.dp),verticalAlignment=Alignment.CenterVertically) {
+                                    Text(tr("Modèles publics avec métadonnées","Public metadata models"),Modifier.weight(1f),style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(tr("TensorFlow examples","TensorFlow examples"),style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant)
+                            }
+                            items(visiblePublic.size,key={ "public:"+visiblePublic[it].id }) { index ->
+                                val item=visiblePublic[index]
+                                Row(Modifier.fillMaxWidth().padding(vertical=10.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalAlignment=Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Memory,null,Modifier.size(18.dp),tint=MaterialTheme.colorScheme.secondary)
+                                    Column(Modifier.weight(1f)) {
+                                        Text(item.title,style=MaterialTheme.typography.titleSmall)
+                                        Text(item.purpose,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text(tr("Métadonnées et tenseurs vérifiés à l’installation","Metadata and tensors checked at install"),style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    StudioAction(tr("Installer","Install"),{vm.downloadCatalogModel(item.id)},enabled=!busy)
+                                }
+                                HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant.copy(alpha=.5f))
+                            }
+                        }
                     } else if(tab == 1) {
-                        if(local.isEmpty()) item { EmptyWorkspace(stringResource(R.string.models_none_installed), stringResource(R.string.models_import_compatible), Icons.Default.Memory, stringResource(R.string.models_tab_import), { tab = 2 }) }
+                        if(local.isEmpty()) item { EmptyWorkspace(stringResource(R.string.models_none_installed), stringResource(R.string.models_import_compatible), Icons.Default.Memory, tr("Importer","Import"), { tab = 3 }) }
                         items(visibleLocal.size, key = { visibleLocal[it].id }) { index ->
                             val profile = visibleLocal[index]
-                            val active = project?.modelPath == profile.modelPath && profile.modelPath.isNotBlank()
+                            val active = if(profile.modelPath.isNotBlank()) project?.modelPath == profile.modelPath
+                                else project?.modelPath.isNullOrBlank() && project?.modelConfigJson == profile.configJson
                             Column {
                                 Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Memory, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.secondary)
@@ -139,8 +226,58 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             }
                         }
+                        val activeAlreadySaved=project?.modelConfigJson?.let { json ->
+                            local.any { profile ->
+                                profile.configJson==json && if(profile.modelPath.isBlank()) project?.modelPath.isNullOrBlank() else profile.modelPath==project?.modelPath
+                            }
+                        } == true
+                        if(activeConfig?.runtime=="local_http" && !activeAlreadySaved) item {
+                            StudioDisclosure(tr("Enregistrer la configuration active", "Save active configuration"), Icons.Default.BookmarkAdd, true) {
+                                Text(tr("Enregistre cet endpoint local comme profil réutilisable dans d’autres projets. Aucun serveur ni modèle n’est copié.",
+                                    "Saves this local endpoint as a reusable profile for other projects. No server or model is copied."),
+                                    style=MaterialTheme.typography.bodySmall)
+                                OutlinedTextField(profileName,{profileName=it},label={Text(tr("Nom du profil", "Profile name"))},singleLine=true,modifier=Modifier.fillMaxWidth())
+                                Button(onClick={vm.saveActiveModelProfile(profileName);profileName=""},enabled=!busy && profileName.isNotBlank()) {
+                                    Text(tr("Enregistrer dans la bibliothèque", "Save to library"))
+                                }
+                            }
+                        }
                         if(!project?.modelPath.isNullOrBlank() || project?.modelConfigJson != null) item {
                             TextButton(onClick = vm::detachModel, enabled = !busy) { Text(stringResource(R.string.models_detach)) }
+                        }
+                    } else if(tab == 2) {
+                        item {
+                            StudioSection(tr("Presets de configuration","Configuration presets"),
+                                tr("Un preset configure le contrat de base mais ne prétend jamais reconnaître automatiquement un fichier. Vérifiez toujours le prétraitement, les sorties et les classes du modèle.",
+                                    "A preset configures a base contract but never claims to automatically recognize a file. Always verify preprocessing, outputs and model classes."),
+                                Icons.Default.Tune) {
+                                Text(tr("${visiblePresets.size} gabarit(s) · les plus proches des tâches du projet sont affichés en premier.",
+                                    "${visiblePresets.size} template(s) · presets closest to the project tasks are shown first."),style=MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        items(visiblePresets.size,key={visiblePresets[it].id}) { index ->
+                            val preset=visiblePresets[index]
+                            Column {
+                                Row(Modifier.fillMaxWidth().padding(vertical=10.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalAlignment=Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Tune,null,Modifier.size(18.dp),tint=MaterialTheme.colorScheme.secondary)
+                                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(3.dp)) {
+                                        Text(preset.title,style=MaterialTheme.typography.titleSmall)
+                                        Text(preset.category+" · "+preset.task,style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.primary)
+                                        Text(preset.description,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    val bundleQuery=when(preset.id) {
+                                        "tinyclip" -> "TinyCLIP"
+                                        "efficientvit_sam" -> "EfficientViT"
+                                        "florence2" -> "Florence"
+                                        else -> null
+                                    }
+                                    if(bundleQuery!=null) StudioAction(tr("Voir le bundle","View bundle"),{
+                                        search=bundleQuery;compatibleOnly=false;tab=0
+                                    },enabled=!busy)
+                                    else StudioAction(tr("Appliquer","Apply"),{vm.applyModelPreset(preset.id)},enabled=!busy)
+                                }
+                                HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant.copy(alpha=.5f))
+                            }
                         }
                     } else {
                         item {
@@ -168,17 +305,27 @@ fun ModelLibraryScreen(vm: MainViewModel) {
         }
     }
     if (editSource) {
-        var repo by remember { mutableStateOf(source.repository) }
-        var revision by remember { mutableStateOf(source.revision) }
-        var folder by remember { mutableStateOf(source.folder) }
-        AlertDialog(onDismissRequest = { editSource = false }, title = { Text(stringResource(R.string.models_catalog_source)) }, text = {
+        val hasAdditionalSource=source.repository!=CommunityModelCatalog.repoId || source.revision!="main" || source.folder!="models"
+        var repo by remember(editSource,source) { mutableStateOf(if(hasAdditionalSource) source.repository else "") }
+        var revision by remember(editSource,source) { mutableStateOf(if(hasAdditionalSource) source.revision else "main") }
+        var folder by remember(editSource,source) { mutableStateOf(if(hasAdditionalSource) source.folder else "models") }
+        AlertDialog(onDismissRequest = { editSource = false }, title = { Text(tr("Source HF supplémentaire", "Additional HF source")) }, text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(tr("FireViewer et le catalogue communautaire restent toujours chargés. Ce dépôt s’ajoute aux sources standard.",
+                    "FireViewer and the community catalog are always loaded. This repository is added to the standard sources."),
+                    style=MaterialTheme.typography.bodySmall)
                 OutlinedTextField(repo, { repo = it }, label = { Text(stringResource(R.string.models_repo)) }, singleLine = true)
                 OutlinedTextField(revision, { revision = it }, label = { Text(stringResource(R.string.models_revision)) }, singleLine = true)
                 OutlinedTextField(folder, { folder = it }, label = { Text(stringResource(R.string.models_folder)) }, singleLine = true)
                 Text(stringResource(R.string.models_private_access), style = MaterialTheme.typography.bodySmall)
+                if(hasAdditionalSource) {
+                    TextButton(onClick={
+                        vm.setModelCatalog(CommunityModelCatalog.repoId,"main","models")
+                        editSource=false
+                    }) { Text(tr("Retirer la source supplémentaire", "Remove additional source")) }
+                }
             }
-        }, confirmButton = { TextButton(onClick = { vm.setModelCatalog(repo, revision, folder); editSource = false }) { Text(stringResource(R.string.action_open)) } },
+        }, confirmButton = { TextButton(onClick = { vm.setModelCatalog(repo, revision, folder); editSource = false }, enabled=repo.isNotBlank()) { Text(tr("Ajouter", "Add")) } },
             dismissButton = { TextButton(onClick = { editSource = false }) { Text(stringResource(R.string.action_cancel)) } })
     }
     deleteId?.let { id -> AlertDialog(onDismissRequest = { deleteId = null }, title = { Text(stringResource(R.string.models_delete_title)) },

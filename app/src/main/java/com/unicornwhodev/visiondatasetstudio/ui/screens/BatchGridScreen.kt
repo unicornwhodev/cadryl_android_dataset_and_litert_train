@@ -44,8 +44,9 @@ import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelClassCompatib
 private enum class BatchFilter(private val titleText: () -> String) {
     ALL({ tr("Tous", "All") }),
     PENDING({ tr("À traiter", "To process") }),
-    PROPOSALS({ "Suggestions" }),
-    VALIDATED({ tr("Validés", "Approved") }),
+    DRAFTS({ tr("Brouillons importés", "Imported drafts") }),
+    PROPOSALS({ tr("Suggestions IA", "AI suggestions") }),
+    VALIDATED({ tr("Traités", "Reviewed") }),
     DEFERRED({ tr("À revoir", "To review") }),
     REJECTED({ tr("Rejetés", "Rejected") }),
     ERRORS({ tr("Erreurs", "Errors") });
@@ -54,6 +55,7 @@ private enum class BatchFilter(private val titleText: () -> String) {
 private fun matches(sample: SampleEntity, filter: BatchFilter) = when (filter) {
     BatchFilter.ALL -> true
     BatchFilter.PENDING -> StudioWorkflow.isPending(sample.annotationStatus)
+    BatchFilter.DRAFTS -> sample.annotationStatus == "DRAFTS_AVAILABLE"
     BatchFilter.PROPOSALS -> sample.annotationStatus == "PROPOSALS_AVAILABLE"
     BatchFilter.VALIDATED -> sample.annotationStatus == "VALIDATED"
     BatchFilter.DEFERRED -> sample.annotationStatus == "DEFERRED"
@@ -89,7 +91,7 @@ fun BatchGridScreen(viewModel: MainViewModel) {
     var replaceProposals by remember { mutableStateOf(false) }
     val filtered = remember(samples, filter, search, priority) {
         samples.filter { matches(it, filter) && (search.isBlank() || it.assetId.contains(search, true) || it.sampleId.contains(search, true) || it.auditReason?.contains(search, true) == true) }
-            .let { list -> if (priority) list.sortedBy { when { it.acquisitionStatus.startsWith("ERROR") -> 0; it.annotationStatus == "DEFERRED" -> 1; it.annotationStatus == "PROPOSALS_AVAILABLE" -> 2; else -> 3 } } else list }
+            .let { list -> if (priority) list.sortedBy { when { it.acquisitionStatus.startsWith("ERROR") -> 0; it.annotationStatus == "DEFERRED" -> 1; it.annotationStatus == "DRAFTS_AVAILABLE" -> 2; it.annotationStatus == "PROPOSALS_AVAILABLE" -> 3; else -> 4 } } else list }
     }
     val validated = samples.count { it.annotationStatus == "VALIDATED" }
     val gridWidth = if(LocalConfiguration.current.screenWidthDp >= 840) {
@@ -202,9 +204,26 @@ fun SampleThumbnailCard(sample: SampleEntity, onClick: () -> Unit, selected: Boo
     val label = when {
         published -> tr("Copie vérifiée", "Copy verified")
         sample.acquisitionStatus.startsWith("ERROR") -> tr("À récupérer", "To download")
-        else -> when(sample.annotationStatus) { "VALIDATED" -> tr("Validé", "Approved"); "REJECTED" -> tr("Rejeté", "Rejected"); "DEFERRED" -> tr("À revoir", "To review"); "PROPOSALS_AVAILABLE" -> "Suggestions"; "IN_PROGRESS" -> tr("En cours", "In progress"); else -> tr("À traiter", "To process") }
+        else -> when(sample.annotationStatus) {
+            "VALIDATED" -> tr("Traité manuellement", "Manually reviewed")
+            "REJECTED" -> tr("Rejeté", "Rejected")
+            "DEFERRED" -> tr("À revoir", "To review")
+            "DRAFTS_AVAILABLE" -> tr("Brouillon importé · à relire", "Imported draft · needs review")
+            "PROPOSALS_AVAILABLE" -> tr("Suggestions IA", "AI suggestions")
+            "IN_PROGRESS" -> tr("Traité manuellement · à valider", "Manually handled · needs approval")
+            else -> tr("À traiter", "To process")
+        }
     }
-    val icon = when(label) { tr("Copie vérifiée", "Copy verified") -> Icons.Default.CloudDone; tr("Validé", "Approved") -> Icons.Default.CheckCircleOutline; tr("À revoir", "To review") -> Icons.Default.Schedule; tr("À récupérer", "To download") -> Icons.Default.ErrorOutline; tr("Rejeté", "Rejected") -> Icons.Default.Block; else -> Icons.Default.Edit }
+    val icon = when(label) {
+        tr("Copie vérifiée", "Copy verified") -> Icons.Default.CloudDone
+        tr("Traité manuellement", "Manually reviewed") -> Icons.Default.CheckCircleOutline
+        tr("Brouillon importé · à relire", "Imported draft · needs review") -> Icons.Default.Description
+        tr("Suggestions IA", "AI suggestions") -> Icons.Default.AutoAwesome
+        tr("À revoir", "To review") -> Icons.Default.Schedule
+        tr("À récupérer", "To download") -> Icons.Default.ErrorOutline
+        tr("Rejeté", "Rejected") -> Icons.Default.Block
+        else -> Icons.Default.Edit
+    }
     val outline by androidx.compose.animation.animateColorAsState(if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, label = "sample selection")
     Column(Modifier.clip(RoundedCornerShape(4.dp)).border(if(selected) 2.dp else 1.dp, outline, RoundedCornerShape(4.dp))
         .background(MaterialTheme.colorScheme.surface).combinedClickable(onClick = onClick, onLongClickLabel = tr("Sélectionner cette image", "Select this image"), onLongClick = onLongClick)

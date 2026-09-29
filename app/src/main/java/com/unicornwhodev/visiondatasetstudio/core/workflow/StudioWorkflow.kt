@@ -44,7 +44,7 @@ object StudioWorkflow {
     }
 
     fun tasksCsv(tasks: Set<StudioTask>) = StudioTask.entries.filter { it in tasks }.joinToString(",") { it.name }
-    fun isPending(status: String) = status in setOf("PENDING", "PROPOSALS_AVAILABLE", "IN_PROGRESS")
+    fun isPending(status: String) = status in setOf("PENDING", "DRAFTS_AVAILABLE", "PROPOSALS_AVAILABLE", "IN_PROGRESS")
     fun canEdit(acquisition: String, sync: String, hasFile: Boolean) =
         acquisition == "AVAILABLE" && sync !in setOf("VERIFIED", "PURGED", "PUBLISHING", "PUBLISHED") && hasFile
 

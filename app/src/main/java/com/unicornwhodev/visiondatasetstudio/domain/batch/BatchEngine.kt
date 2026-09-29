@@ -29,6 +29,7 @@ import com.unicornwhodev.visiondatasetstudio.data.model.TagTarget
 import com.unicornwhodev.visiondatasetstudio.domain.export.DatasetExporters
 import com.unicornwhodev.visiondatasetstudio.domain.inference.LiteRtEngine
 import com.unicornwhodev.visiondatasetstudio.domain.inference.*
+import com.unicornwhodev.visiondatasetstudio.domain.validation.HumanAnnotationReview
 import com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings
 import com.unicornwhodev.visiondatasetstudio.data.source.SourceCatalog
 import com.unicornwhodev.visiondatasetstudio.core.storage.ImageNormalizer
@@ -83,37 +84,85 @@ class BatchEngine(
     suspend fun discoverViewerBatch(requestedProject:ProjectEntity,batchNumber:Int,count:Int=100,append:Boolean=false):BatchDiscoveryResult = discoveryMutex.withLock { withContext(Dispatchers.IO) {
         try {
             require(count in 1..1000)
-            val project=db.projectDao().getProjectSync(requestedProject.id) ?: error(tr("Projet absent", "Project not found"))
+            var project=db.projectDao().getProjectSync(requestedProject.id) ?: error(tr("Projet absent", "Project not found"))
             val batch=db.batchDao().getBatchSync(project.id,batchNumber)
             check(if(append)batch!=null && batch.status !in PublicationSafety.lockedStates else batch==null) { tr("Lot déjà découvert ou verrouillé", "Batch already discovered or locked") }
-            val settings=ProjectSettings.read(project)
-            if(settings.sourceMode=="HF_VIEWER")checkNetwork(settings)
-            hfApiClient.configureTimeout(settings.timeoutSeconds)
+            var settings=ProjectSettings.read(project)
+            if(settings.sourceMode=="HF_VIEWER") {
+                checkNetwork(settings)
+                hfApiClient.configureTimeout(settings.timeoutSeconds)
+                if(settings.viewerExpectedRows==null && settings.filterExpression.isBlank() && settings.orderBy.isBlank()) {
+                    val splits=hfApiClient.fetchViewerSplits(project.hfSourceRepo)
+                    val total=splits.splits.firstOrNull { it.config==project.sourceConfig && it.split==project.sourceSplit }?.numRows
+                    if(total!=null) {
+                        settings=settings.copy(viewerExpectedRows=total)
+                        project=project.copy(settingsJson=ProjectSettings.write(settings),updatedAt=System.currentTimeMillis())
+                        db.projectDao().saveProject(project)
+                    }
+                }
+            } else hfApiClient.configureTimeout(settings.timeoutSeconds)
             val claimSelection=if(settings.collaborationEnabled) {
                 val selected=mutableListOf<SourceEntryEntity>();var consumed=0;var skipped=0;var rounds=0
                 while(selected.size<count && rounds++<12) {
                     val wanted=count-selected.size
                     val scanCount=minOf(1000,maxOf(wanted,wanted*5))
-                    val candidates=sourceCatalog.page(project,project.lastRowCursor+consumed,scanCount)
-                    if(candidates.isEmpty())break
-                    val part=workClaims.claim(project,settings,candidates,wanted)
-                    selected+=part.entries;skipped+=part.skipped
-                    // If the whole window was unavailable, advance over it so a shared project can reach later free rows.
-                    val advance=if(part.consumed>0)part.consumed else candidates.size
+                    val startOffset=project.lastRowCursor+consumed
+                    val page=sourceCatalog.page(project,startOffset,scanCount)
+                    if(page.consumed==0)break
+                    if(page.entries.isEmpty()) {
+                        consumed+=page.consumed
+                        skipped+=page.rejected
+                        continue
+                    }
+                    val part=workClaims.claim(project,settings,page.entries,wanted)
+                    selected+=part.entries
+                    // Advance in upstream coordinates, including only rejected rows that occur
+                    // before the last valid candidate actually inspected by the claim coordinator.
+                    val advance=SourceWindowProgress.advance(startOffset,page,part.consumed)
+                    skipped+=part.skipped+SourceWindowProgress.rejectedInPrefix(advance,part.consumed)
                     consumed+=advance
                 }
                 ClaimSelection(selected,consumed,skipped)
             } else {
-                val candidates=sourceCatalog.page(project,project.lastRowCursor,count)
-                ClaimSelection(candidates.take(count),candidates.take(count).size,0)
+                val selected=mutableListOf<SourceEntryEntity>();var consumed=0;var skipped=0;var rounds=0
+                while(selected.size<count && rounds++<12) {
+                    val wanted=count-selected.size
+                    val scanCount=minOf(1000,maxOf(wanted,wanted*5))
+                    val startOffset=project.lastRowCursor+consumed
+                    val page=sourceCatalog.page(project,startOffset,scanCount)
+                    if(page.consumed==0)break
+                    if(page.entries.isEmpty()) {
+                        consumed+=page.consumed
+                        skipped+=page.rejected
+                        continue
+                    }
+                    val taken=page.entries.take(wanted)
+                    selected+=taken
+                    val advance=if(taken.size>=wanted) SourceWindowProgress.advance(startOffset,page,taken.size) else page.consumed
+                    skipped+=SourceWindowProgress.rejectedInPrefix(advance,taken.size)
+                    consumed+=advance
+                }
+                ClaimSelection(selected,consumed,skipped)
             }
             val entries=claimSelection.entries
-            if(entries.isEmpty() && claimSelection.consumed==0) return@withContext BatchDiscoveryResult(true,endOfSource=true)
+            if(entries.isEmpty()) {
+                if(claimSelection.consumed==0) return@withContext BatchDiscoveryResult(true,endOfSource=true)
+                db.withTransaction {
+                    val current=db.projectDao().getProjectSync(project.id) ?: error(tr("Projet absent", "Project not found"))
+                    check(current.lastRowCursor==project.lastRowCursor){tr("La source a avancé; relancez l’import", "The source has advanced; restart import")}
+                    db.projectDao().saveProject(current.copy(lastRowCursor=project.lastRowCursor+claimSelection.consumed,updatedAt=System.currentTimeMillis()))
+                    db.auditDao().insertLog(AuditLogEntity(sampleId=null,batchNumber=batchNumber,action="SKIP_SOURCE_ROWS",
+                        details=tr("${claimSelection.consumed} ligne(s) parcourue(s), aucune exploitable; curseur avancé sans créer de lot.",
+                            "${claimSelection.consumed} row(s) scanned, none usable; cursor advanced without creating a batch."),
+                        projectId=project.id))
+                }
+                return@withContext BatchDiscoveryResult(true,0)
+            }
             val samples=entries.map { row ->
                 val digest=UUID.nameUUIDFromBytes(row.assetId.toByteArray()).toString().take(12)
                 SampleEntity(sampleId="p${project.id}_b${batchNumber}_r${row.ordinal}_$digest",projectId=project.id,batchNumber=batchNumber,
                     assetId=row.assetId,sourceRowIndex=row.sourceRowIndex ?: row.ordinal,sourceOrdinal=row.ordinal,sourceFileUrl=row.imageRef,localImagePath=null,
-                    groupId=row.groupId,split=project.targetSplit,acquisitionStatus="DISCOVERED",annotationStatus=if(row.annotationJson==null) "PENDING" else "PROPOSALS_AVAILABLE",syncStatus="NOT_EXPORTED")
+                    groupId=row.groupId,split=project.targetSplit,acquisitionStatus="DISCOVERED",annotationStatus=if(row.annotationJson==null) "PENDING" else "DRAFTS_AVAILABLE",syncStatus="NOT_EXPORTED")
             }
             db.withTransaction {
                 val current=db.projectDao().getProjectSync(project.id) ?: error(tr("Projet absent", "Project not found"))
@@ -170,7 +219,11 @@ class BatchEngine(
                             } catch(e:CancellationException){throw e} catch(e:Exception){lastFailure=e.message}
                             if(attempt<settings.retryCount) {
                                 if(settings.sourceMode=="HF_VIEWER") {
-                                    val fresh=sourceCatalog.page(project,sample.sourceOrdinal ?: sample.sourceRowIndex,1).singleOrNull()
+                                    val freshPage=sourceCatalog.page(project,sample.sourceOrdinal ?: sample.sourceRowIndex,1)
+                                    val fresh=freshPage.entries.singleOrNull()
+                                    check(freshPage.consumed==0 || fresh!=null) {
+                                        tr("La ligne source n’est plus exploitable; reprise suspendue pour préserver la provenance", "The source row is no longer usable; resumption suspended to preserve provenance")
+                                    }
                                     check(fresh==null || fresh.assetId==sample.assetId){tr("La source Viewer a changé; reprise suspendue pour préserver la provenance", "The Viewer source changed; resumption suspended to preserve provenance")}
                                     if(fresh!=null)sample=sample.copy(sourceFileUrl=fresh.imageRef)
                                 }
@@ -233,6 +286,12 @@ class BatchEngine(
             val project=db.projectDao().getProjectSync(projectId) ?: error(tr("Projet absent", "Project not found"))
             val discovered=discoverViewerBatch(project,batchNumber,count-size,append=existing!=null)
             check(discovered.success){discovered.error ?: tr("Import interrompu", "Import interrupted")}
+            if(discovered.totalDiscovered==0 && !discovered.endOfSource) {
+                if(existing==null) error(tr("Aucune image exploitable dans la fenêtre de source parcourue. Le curseur a avancé; relancez l’import pour poursuivre ou vérifiez la colonne image.",
+                    "No usable image in the scanned source window. The cursor advanced; retry to continue or check the image column."))
+                acquireBatchImages(projectId,batchNumber,onProgress)
+                return@withLock false
+            }
             if(discovered.endOfSource) {
                 exhausted=true
                 check(existing!=null){tr("Fin de la source : aucune nouvelle image", "End of source: no new images")}
@@ -241,7 +300,10 @@ class BatchEngine(
             }
         }
         // Last appended window must be acquired before exposing its images.
-        if(db.batchDao().getBatchSync(projectId,batchNumber)!=null)acquireBatchImages(projectId,batchNumber,onProgress)
+        val finalBatch=db.batchDao().getBatchSync(projectId,batchNumber)
+        if(finalBatch!=null) acquireBatchImages(projectId,batchNumber,onProgress)
+        else error(tr("Aucune image exploitable trouvée dans les fenêtres de source parcourues. Vérifiez la colonne image ou relancez pour poursuivre le scan.",
+            "No usable image was found in the scanned source windows. Check the image column or retry to continue scanning."))
         exhausted
     }
 
@@ -303,7 +365,7 @@ class BatchEngine(
             val project=db.projectDao().getProjectSync(projectId) ?: error(tr("Projet absent", "Project not found"))
             val selectedProposals=com.unicornwhodev.visiondatasetstudio.domain.inference.ModelClassCompatibility.forProject(proposals,config,project.classesCsv)
             val updated=ProposalMerger.merge(existing,selectedProposals,project.activeTasksCsv,config.captionLanguage,ModelContract.compatibility(config,project.activeTasksCsv).usableOutputs)
-            val status=if(updated.unreviewedCount==0) AnnotationStatus.IN_PROGRESS.name else AnnotationStatus.PROPOSALS_AVAILABLE.name
+            val status=HumanAnnotationReview.pendingStatus(updated)
             val applied=db.withTransaction {
                 // A correction or decision made while inference was running wins over its result.
                 if(db.sampleDao().getSampleSync(sample.sampleId)!=sample ||
@@ -638,6 +700,17 @@ data class BatchDiscoveryResult(
     val error: String? = null,
     val endOfSource: Boolean = false
 )
+
+object SourceWindowProgress {
+    fun advance(startOffset:Long,page:com.unicornwhodev.visiondatasetstudio.data.source.SourcePageResult,validInspected:Int):Int {
+        require(validInspected in 0..page.entries.size)
+        if(page.consumed==0)return 0
+        if(validInspected==0)return page.consumed
+        val ordinal=page.entries[validInspected-1].ordinal
+        return ((ordinal-startOffset)+1).toInt().coerceIn(1,page.consumed)
+    }
+    fun rejectedInPrefix(advance:Int,validInspected:Int):Int=(advance-validInspected).coerceAtLeast(0)
+}
 
 data class BatchPublishResult(
     val success: Boolean,

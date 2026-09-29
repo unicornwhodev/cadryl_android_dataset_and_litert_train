@@ -36,20 +36,19 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
     val project by vm.projectFlow.collectAsState()
     val allProjects by vm.projects.collectAsState()
-    val models by vm.modelProfiles.collectAsState()
+    val batches by vm.batches.collectAsState()
     val busy by vm.isBusy.collectAsState()
     val diagnostics by vm.modelDiagnostics.collectAsState()
     val receipts by vm.inferenceReceipts.collectAsState()
     val dryRun by vm.dryRunResult.collectAsState()
     val benchmark by vm.benchmarkReport.collectAsState()
     var benchmarkRuns by rememberSaveable { mutableStateOf(10) }
-    var catalogChoice by remember { mutableStateOf<PublicModelCatalog.Entry?>(null) }
     val correctionReport by vm.correctionReport.collectAsState()
-    var removeProfile by remember{mutableStateOf<String?>(null)}
     var confirmReset by remember{mutableStateOf(false)}
     var destructiveAction by remember{mutableStateOf<String?>(null)}
     val p=project ?: return
     val stored=remember(p.settingsJson){ProjectSettings.read(p)}
+    val sourceLocked=batches.isNotEmpty()
     val tab = section
     var policy by remember(p.id,p.settingsJson){mutableStateOf(stored)}
     var budget by remember(p.id,p.diskBudgetMb){mutableStateOf(p.diskBudgetMb.toString())}
@@ -59,8 +58,6 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
     var workerId by remember(p.id,p.settingsJson){mutableStateOf(stored.collaborationWorkerId)}
     var leaseText by remember(p.id,p.settingsJson){mutableStateOf(stored.claimLeaseMinutes.toString())}
     var newName by rememberSaveable{mutableStateOf("")}
-    var modelName by rememberSaveable{mutableStateOf("")}
-    var modelUrl by rememberSaveable{mutableStateOf("")}
     val moshi=remember{com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi}
     val configAdapter=remember{moshi.adapter(ModelConfig::class.java).indent("  ")}
     var contract by remember(p.id,p.modelConfigJson){mutableStateOf(p.modelConfigJson ?: configAdapter.toJson(ModelConfig.defaultDetectionPreset(com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv))))}
@@ -68,7 +65,6 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
     val folder=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()){it?.let(vm::importSourceFolder)}
     val manifestFolder=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()){it?.let(vm::chooseManifestImageFolder)}
     val manifest=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){it?.let(vm::importSourceManifest)}
-    val weights=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){it?.let(vm::importModel)}
     val packIn=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){it?.let(vm::importPack)}
     val benchmarkOut=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")){it?.let(vm::saveBenchmark)}
     val packOut=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")){it?.let(vm::exportPack)}
@@ -93,7 +89,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                             OutlinedButton(onClick={destructiveAction="project"},enabled=!busy){Text(stringResource(R.string.controls_reset_project))}
                             TextButton(onClick={destructiveAction="delete"},enabled=!busy,colors=ButtonDefaults.textButtonColors(contentColor=MaterialTheme.colorScheme.error)){Text(stringResource(R.string.controls_delete_project))}
                         }
-                        StudioSection(stringResource(R.string.controls_presets),tr("Un pack configure les tâches, classes, taille de lot et contrat modèle. Il exclut les poids, le jeton HF du coffre, le corpus et ses emplacements. Le contrat, le prompt et le corps JSON personnalisé sont inclus : retirez tout secret avant partage.", "A preset configures tasks, classes, batch size and the model contract. It excludes weights, the vault's HF token, corpus and locations. The contract, prompt and custom JSON body are included: remove secrets before sharing."),Icons.Default.Inventory2) {
+                        StudioSection(tr("Packs de projet","Project packs"),tr("Un pack configure les tâches, classes, taille de lot et contrat modèle. Il exclut les poids, le jeton HF du coffre, le corpus et ses emplacements. Le contrat, le prompt et le corps JSON personnalisé sont inclus : retirez tout secret avant partage.", "A preset configures tasks, classes, batch size and the model contract. It excludes weights, the vault's HF token, corpus and locations. The contract, prompt and custom JSON body are included: remove secrets before sharing."),Icons.Default.Inventory2) {
                             Button(onClick={packIn.launch(arrayOf("application/json","text/*","application/octet-stream"))},enabled=!busy){Text(stringResource(R.string.controls_import_preset))}
                             OutlinedButton(onClick={packOut.launch("studio-preset.json")},enabled=!busy){Text(stringResource(R.string.controls_export_preset))}
                             StudioDetails(tr("Chaque projet peut utiliser son propre pack de tâches et de classes. Sélectionnez séparément les modèles que vous êtes autorisé à utiliser.", "Each project can use its own task and class preset. Select models you are authorized to use separately."), style =MaterialTheme.typography.bodyMedium)
@@ -101,30 +97,36 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                     }
                     1 -> {
                         StudioSection(stringResource(R.string.controls_source_selection),tr("Enregistrez les réglages avant d’indexer. Après le premier lot, changer de source ou de filtre exige un nouveau projet.", "Save settings before indexing. After the first batch, changing sources or filters requires a new project."),Icons.Default.CloudDownload) {
+                            if(sourceLocked) StatusPill(tr("Source figée depuis le premier lot", "Source locked since the first batch"),Icons.Default.Lock)
                             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                                 listOf("HF_VIEWER" to "HF Viewer","HF_MANIFEST" to tr("JSONL sur HF", "JSONL on HF"),"LOCAL_INDEX" to "Local").forEach{(value,label)->
-                                    FilterChip(selected=policy.sourceMode==value,onClick={policy=policy.copy(sourceMode=value)},enabled=!busy,label={Text(label)})
+                                    FilterChip(selected=policy.sourceMode==value,onClick={policy=policy.copy(sourceMode=value)},enabled=!busy && !sourceLocked,label={Text(label)})
                                 }
                             }
                             Text(tr("Source HF : ${p.hfSourceRepo.ifBlank { "non configurée" }}", "HF source: ${p.hfSourceRepo.ifBlank { "not configured" }}"),style=MaterialTheme.typography.bodyMedium)
                             TextButton(onClick={vm.navigateTo(Screen.Setup)},enabled=!busy){Text(stringResource(R.string.controls_configure_source))}
                             if(policy.sourceMode=="HF_VIEWER") {
-                                ControlField(tr("Filtre HF (where), facultatif", "HF filter (where), optional"),policy.filterExpression){policy=policy.copy(filterExpression=it)}
-                                ControlField(tr("Ordre HF (orderby), facultatif", "HF sort order (orderby), optional"),policy.orderBy){policy=policy.copy(orderBy=it)}
-                                StudioDetails(tr("Le Viewer doit prendre en charge cette source. Les requêtes sont paginées à 100 lignes maximum. Une révision de fichier épinglée n’est pas disponible pour cette voie.", "The Viewer must support this source. Requests are paginated with at most 100 rows. This route does not support pinning a file revision."), style =MaterialTheme.typography.bodySmall)
+                                ControlField(tr("Filtre HF (where), facultatif", "HF filter (where), optional"),policy.filterExpression,enabled=!sourceLocked){policy=policy.copy(filterExpression=it)}
+                                ControlField(tr("Ordre HF (orderby), facultatif", "HF sort order (orderby), optional"),policy.orderBy,enabled=!sourceLocked){policy=policy.copy(orderBy=it)}
+                                ControlSwitch(tr("Autoriser une vue HF partielle", "Allow partial HF Viewer"),policy.allowPartialViewer,enabled=!sourceLocked){policy=policy.copy(allowPartialViewer=it)}
+                                if(policy.allowPartialViewer) Text(tr("Attention : Cadryl traitera uniquement les lignes exposées par le Viewer. Cette option ne garantit pas une couverture exhaustive du dataset.",
+                                    "Warning: Cadryl will process only rows exposed by the Viewer. This option does not guarantee exhaustive dataset coverage."),
+                                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.error)
+                                StudioDetails(tr("Le Viewer doit prendre en charge cette source. Les requêtes sont paginées à 100 lignes maximum. Une révision de fichier épinglée n’est pas disponible pour cette voie. Les réponses partielles sont refusées sauf activation explicite ci-dessus.",
+                                    "The Viewer must support this source. Requests are paginated with at most 100 rows. This route does not support pinning a file revision. Partial responses are refused unless explicitly enabled above."), style =MaterialTheme.typography.bodySmall)
                             } else if(policy.sourceMode=="HF_MANIFEST") {
-                                ControlField(tr("Révision source : branche ou SHA", "Source revision: branch or SHA"),policy.sourceRevision){policy=policy.copy(sourceRevision=it)}
-                                ControlField(tr("Chemin du JSONL dans le dépôt", "JSONL path in the repository"),policy.manifestPath){policy=policy.copy(manifestPath=it)}
-                                Button(onClick=vm::fetchHfManifest,enabled=!busy && stored.sourceMode=="HF_MANIFEST"){Text(stringResource(R.string.controls_index_manifest))}
+                                ControlField(tr("Révision source : branche ou SHA", "Source revision: branch or SHA"),policy.sourceRevision,enabled=!sourceLocked){policy=policy.copy(sourceRevision=it)}
+                                ControlField(tr("Chemin du JSONL dans le dépôt", "JSONL path in the repository"),policy.manifestPath,enabled=!sourceLocked){policy=policy.copy(manifestPath=it)}
+                                Button(onClick=vm::fetchHfManifest,enabled=!busy && !sourceLocked && stored.sourceMode=="HF_MANIFEST"){Text(stringResource(R.string.controls_index_manifest))}
                                 if(stored.resolvedSourceRevision!=null) SelectionContainer { Text(tr("Révision résolue : ${stored.resolvedSourceRevision}", "Resolved revision: ${stored.resolvedSourceRevision}"),style=MaterialTheme.typography.bodySmall) }
                             } else {
-                                OutlinedButton(onClick={folder.launch(null)},enabled=!busy && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.setup_choose_folder))}
-                                OutlinedButton(onClick={manifestFolder.launch(null)},enabled=!busy && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.controls_manifest_folder))}
-                                Button(onClick={manifest.launch(arrayOf("application/json","application/x-ndjson","text/*","application/octet-stream"))},enabled=!busy && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.controls_import_jsonl))}
+                                OutlinedButton(onClick={folder.launch(null)},enabled=!busy && !sourceLocked && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.setup_choose_folder))}
+                                OutlinedButton(onClick={manifestFolder.launch(null)},enabled=!busy && !sourceLocked && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.controls_manifest_folder))}
+                                Button(onClick={manifest.launch(arrayOf("application/json","application/x-ndjson","text/*","application/octet-stream"))},enabled=!busy && !sourceLocked && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.controls_import_jsonl))}
                                 StudioDetails(tr("Le dossier source n’est jamais modifié. Les chemins relatifs du JSONL sont résolus à partir du dossier choisi; les URL HTTPS sont également acceptées.", "The source folder is never modified. Relative JSONL paths are resolved from the selected folder; HTTPS URLs are also accepted."), style =MaterialTheme.typography.bodySmall)
                             }
-                            ControlField(tr("Colonne identifiant", "ID column"),idColumn){idColumn=it}
-                            ControlSwitch(tr("Importer les brouillons", "Import draft annotations"),policy.importAnnotations){policy=policy.copy(importAnnotations=it)}
+                            ControlField(tr("Colonne identifiant", "ID column"),idColumn,enabled=!sourceLocked){idColumn=it}
+                            ControlSwitch(tr("Importer les brouillons", "Import draft annotations"),policy.importAnnotations,enabled=!sourceLocked){policy=policy.copy(importAnnotations=it)}
                             Text(if(stored.sourceIndexReady)tr("Index prêt · ${stored.localSourceLabel}", "Index ready · ${stored.localSourceLabel}") else tr("Index local non préparé (inutile en mode Viewer)", "Local index not prepared (not required in Viewer mode)"),style=MaterialTheme.typography.labelMedium)
                         }
                         StudioSection(stringResource(R.string.controls_collaboration),tr("Évite que plusieurs personnes téléchargent et traitent les mêmes cas. Les réservations sont stockées dans le dépôt HF de destination et expirent si un appareil est abandonné.", "Prevents collaborators from downloading and processing the same samples. Reservations are stored in the destination HF repository and expire if a device is abandoned."),Icons.Default.Groups) {
@@ -169,7 +171,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                         StudioSection(stringResource(R.string.controls_hf_publication),tr("Destination : ${p.hfDestRepo.ifBlank{"non configurée — export local disponible"}}", "Destination: ${p.hfDestRepo.ifBlank{"not configured — local export available"}}"),Icons.Default.CloudUpload) {
                             ControlField(tr("Branche de destination existante", "Existing destination branch"),policy.destBranch){policy=policy.copy(destBranch=it)}
                             ControlField(tr("Préfixe de publication", "Publication prefix"),policy.destPrefix){policy=policy.copy(destPrefix=it)}
-                            ControlField(tr("Split de sortie", "Output split"),split){split=it}
+                            ControlField(tr("Split de sortie", "Output split"),split,enabled=!sourceLocked){split=it}
                             Text(tr("Choisissez les formats dans Exporter. Ils sont communs à la copie locale et à HF.", "Choose formats in Export. They apply to both local copies and HF."), style=MaterialTheme.typography.bodySmall)
                             StudioDetails(tr("Images et JSONL canonique restent obligatoires. Les fichiers sont isolés par projet et lot sous le préfixe. Aucun fichier du dépôt source n’est supprimé; pas de miroir destructif ni de suppression distante.", "Images and canonical JSONL are required. Files are isolated by project and batch under the prefix. Source repository files are never deleted; no destructive mirroring or remote deletion."), style =MaterialTheme.typography.bodyMedium)
                             TextButton(onClick={vm.navigateTo(Screen.Publication)},enabled=!busy){Text(stringResource(R.string.controls_open_exports))}
@@ -180,34 +182,17 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                         }
                     }
                     3 -> {
-                        StudioSection(stringResource(R.string.controls_model_library),tr("Le sélecteur principal est maintenant séparé des réglages avancés : catalogue UWD réellement disponible, modèles installés et import manuel.", "The main selector is separate from advanced settings: available UWD catalog, installed models and manual import."),Icons.Default.Memory) {
+                        StudioSection(stringResource(R.string.controls_model_library),tr("Catalogue HF, FireViewer, modèles installés, presets et import manuel sont réunis dans Modèles. Cette page ne conserve que les réglages techniques avancés.", "HF catalog, FireViewer, installed models, presets and manual import are unified in Models. This page only keeps advanced technical settings."),Icons.Default.Memory) {
                             Button(onClick={vm.navigateTo(Screen.Models)},enabled=!busy){Text(stringResource(R.string.controls_open_models))}
                             Text(tr("Cette page conserve les outils avancés de contrat, diagnostic et correction adaptative.", "This page keeps advanced contract, diagnostic and adaptive correction tools."),style=MaterialTheme.typography.bodySmall)
                         }
-                        StudioSection(stringResource(R.string.controls_public_catalog),tr("Profils TensorFlow avec métadonnées. Les tenseurs, labels et normalisations sont vérifiés à l’import; un essai sur image reste nécessaire. Aucun poids n’est inclus dans l’APK.", "TensorFlow profiles with metadata. Tensors, labels and normalization are checked on import; an image trial is still required. No weights are bundled in the APK."),Icons.Default.Download) {
-                            PublicModelCatalog.entries.forEach { item ->
-                                Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                                    Text(item.title,style=MaterialTheme.typography.titleSmall)
-                                    Text(item.purpose,style=MaterialTheme.typography.bodySmall)
-                                    OutlinedButton(onClick={catalogChoice=item},enabled=!busy) { Text(stringResource(R.string.controls_download_inspect)) }
-                                }
+                        StudioSection(stringResource(R.string.controls_contract_preprocessing),
+                            tr("Édition technique du contrat actif. Les presets se choisissent dans Modèles afin d’éviter deux chemins de configuration concurrents.",
+                                "Technical editing of the active contract. Presets are selected in Models to avoid two competing configuration paths."),
+                            Icons.Default.Tune) {
+                            OutlinedButton(onClick={vm.navigateTo(Screen.Models)},enabled=!busy,modifier=Modifier.fillMaxWidth()) {
+                                Text(tr("Ouvrir les presets modèles", "Open model presets"))
                             }
-                        }
-                        StudioSection(stringResource(R.string.controls_model_library),tr("Poids locaux et profils d’appel sont sélectionnés explicitement. Importer des poids ne lance ni inférence ni validation.", "Local weights and call profiles are selected explicitly. Importing weights starts neither inference nor approval."),Icons.Default.Memory) {
-                            Text(tr("Poids actifs : ${p.modelPath?.substringAfterLast('/') ?: "aucun"}", "Active weights: ${p.modelPath?.substringAfterLast('/') ?: "none"}"),style=MaterialTheme.typography.labelLarge)
-                            Button(onClick={weights.launch(arrayOf("application/octet-stream","*/*"))},enabled=!busy){Text(stringResource(R.string.controls_import_tflite))}
-                            ControlField(tr("URL HTTPS directe des poids", "Direct HTTPS weights URL"),modelUrl){modelUrl=it}
-                            OutlinedButton(onClick={vm.importModelUrl(modelUrl)},enabled=!busy && modelUrl.startsWith("https://")){Text(stringResource(R.string.controls_download_weights))}
-                            OutlinedButton(onClick=vm::detachModel,enabled=!busy){Text(stringResource(R.string.controls_detach_model))}
-                            models.forEach { profile->Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(6.dp)){
-                                OutlinedButton(onClick={vm.selectModelProfile(profile.id)},enabled=!busy,modifier=Modifier.weight(1f)){Text(profile.name)}
-                                IconButton(onClick={removeProfile=profile.id},enabled=!busy){Icon(Icons.Default.DeleteOutline,tr("Supprimer le profil ${profile.name}", "Delete profile ${profile.name}"))}
-                            } }
-                            ControlField(tr("Nom pour sauvegarder ce profil", "Name to save this profile"),modelName){modelName=it}
-                            OutlinedButton(onClick={vm.saveActiveModelProfile(modelName)},enabled=!busy && modelName.isNotBlank()){Text(stringResource(R.string.controls_keep_profile))}
-                        }
-                        StudioSection(stringResource(R.string.controls_contract_preprocessing),tr("Choisissez un gabarit, puis adaptez-le aux véritables tenseurs du modèle. Un nom de famille de modèles ne garantit pas la compatibilité.", "Choose a template and adapt it to the model's actual tensors. A model family name does not guarantee compatibility."),Icons.Default.Tune) {
-                            FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)){ModelPresets.names.forEach{(id,title)->AssistChip(onClick={contract=configAdapter.toJson(ModelPresets.create(id,com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv)));contractError=null},label={Text(title)},enabled=!busy)}}
                             StudioDetails(tr("Entrées : NHWC/NCHW, RGB/BGR/gris, FLOAT32/UINT8/INT8, normalisation par canal, stretch/letterbox/crop. Sorties : index, layout, coordonnées, activation, seuil, NMS, points issus de boîtes et comptage proposé.", "Inputs: NHWC/NCHW, RGB/BGR/grayscale, FLOAT32/UINT8/INT8, per-channel normalization, stretch/letterbox/crop. Outputs: indices, layout, coordinates, activation, threshold, NMS, box-derived points and proposed counts."), style =MaterialTheme.typography.bodySmall)
                             OutlinedTextField(contract,{contract=it;contractError=null},label={Text(stringResource(R.string.controls_versioned_contract))},modifier=Modifier.fillMaxWidth().heightIn(min=240.dp,max=500.dp),textStyle=MaterialTheme.typography.bodySmall.copy(fontFamily=FontFamily.Monospace),isError=contractError!=null)
                             contractError?.let{Text(it,color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.bodySmall)}
@@ -253,8 +238,6 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
             }
         }
     }
-    catalogChoice?.let { entry -> AlertDialog(onDismissRequest={catalogChoice=null},title={Text(stringResource(R.string.controls_download_title,entry.title))},text={Text(stringResource(R.string.controls_download_body))},confirmButton={TextButton(onClick={catalogChoice=null;vm.downloadCatalogModel(entry.id)}){Text(stringResource(R.string.common_download))}},dismissButton={TextButton(onClick={catalogChoice=null}){Text(stringResource(R.string.common_cancel))}}) }
-    removeProfile?.let{id->AlertDialog(onDismissRequest={removeProfile=null},title={Text(stringResource(R.string.controls_delete_profile_title))},text={Text(stringResource(R.string.controls_delete_profile_body))},confirmButton={TextButton(onClick={removeProfile=null;vm.removeModelProfile(id)}){Text(stringResource(R.string.common_delete))}},dismissButton={TextButton(onClick={removeProfile=null}){Text(stringResource(R.string.common_keep))}})}
     if(confirmReset)AlertDialog(onDismissRequest={confirmReset=false},title={Text(stringResource(R.string.controls_clear_corrector_title))},text={Text(stringResource(R.string.controls_clear_corrector_body))},confirmButton={TextButton(onClick={confirmReset=false;vm.resetCorrections()}){Text(stringResource(R.string.common_reset))}},dismissButton={TextButton(onClick={confirmReset=false}){Text(stringResource(R.string.common_keep))}})
     destructiveAction?.let { action ->
         val deleting=action in setOf("delete","discard")
@@ -271,8 +254,8 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
 }
 
 @Composable
-private fun ControlField(label:String,value:String,numeric:Boolean=false,onChange:(String)->Unit) {
-    OutlinedTextField(value,onChange,label={Text(label)},singleLine=true,modifier=Modifier.fillMaxWidth(),keyboardOptions=KeyboardOptions(keyboardType=if(numeric)KeyboardType.Number else KeyboardType.Text))
+private fun ControlField(label:String,value:String,numeric:Boolean=false,enabled:Boolean=true,onChange:(String)->Unit) {
+    OutlinedTextField(value,onChange,enabled=enabled,label={Text(label)},singleLine=true,modifier=Modifier.fillMaxWidth(),keyboardOptions=KeyboardOptions(keyboardType=if(numeric)KeyboardType.Number else KeyboardType.Text))
 }
 @Composable
 private fun ControlInt(label:String,value:Int,onChange:(Int)->Unit) {
@@ -280,8 +263,11 @@ private fun ControlInt(label:String,value:Int,onChange:(Int)->Unit) {
     ControlField(label,text,true){text=it;onChange(it.toIntOrNull() ?: -1)}
 }
 @Composable
-private fun ControlSwitch(label:String,value:Boolean,onChange:(Boolean)->Unit) {
-    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) { Text(label,Modifier.weight(1f),style=MaterialTheme.typography.bodyMedium);Switch(checked=value,onCheckedChange=onChange) }
+private fun ControlSwitch(label:String,value:Boolean,enabled:Boolean=true,onChange:(Boolean)->Unit) {
+    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+        Text(label,Modifier.weight(1f),style=MaterialTheme.typography.bodyMedium,color=if(enabled)MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+        Switch(checked=value,onCheckedChange=onChange,enabled=enabled)
+    }
 }
 @Composable
 private fun SaveControlsButton(busy:Boolean,onClick:()->Unit) { Button(onClick=onClick,enabled=!busy,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text(stringResource(R.string.controls_save_settings))} }

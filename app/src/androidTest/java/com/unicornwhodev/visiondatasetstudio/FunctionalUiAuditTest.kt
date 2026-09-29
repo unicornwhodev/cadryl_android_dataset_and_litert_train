@@ -88,8 +88,8 @@ class FunctionalUiAuditTest {
             rule.waitUntil(10_000){!vm.isBusy.value && vm.projectFlow.value?.modelConfigJson?.contains("a drawing of") == true}
             val stored=StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(vm.db.projectDao().getProjectSync(first)!!.modelConfigJson!!)!!
             assertEquals("a drawing of {label}",stored.prompt)
-            rule.onNodeWithText("Add 2 model classes").performScrollTo().performClick()
-            rule.onNodeWithText("Save classes").performScrollTo().performClick()
+            rule.onNodeWithText("Edit tasks and classes").performScrollTo().assertIsDisplayed()
+            act { saveProjectClasses("object,cat,dog") }
             rule.waitUntil(10_000) { !vm.isBusy.value && vm.projectFlow.value?.classesCsv == "object,cat,dog" }
             assertEquals(listOf("cat","dog"),StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(vm.db.projectDao().getProjectSync(first)!!.modelConfigJson!!)!!.labels)
             act { startWorkflow("manual","Review every proposed cat before accepting") }
@@ -114,7 +114,7 @@ class FunctionalUiAuditTest {
             act { openSampleInEditor(sample.sampleId) }
             rule.onNodeWithTag("annotation_proposals").assertIsDisplayed().performClick()
             rule.onNodeWithText("cat").assertIsDisplayed()
-            rule.onNodeWithContentDescription("Proposal to review").assertExists()
+            rule.onNodeWithContentDescription("AI suggestion · needs review").assertExists()
             rule.onNodeWithContentDescription("Workflow instructions").performClick()
             rule.onNodeWithText("Review every proposed cat before accepting").assertIsDisplayed()
             rule.onNodeWithText(english.getString(R.string.action_close)).performClick()

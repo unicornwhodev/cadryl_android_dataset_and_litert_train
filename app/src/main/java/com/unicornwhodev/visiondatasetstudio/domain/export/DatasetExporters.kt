@@ -7,6 +7,7 @@ import com.unicornwhodev.visiondatasetstudio.core.storage.StorageManager
 import com.unicornwhodev.visiondatasetstudio.data.hf.HfApiClient
 import com.unicornwhodev.visiondatasetstudio.data.model.*
 import com.unicornwhodev.visiondatasetstudio.domain.inference.MaskCodec
+import com.unicornwhodev.visiondatasetstudio.domain.validation.HumanAnnotationReview
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.Dispatchers
@@ -281,5 +282,5 @@ class DatasetExporters(private val storageManager: StorageManager, private val h
         media = CanonicalMediaInfo(imageName(s), s.imageWidth, s.imageHeight, when (File(s.localImagePath ?: "image.jpg").extension.lowercase()) { "png" -> "image/png"; "webp" -> "image/webp"; else -> "image/jpeg" },
             s.sha256 ?: "", s.phash?.toString(16), null, s.sourceSha256, s.imageTransform), // Never publish a temporary signed/private URL.
         annotations = a, review_status = s.annotationStatus,
-        audit = CanonicalAuditInfo(s.createdAt, s.updatedAt, "local_curator", a.masks.any { it.sourceProvenance != "human" } || a.boxes.any { it.sourceProvenance != "human" } || a.points.any { it.sourceProvenance != "human" } || a.tags.any { it.sourceProvenance != "human" }))
+        audit = CanonicalAuditInfo(s.createdAt, s.updatedAt, "local_curator", HumanAnnotationReview.wasModelAssisted(a)))
 }

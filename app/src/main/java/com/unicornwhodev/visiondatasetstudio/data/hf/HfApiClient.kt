@@ -201,13 +201,12 @@ class HfApiClient(
                     )
                 } ?: emptyList()
                 val columns = parsed?.features?.map { it.name } ?: emptyList()
-                if (parsed?.partial == true) return@withContext HfRowsResult(false, error = tr("Le Viewer ne couvre qu’une partie du corpus. Import suspendu pour ne pas annoncer un parcours complet.", "The Viewer covers only part of the corpus. Import suspended to avoid claiming complete coverage."))
-
                 HfRowsResult(
                     success = true,
                     columns = columns,
                     rows = rows,
-                    numRowsPerDataset = parsed?.num_rows_per_page ?: length
+                    numRowsPerDataset = parsed?.num_rows_per_page ?: length,
+                    partial = parsed?.partial == true
                 )
             }
         } catch (e: CancellationException) { throw e } catch (e: Exception) {
@@ -672,7 +671,8 @@ data class HfRowsResult(
     val columns: List<String> = emptyList(),
     val rows: List<ViewerRowData> = emptyList(),
     val numRowsPerDataset: Int = 0,
-    val error: String? = null
+    val error: String? = null,
+    val partial: Boolean = false
 )
 
 data class HfUploadResult(

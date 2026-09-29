@@ -57,6 +57,7 @@ import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelAction
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelCapabilities
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig
 import com.unicornwhodev.visiondatasetstudio.domain.inference.MaskCodec
+import com.unicornwhodev.visiondatasetstudio.domain.validation.HumanAnnotationReview
 import com.unicornwhodev.visiondatasetstudio.ui.*
 import java.io.File
 import java.util.UUID
@@ -150,8 +151,10 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
     val maskAllowed = StudioTask.SEGMENTATION in tasks
     val boxAllowed = StudioTask.DETECTION in tasks || StudioTask.GROUNDING in tasks
     val pointAllowed = StudioTask.POINTING in tasks || StudioTask.POINTING_MULTI in tasks || StudioTask.GROUNDING in tasks
-    val proposalCount=a.unreviewedCount
-    val hasProposals=proposalCount>0
+    val aiProposalCount=HumanAnnotationReview.unreviewedModelCount(a)
+    val importedDraftCount=HumanAnnotationReview.unreviewedDraftCount(a)
+    val reviewCount=aiProposalCount+importedDraftCount
+    val hasUnreviewed=reviewCount>0
     val hasModel = !project?.modelPath.isNullOrBlank() || project?.modelConfigJson?.contains("local_http") == true
     val modelAction=remember(project?.modelConfigJson,project?.activeTasksCsv) {
         project?.modelConfigJson?.let { json -> runCatching { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(json) }.getOrNull() }
@@ -233,7 +236,7 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_reject_reason)) }, enabled = !locked, onClick = { rejectDialog = true; more = false })
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_retry_save)) }, onClick = { viewModel.retrySave(); more = false })
-                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_accept_reviewed)) }, enabled = hasProposals && !locked, onClick = { acceptDialog = true; more = false })
+                        DropdownMenuItem(text = { Text(tr("Marquer les éléments à relire comme relus", "Mark review items as reviewed")) }, enabled = hasUnreviewed && !locked, onClick = { acceptDialog = true; more = false })
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_customize_tools)) }, onClick = { viewModel.navigateTo(Screen.Preferences); more = false })
                     }
                 }
@@ -292,8 +295,8 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                                 if (StudioTask.POINTING in tasks && next.points.size > 1 && next.points.size > a.points.size) viewModel.reportError(tr("Mode Point unique : déplacez le point existant ou activez Points multiples.", "Single-point mode: move the existing point or enable Multiple points.")) else update(next)
                             }, brushFraction=if(tool==EditorTool.ERASE)eraserSize else brushSize,showLabels = prefs.showCanvasLabels, promptPoint = samPoint, onPromptSelected = { samPoint = it })
                     }
-                    if(hasProposals || !workflow?.instructions.isNullOrBlank()) Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically) {
-                        if(hasProposals) TextButton(onClick={
+                    if(hasUnreviewed || !workflow?.instructions.isNullOrBlank()) Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically) {
+                        if(hasUnreviewed) TextButton(onClick={
                             tab=when {
                                 a.tags.any{!it.isHumanVerified} && EditorTab.TAGS in tabs->EditorTab.TAGS
                                 a.captions.any{!it.isHumanVerified} && EditorTab.CAPTION in tabs->EditorTab.CAPTION
@@ -303,8 +306,13 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                                 else->tabs.first()
                             };propertiesOpen=true
                         },modifier=Modifier.testTag("annotation_proposals")) {
-                            Icon(Icons.Default.AutoAwesome,null,Modifier.size(16.dp));Spacer(Modifier.width(6.dp))
-                            Text(tr("$proposalCount proposition(s) à relire", "$proposalCount proposal(s) to review"),style=MaterialTheme.typography.labelMedium)
+                            Icon(if(aiProposalCount>0) Icons.Default.AutoAwesome else Icons.Default.Description,null,Modifier.size(16.dp));Spacer(Modifier.width(6.dp))
+                            Text(when {
+                                aiProposalCount>0 && importedDraftCount>0 -> tr("$aiProposalCount suggestion(s) IA · $importedDraftCount brouillon(s) importé(s)",
+                                    "$aiProposalCount AI suggestion(s) · $importedDraftCount imported draft(s)")
+                                aiProposalCount>0 -> tr("$aiProposalCount suggestion(s) IA à relire", "$aiProposalCount AI suggestion(s) to review")
+                                else -> tr("$importedDraftCount brouillon(s) importé(s) à relire", "$importedDraftCount imported draft(s) to review")
+                            },style=MaterialTheme.typography.labelMedium)
                         }
                         Spacer(Modifier.weight(1f))
                         if(!workflow?.instructions.isNullOrBlank()) IconButton(onClick={showWorkflowInstructions=true}) { Icon(Icons.Default.Assignment,tr("Consignes du workflow", "Workflow instructions"),Modifier.size(18.dp)) }
@@ -338,9 +346,12 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
             OutlinedTextField(reason, { reason = it }, label = { Text(stringResource(R.string.editor_rejection_reason)) }, modifier = Modifier.fillMaxWidth())
         }
     }, confirmButton = { Button(onClick = { rejectDialog = false; viewModel.rejectCurrent(reason) }, enabled = reason.isNotBlank()) { Text(stringResource(R.string.editor_confirm_rejection)) } }, dismissButton = { TextButton(onClick = { rejectDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
-    if (acceptDialog) AlertDialog(onDismissRequest = { acceptDialog = false }, title = { Text(stringResource(R.string.editor_confirm_review)) }, text = {
-        Text(stringResource(R.string.editor_accept_explanation))
-    }, confirmButton = { Button(onClick = { acceptDialog = false; viewModel.acceptCurrentProposals() }) { Text(stringResource(R.string.editor_verified_proposals)) } }, dismissButton = { TextButton(onClick = { acceptDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
+    if (acceptDialog) AlertDialog(onDismissRequest = { acceptDialog = false },
+        title = { Text(tr("Marquer tous les éléments comme relus ?", "Mark all review items as reviewed?")) },
+        text = { Text(tr("Les suggestions IA et brouillons importés restants deviennent des décisions humaines relues, mais l’image reste « à valider ». Utilisez ensuite Valider l’image pour finaliser le cas.",
+            "Remaining AI suggestions and imported drafts become human-reviewed decisions, but the image still needs approval. Then use Approve image to finalize the sample.")) },
+        confirmButton = { Button(onClick = { acceptDialog = false; viewModel.acceptCurrentProposals() }) { Text(tr("Marquer comme relus", "Mark as reviewed")) } },
+        dismissButton = { TextButton(onClick = { acceptDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
 }
 
 @Composable
@@ -598,9 +609,9 @@ private fun RegionInspector(a: SampleAnnotations, classes: List<String>, selecte
         selected?.takeIf{box!=null||point!=null||mask!=null}?.let { targetId ->
             InstanceLinkEditor(a,targetId,onUpdate,locked)
         }
-        a.masks.forEachIndexed { i,m -> RegionRow(tr("Masque ${i+1}", "Mask ${i+1}"),m.label,m.id==selected,m.isHumanVerified,Icons.Default.Brush) { onSelect(m.id) } }
-        a.boxes.forEachIndexed { i,b -> RegionRow(tr("Boîte ${i+1}", "Box ${i+1}"),b.label,b.id==selected,b.isHumanVerified,Icons.Default.CropSquare) { onSelect(b.id) } }
-        a.points.forEachIndexed { i,p -> RegionRow("Point ${i+1}",p.label,p.id==selected,p.isHumanVerified,Icons.Default.MyLocation) { onSelect(p.id) } }
+        a.masks.forEachIndexed { i,m -> RegionRow(tr("Masque ${i+1}", "Mask ${i+1}"),m.label,m.id==selected,m.isHumanVerified,m.sourceProvenance,Icons.Default.Brush) { onSelect(m.id) } }
+        a.boxes.forEachIndexed { i,b -> RegionRow(tr("Boîte ${i+1}", "Box ${i+1}"),b.label,b.id==selected,b.isHumanVerified,b.sourceProvenance,Icons.Default.CropSquare) { onSelect(b.id) } }
+        a.points.forEachIndexed { i,p -> RegionRow("Point ${i+1}",p.label,p.id==selected,p.isHumanVerified,p.sourceProvenance,Icons.Default.MyLocation) { onSelect(p.id) } }
     }
 }
 
@@ -630,17 +641,26 @@ private fun InstanceLinkEditor(a:SampleAnnotations,targetId:String,onUpdate:(Sam
     }
 }
 
+private fun reviewStatusLabel(verified:Boolean,provenance:String)=when {
+    !verified && HumanAnnotationReview.isModelAssistedSource(provenance) -> tr("Suggestion IA · à relire", "AI suggestion · needs review")
+    !verified -> tr("Brouillon importé · à relire", "Imported draft · needs review")
+    provenance.startsWith("human_correction") -> tr("Corrigé manuellement", "Manually corrected")
+    provenance.startsWith("human_validated") -> tr("Validé manuellement", "Manually validated")
+    else -> tr("Traité manuellement", "Manually handled")
+}
+
 @Composable
-private fun RegionRow(title:String, label:String, selected:Boolean, verified:Boolean, icon:ImageVector, onClick:()->Unit) {
+private fun RegionRow(title:String, label:String, selected:Boolean, verified:Boolean, provenance:String, icon:ImageVector, onClick:()->Unit) {
+    val reviewLabel=reviewStatusLabel(verified,provenance)
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)).background(if(selected) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent)
         .clickable(role=androidx.compose.ui.semantics.Role.Tab,onClick=onClick).semantics { this.selected=selected }
         .heightIn(min=48.dp).padding(horizontal=8.dp,vertical=6.dp),horizontalArrangement=Arrangement.spacedBy(10.dp),verticalAlignment=Alignment.CenterVertically) {
         Icon(icon,null,Modifier.size(17.dp),tint=if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
         Column(Modifier.weight(1f)) {
             Text(label,style=MaterialTheme.typography.labelMedium,maxLines=1,overflow=TextOverflow.Ellipsis)
-            Text(title,style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("$title · $reviewLabel",style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Icon(if(verified) Icons.Default.Check else Icons.Default.RadioButtonUnchecked,if(verified) tr("Revue humaine", "Human review") else tr("Proposition à relire", "Proposal to review"),Modifier.size(14.dp),tint=if(verified) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
+        Icon(if(verified) Icons.Default.Check else Icons.Default.AutoAwesome,reviewLabel,Modifier.size(14.dp),tint=if(verified) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
     }
 }
 
@@ -670,7 +690,9 @@ fun CaptionEditorTab(a: SampleAnnotations, defaultLanguage: String = "fr", onUpd
             listOf("fr" to tr("Français", "French"),"en" to tr("Anglais", "English")).forEach { (lang,title) -> FilterChip(selected=(item?.language ?: defaultLanguage)==lang,onClick={write((item ?: CaptionTarget(newId(),"",defaultLanguage,isHumanVerified=true)).copy(language=lang))},label={Text(title)}) }
             FilterChip(selected=item?.isDetailed==true,onClick={write((item ?: CaptionTarget(newId(),"",defaultLanguage,isHumanVerified=true)).copy(isDetailed=item?.isDetailed!=true))},label={Text(stringResource(R.string.editor_detailed))})
         }
-        if(item!=null && !item.isHumanVerified) Text(tr("Proposition à relire", "Proposal to review"),color=MaterialTheme.colorScheme.secondary)
+        if(item!=null) Text(reviewStatusLabel(item.isHumanVerified,item.sourceProvenance),
+            color=if(item.isHumanVerified)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+            style=MaterialTheme.typography.bodySmall)
         if(item!=null) TextButton(onClick={onUpdate(a.copy(captions=a.captions.filterNot { it.id==item.id }));index=0}) { Text(stringResource(R.string.editor_delete_variant)) }
     }
 }
@@ -682,8 +704,13 @@ fun TagsEditorTab(a: SampleAnnotations, classes: List<String>, onUpdate: (Sample
     EditorPanel(tr("Classes et tags", "Classes and tags"), tr("Touchez pour ajouter ou retirer une étiquette. Aucune classe n’est déduite automatiquement.", "Tap to add or remove a tag. Classes are never inferred automatically.")) {
         FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             (classes+a.tags.map { it.label }).distinct().forEach { label ->
-                val selected=a.tags.any { it.label==label }
-                FilterChip(selected=selected,leadingIcon=if(a.tags.any { it.label==label && !it.isHumanVerified }){{Icon(Icons.Default.AutoAwesome,tr("Proposition à relire", "Proposal to review"),Modifier.size(16.dp))}}else null,onClick={onUpdate(a.copy(tags=if(selected) a.tags.filterNot { it.label==label } else a.tags+TagTarget(newId(),label,isHumanVerified=true)))},label={Text(label)})
+                val target=a.tags.firstOrNull { it.label==label }
+                val selected=target!=null
+                FilterChip(selected=selected,
+                    leadingIcon=target?.let { value -> { Icon(if(value.isHumanVerified)Icons.Default.Check else Icons.Default.AutoAwesome,
+                        reviewStatusLabel(value.isHumanVerified,value.sourceProvenance),Modifier.size(16.dp)) } },
+                    onClick={onUpdate(a.copy(tags=if(selected) a.tags.filterNot { it.label==label } else a.tags+TagTarget(newId(),label,isHumanVerified=true)))},
+                    label={Text(label)})
             }
         }
         OutlinedTextField(draft,{draft=it},label={Text(stringResource(R.string.editor_other_tag))},singleLine=true,modifier=Modifier.fillMaxWidth())
@@ -700,6 +727,8 @@ fun VqaEditorTab(a: SampleAnnotations, onUpdate: (SampleAnnotations) -> Unit) {
             OutlinedCard {
                 Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                     Row(verticalAlignment=Alignment.CenterVertically) { Text("Question ${i+1}",Modifier.weight(1f));IconButton(onClick={onUpdate(a.copy(vqaList=a.vqaList.filterNot { it.id==q.id }))}){Icon(Icons.Default.DeleteOutline,tr("Supprimer la question ${i+1}", "Delete question ${i+1}"))} }
+                    Text(reviewStatusLabel(q.isHumanVerified,q.sourceProvenance),style=MaterialTheme.typography.labelSmall,
+                        color=if(q.isHumanVerified)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
                     OutlinedTextField(q.question,{write(q.copy(question=it,isHumanVerified=true))},label={Text(stringResource(R.string.editor_question))},modifier=Modifier.fillMaxWidth())
                     OutlinedTextField(q.answer,{write(q.copy(answer=it,isHumanVerified=true))},label={Text(stringResource(R.string.editor_answer))},enabled=!q.isAbstained,minLines=2,modifier=Modifier.fillMaxWidth())
                     Row(verticalAlignment=Alignment.CenterVertically) { Checkbox(q.isAbstained,{write(q.copy(isAbstained=it,isHumanVerified=true))});Text(tr("Indéterminable à partir de l’image", "Cannot be determined from the image"),style=MaterialTheme.typography.bodySmall) }
@@ -716,6 +745,8 @@ fun GroundingEditorTab(a: SampleAnnotations, onUpdate: (SampleAnnotations) -> Un
     EditorPanel(tr("Relier le texte à l’image", "Link text to the image"), tr("Dessinez d’abord les régions dans l’onglet Régions, puis associez-les à une expression.", "Draw regions in the Regions tab first, then link them to an expression.")) {
         a.groundings.forEach { g ->
             fun write(v: GroundingTarget) {onUpdate(a.copy(groundings=a.groundings.map {if(it.id==g.id) v else it}))}
+            Text(reviewStatusLabel(g.isHumanVerified,g.sourceProvenance),style=MaterialTheme.typography.labelSmall,
+                color=if(g.isHumanVerified)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
             OutlinedTextField(g.phrase,{write(g.copy(phrase=it,isHumanVerified=true))},label={Text(stringResource(R.string.editor_grounding_phrase))},modifier=Modifier.fillMaxWidth())
             FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                 a.boxes.forEachIndexed { i,b -> FilterChip(selected=b.id in g.boxIds,onClick={write(g.copy(boxIds=if(b.id in g.boxIds) g.boxIds-b.id else g.boxIds+b.id,isHumanVerified=true))},label={Text(tr("Boîte ${i+1} · ${b.label}", "Box ${i+1} · ${b.label}"))}) }
@@ -736,6 +767,8 @@ fun CountingEditorTab(a: SampleAnnotations, classes: List<String>, onUpdate: (Sa
             fun write(v: CountingTarget) {onUpdate(a.copy(counts=a.counts.map{if(it.id==c.id)v else it}))}
             OutlinedCard {
                 Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                    Text(reviewStatusLabel(c.isHumanVerified,c.sourceProvenance),style=MaterialTheme.typography.labelSmall,
+                        color=if(c.isHumanVerified)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
                     FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)) { classes.forEach { label -> FilterChip(selected=c.label==label,onClick={write(c.copy(label=label,isHumanVerified=true))},label={Text(label)}) } }
                     Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
                         OutlinedIconButton(onClick={write(c.copy(count=(c.count-1).coerceAtLeast(0),isHumanVerified=true))}){Icon(Icons.Default.Remove,tr("Diminuer le compte", "Decrease count"))}
