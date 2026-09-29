@@ -282,9 +282,10 @@ fun ModelLibraryScreen(vm: MainViewModel) {
         }
     }
     if (editSource) {
-        var repo by remember { mutableStateOf(source.repository) }
-        var revision by remember { mutableStateOf(source.revision) }
-        var folder by remember { mutableStateOf(source.folder) }
+        val hasAdditionalSource=source.repository!=CommunityModelCatalog.repoId || source.revision!="main" || source.folder!="models"
+        var repo by remember(editSource,source) { mutableStateOf(if(hasAdditionalSource) source.repository else "") }
+        var revision by remember(editSource,source) { mutableStateOf(if(hasAdditionalSource) source.revision else "main") }
+        var folder by remember(editSource,source) { mutableStateOf(if(hasAdditionalSource) source.folder else "models") }
         AlertDialog(onDismissRequest = { editSource = false }, title = { Text(tr("Source HF supplémentaire", "Additional HF source")) }, text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(tr("FireViewer et le catalogue communautaire restent toujours chargés. Ce dépôt s’ajoute aux sources standard.",
@@ -294,14 +295,14 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                 OutlinedTextField(revision, { revision = it }, label = { Text(stringResource(R.string.models_revision)) }, singleLine = true)
                 OutlinedTextField(folder, { folder = it }, label = { Text(stringResource(R.string.models_folder)) }, singleLine = true)
                 Text(stringResource(R.string.models_private_access), style = MaterialTheme.typography.bodySmall)
-                if(source.repository!=CommunityModelCatalog.repoId || source.revision!="main" || source.folder!="models") {
+                if(hasAdditionalSource) {
                     TextButton(onClick={
                         vm.setModelCatalog(CommunityModelCatalog.repoId,"main","models")
                         editSource=false
                     }) { Text(tr("Retirer la source supplémentaire", "Remove additional source")) }
                 }
             }
-        }, confirmButton = { TextButton(onClick = { vm.setModelCatalog(repo, revision, folder); editSource = false }) { Text(stringResource(R.string.action_open)) } },
+        }, confirmButton = { TextButton(onClick = { vm.setModelCatalog(repo, revision, folder); editSource = false }, enabled=repo.isNotBlank()) { Text(tr("Ajouter", "Add")) } },
             dismissButton = { TextButton(onClick = { editSource = false }) { Text(stringResource(R.string.action_cancel)) } })
     }
     deleteId?.let { id -> AlertDialog(onDismissRequest = { deleteId = null }, title = { Text(stringResource(R.string.models_delete_title)) },
