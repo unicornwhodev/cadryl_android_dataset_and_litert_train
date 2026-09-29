@@ -72,14 +72,18 @@ fun SetupScreen(viewModel: MainViewModel) {
         if(sourceKind=="hf") source=p.hfSourceRepo
     }
     LaunchedEffect(inspection) {
-        if (batches.isEmpty() && !com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings.read(p).sourceIndexReady &&
-            inspection.isInspected && inspection.repoId == StudioWorkflow.normalizeRepo(source)) {
+        if (batches.isEmpty() && inspection.isInspected && inspection.repoId == StudioWorkflow.normalizeRepo(source)) {
             config = inspection.selectedConfig
             split = inspection.selectedSplit
             if (inspection.selectedImageColumn.isNotBlank()) imageColumn = inspection.selectedImageColumn
         }
     }
-    val sourceOk = if (sourceKind == "local") policy.sourceMode == "LOCAL_INDEX" && policy.sourceIndexReady else StudioWorkflow.normalizeRepo(source) != null
+    val indexedSourceReady=when {
+        sourceKind=="local" -> policy.sourceMode=="LOCAL_INDEX" && policy.sourceIndexReady
+        sourceKind=="hf" -> policy.sourceMode=="HF_MANIFEST" && policy.sourceIndexReady && source==p.hfSourceRepo
+        else -> false
+    }
+    val sourceOk = if (sourceKind == "local") indexedSourceReady else StudioWorkflow.normalizeRepo(source) != null
     val coverage = modelConfig?.let { ModelClassCompatibility.inspect(it, tasksCsv, classes) }
     val modelLabels = coverage?.available.orEmpty()
     val setupModels=remember(models,tasksCsv,classes) {
@@ -97,8 +101,10 @@ fun SetupScreen(viewModel: MainViewModel) {
         imageColumn in com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.candidates(inspection.availableColumns, inspection.previewRows)
     val viewerExpectedRows=inspection.splits.firstOrNull { it.config==config && it.split==split }?.numRows
     val viewerCoverageContract=viewerExpectedRows!=null && policy.filterExpression.isBlank() && policy.orderBy.isBlank()
-    val sourceReadyToPrepare = sourceKind != "hf" || policy.sourceIndexReady ||
-        (hfPreviewReady && (!inspection.viewerPartial || viewerCoverageContract || policy.allowPartialViewer))
+    val sourceReadyToPrepare = when(sourceKind) {
+        "local" -> indexedSourceReady
+        else -> indexedSourceReady || (hfPreviewReady && (!inspection.viewerPartial || viewerCoverageContract || policy.allowPartialViewer))
+    }
     val frozen = batches.any { it.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT", "PURGING") }
     val steps = listOf(tr("Images", "Images"), tr("Annotations", "Annotations"), tr("Modèle IA", "AI model"), tr("Vérification", "Review"))
     Scaffold(contentWindowInsets = WindowInsets(0), modifier = Modifier.imePadding(), topBar = {
@@ -365,7 +371,7 @@ fun SetupScreen(viewModel: MainViewModel) {
                             Text((if (count == 1) tr("1 classe", "1 class") else tr("$count classes", "$count classes")) + tr(" · lots de ${policy.batchSize} images maximum", " · batches of up to ${policy.batchSize} images"))
                             ModelCompatibilityPanel(modelConfig, tasksCsv, classes)
                         }
-                        if (sourceKind == "hf" && !policy.sourceIndexReady && batches.isEmpty()) {
+                        if (sourceKind == "hf" && !indexedSourceReady && batches.isEmpty()) {
                             val previewChecked = hfPreviewReady
                             val usablePreview=com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.usableCount(imageColumn,inspection.previewRows)
                             Text(if (previewChecked) tr("$usablePreview/${inspection.previewRows.size} lignes d’aperçu sont exploitables. Les lignes incompatibles seront ignorées plutôt que de bloquer le lot.",
