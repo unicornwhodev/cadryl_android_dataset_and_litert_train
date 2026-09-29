@@ -47,6 +47,13 @@ class HumanAnnotationReviewTest {
         assertEquals(1,HumanAnnotationReview.unreviewedModelCount(model))
     }
 
+    @Test fun correctedModelSourceRemainsRecoverableForAdaptiveTraining() {
+        val source="human_correction:model_litert:weights:contract"
+        assertEquals("model_litert:weights:contract",HumanAnnotationReview.modelSource(source))
+        assertTrue(HumanAnnotationReview.isModelAssistedSource(source))
+        assertNull(HumanAnnotationReview.modelSource("human_correction:import"))
+    }
+
     @Test fun importedReviewIsHumanButNotModelAssisted() {
         val reviewed=HumanAnnotationReview.validateAll(SampleAnnotations(tags=listOf(TagTarget("t","smoke",sourceProvenance="import"))))
         assertEquals("human_validated:import",reviewed.tags.single().sourceProvenance)
