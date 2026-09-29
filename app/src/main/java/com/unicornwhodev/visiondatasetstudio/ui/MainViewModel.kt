@@ -258,9 +258,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun saveSetup(name: String, sourceRepo: String, destRepo: String, sourceConfig: String, sourceSplit: String,
                   imageColumn: String, classesCsv: String, diskBudgetMb: Long, tasks: Set<StudioTask>, startBatch: Boolean = false,
-                  autoPreannotate: Boolean? = null) = operation {
+                  autoPreannotate: Boolean? = null, sourceModeOverride: String? = null) = operation {
         val old = db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
-        val local = ProjectSettings.read(old).sourceMode == "LOCAL_INDEX"
+        val currentSettings=ProjectSettings.read(old)
+        val targetSourceMode=sourceModeOverride ?: currentSettings.sourceMode
+        require(targetSourceMode in setOf("HF_VIEWER","HF_MANIFEST","LOCAL_INDEX"))
+        val local = targetSourceMode == "LOCAL_INDEX"
         val source = if (local && sourceRepo.isBlank()) "" else StudioWorkflow.normalizeRepo(sourceRepo) ?: error(tr("Dataset source invalide. Utilisez namespace/dataset ou une URL HF de dataset.", "Invalid source dataset. Use namespace/dataset or an HF dataset URL."))
         val destination = if (destRepo.isBlank()) "" else StudioWorkflow.normalizeRepo(destRepo, true) ?: error(tr("Destination invalide : utilisateur/dataset attendu.", "Invalid destination: expected user/dataset."))
         check(destination.isBlank() || source != destination) { tr("Source et destination doivent être différentes.", "Source and destination must be different.") }
@@ -270,26 +273,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val hasBatches = db.batchDao().getLatestBatchSync(_activeProjectId.value) != null || ProjectSettings.read(p).sourceIndexReady
         val published = db.batchDao().getBatches(_activeProjectId.value).first().any { it.hfCommitSha != null || it.remotePrefix != null }
         check(!published || destination == p.hfDestRepo) { tr("La destination d’un atelier déjà publié est verrouillée pour préserver les preuves de publication.", "A published project's destination is locked to preserve publication evidence.") }
-        check(!hasBatches || (p.hfSourceRepo == source && p.sourceConfig == sourceConfig.trim() && p.sourceSplit == sourceSplit.trim() && p.imageColumn == imageColumn.trim())) {
+        check(!hasBatches || (currentSettings.sourceMode==targetSourceMode && p.hfSourceRepo == source && p.sourceConfig == sourceConfig.trim() && p.sourceSplit == sourceSplit.trim() && p.imageColumn == imageColumn.trim())) {
             tr("La source est verrouillée après l’import pour conserver la provenance. Pour changer de source, créez un projet dans Projets.", "The source is locked after import to preserve provenance. To change sources, create a project in Projects.")
         }
         val cleanConfig=sourceConfig.trim().ifBlank { "default" }
         val cleanSplit=sourceSplit.trim().ifBlank { "train" }
-        val currentSettings=ProjectSettings.read(p)
         val sourceUnchanged=p.hfSourceRepo==source && p.sourceConfig==cleanConfig && p.sourceSplit==cleanSplit
         val inspection=_sourceInspection.value
         val inspectionMatches=inspection.isInspected && inspection.repoId==source &&
             inspection.selectedConfig==cleanConfig && inspection.selectedSplit==cleanSplit
         val expectedRows=when {
-            currentSettings.sourceMode!="HF_VIEWER" || source.isBlank() ||
+            targetSourceMode!="HF_VIEWER" || source.isBlank() ||
                 currentSettings.filterExpression.isNotBlank() || currentSettings.orderBy.isNotBlank() -> null
             inspectionMatches -> inspection.splits.firstOrNull { it.config==cleanConfig && it.split==cleanSplit }?.numRows
             sourceUnchanged -> currentSettings.viewerExpectedRows
             else -> null
         }
         val nextSettings=currentSettings.copy(
+            sourceMode=targetSourceMode,
             autoPreannotate=autoPreannotate ?: currentSettings.autoPreannotate,
-            viewerExpectedRows=expectedRows
+            viewerExpectedRows=expectedRows,
+            sourceIndexReady=if(targetSourceMode=="LOCAL_INDEX") currentSettings.sourceIndexReady else false,
+            resolvedSourceRevision=if(targetSourceMode=="HF_MANIFEST") currentSettings.resolvedSourceRevision else null
         )
         val updated = p.copy(name = name.trim().ifBlank { tr("Mon atelier", "My studio") }, hfSourceRepo = source, hfDestRepo = destination,
             sourceConfig = cleanConfig, sourceSplit = cleanSplit,
@@ -642,9 +647,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun applyModelPreset(id:String)=operation {
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
         var config=ModelPresets.create(id,ProjectVocabulary.parse(p.classesCsv))
-        if(config.runtime!="local_http" && p.modelPath!=null) {
+        val activeFile=p.modelPath?.let(::File)
+        if(config.runtime!="local_http" && activeFile!=null) {
+            val activeBundle=activeFile.extension.equals("json",true)
+            if(config.bundleKind.isNotBlank()) {
+                check(activeBundle) {
+                    tr("Ce preset décrit un bundle multi-fichiers. Installez le bundle correspondant depuis le catalogue au lieu de l’appliquer à un .tflite brut.",
+                        "This preset describes a multi-file bundle. Install the matching bundle from the catalog instead of applying it to a raw .tflite file.")
+                }
+                val manifest=runCatching { moshi.adapter(BundleManifest::class.java).fromJson(activeFile.readText()) }.getOrNull()
+                    ?: error(tr("Manifest de bundle invalide", "Invalid bundle manifest"))
+                check(manifest.kind==config.bundleKind) {
+                    tr("Le bundle actif est ${manifest.kind}, pas ${config.bundleKind}.", "The active bundle is ${manifest.kind}, not ${config.bundleKind}.")
+                }
+            } else check(!activeBundle) {
+                tr("Ce preset mono-graphe ne peut pas remplacer le contrat d’un bundle installé. Choisissez un modèle .tflite ou détachez le bundle.",
+                    "This single-graph preset cannot replace an installed bundle contract. Choose a .tflite model or detach the bundle.")
+            }
             try {
-                val file=File(p.modelPath)
+                val file=activeFile
                 check(withContext(Dispatchers.IO){liteRtEngine.loadModel(file,config.threads)}) { tr("Modèle non chargeable", "Model could not be loaded") }
                 val spec=withContext(Dispatchers.IO){liteRtEngine.inputSpec(config)}
                 config=spec?.fixedImageConfig(config) ?: spec?.imageConfigHint(config) ?: config
