@@ -267,7 +267,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         for(batch in db.batchDao().getBatches(projectId).first()) {
             for(sample in db.sampleDao().getSamplesForBatchSync(projectId,batch.batchNumber)) {
                 val record=db.annotationDao().getAnnotationSync(sample.sampleId) ?: continue
-                val a=runCatching { moshi.adapter(SampleAnnotations::class.java).fromJson(record.dataJson) }.getOrNull() ?: continue
+                val a=runCatching { moshi.adapter(SampleAnnotations::class.java).fromJson(record.dataJson) }.getOrElse {
+                    error(tr("Annotations existantes illisibles pour ${sample.assetId}; modification des classes refusée pour préserver les données.",
+                        "Existing annotations for ${sample.assetId} are unreadable; class changes are blocked to preserve data."))
+                } ?: error(tr("Annotations existantes vides pour ${sample.assetId}; modification des classes refusée.",
+                    "Existing annotations for ${sample.assetId} are empty; class changes are blocked."))
                 labels+=a.points.map{it.label}
                 labels+=a.boxes.map{it.label}
                 labels+=a.masks.map{it.label}
