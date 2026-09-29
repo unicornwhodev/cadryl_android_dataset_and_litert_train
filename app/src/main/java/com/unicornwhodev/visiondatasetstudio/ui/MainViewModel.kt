@@ -299,8 +299,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             sourceMode=targetSourceMode,
             autoPreannotate=autoPreannotate ?: currentSettings.autoPreannotate,
             viewerExpectedRows=expectedRows,
-            sourceIndexReady=if(targetSourceMode=="LOCAL_INDEX") currentSettings.sourceIndexReady else false,
-            resolvedSourceRevision=if(targetSourceMode=="HF_MANIFEST") currentSettings.resolvedSourceRevision else null
+            sourceIndexReady=when(targetSourceMode) {
+                "LOCAL_INDEX" -> currentSettings.sourceIndexReady
+                "HF_MANIFEST" -> currentSettings.sourceIndexReady && sourceUnchanged
+                else -> false
+            },
+            resolvedSourceRevision=if(targetSourceMode=="HF_MANIFEST" && sourceUnchanged) currentSettings.resolvedSourceRevision else null
         )
         val updated = p.copy(name = name.trim().ifBlank { tr("Mon atelier", "My studio") }, hfSourceRepo = source, hfDestRepo = destination,
             sourceConfig = cleanConfig, sourceSplit = cleanSplit,
