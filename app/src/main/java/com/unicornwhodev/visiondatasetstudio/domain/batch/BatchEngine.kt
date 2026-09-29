@@ -298,7 +298,10 @@ class BatchEngine(
             }
         }
         // Last appended window must be acquired before exposing its images.
-        if(db.batchDao().getBatchSync(projectId,batchNumber)!=null)acquireBatchImages(projectId,batchNumber,onProgress)
+        val finalBatch=db.batchDao().getBatchSync(projectId,batchNumber)
+        if(finalBatch!=null) acquireBatchImages(projectId,batchNumber,onProgress)
+        else error(tr("Aucune image exploitable trouvée dans les fenêtres de source parcourues. Vérifiez la colonne image ou relancez pour poursuivre le scan.",
+            "No usable image was found in the scanned source windows. Check the image column or retry to continue scanning."))
         exhausted
     }
 
