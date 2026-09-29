@@ -4,7 +4,13 @@ import com.unicornwhodev.visiondatasetstudio.data.model.*
 
 /** Human review replaces model proposals semantically while preserving model baselines for audit/adaptation. */
 object HumanAnnotationReview {
-    private fun machine(source:String)=source.startsWith("model_")
+    private fun origin(source:String):String = when {
+        source.startsWith("human_correction:") -> source.substringAfter("human_correction:")
+        source.startsWith("human_validated:") -> source.substringAfter("human_validated:")
+        else -> source
+    }
+    fun isModelAssistedSource(source:String):Boolean = origin(source).startsWith("model_")
+    private fun machine(source:String)=isModelAssistedSource(source)
 
     fun markEdited(before:SampleAnnotations, after:SampleAnnotations):SampleAnnotations {
         val points=before.points.associateBy{it.id}
@@ -16,11 +22,14 @@ object HumanAnnotationReview {
         val vqa=before.vqaList.associateBy{it.id}
         val counts=before.counts.associateBy{it.id}
 
-        fun provenance(old:String?, current:String):String = when {
-            old!=null && machine(old) -> "human_correction"
-            current=="import" -> "human_correction"
-            machine(current) -> "human_correction"
-            else -> current.ifBlank { "human" }
+        fun provenance(old:String?, current:String):String {
+            val source=old ?: current
+            val original=origin(source)
+            return when {
+                original=="human" || original.startsWith("human_") -> "human"
+                original.isBlank() -> "human"
+                else -> "human_correction:$original"
+            }
         }
 
         return after.copy(
@@ -91,11 +100,23 @@ object HumanAnnotationReview {
     )
 
     private fun validatedProvenance(source:String)=when {
-        source=="human_correction" -> source
         source=="human" -> source
+        source.startsWith("human_correction") -> source
+        source.startsWith("human_validated") -> source
         source.startsWith("human_") -> source
-        else -> "human_validated"
+        source.isBlank() -> "human"
+        else -> "human_validated:${origin(source)}"
     }
+
+    fun wasModelAssisted(value:SampleAnnotations):Boolean =
+        value.points.any{isModelAssistedSource(it.sourceProvenance)} ||
+        value.boxes.any{isModelAssistedSource(it.sourceProvenance)} ||
+        value.masks.any{isModelAssistedSource(it.sourceProvenance)} ||
+        value.tags.any{isModelAssistedSource(it.sourceProvenance)} ||
+        value.captions.any{isModelAssistedSource(it.sourceProvenance)} ||
+        value.groundings.any{isModelAssistedSource(it.sourceProvenance)} ||
+        value.vqaList.any{isModelAssistedSource(it.sourceProvenance)} ||
+        value.counts.any{isModelAssistedSource(it.sourceProvenance)}
 
     fun isManuallyTreated(value:SampleAnnotations):Boolean {
         val all=listOf(
