@@ -29,6 +29,7 @@ import com.unicornwhodev.visiondatasetstudio.data.model.TagTarget
 import com.unicornwhodev.visiondatasetstudio.domain.export.DatasetExporters
 import com.unicornwhodev.visiondatasetstudio.domain.inference.LiteRtEngine
 import com.unicornwhodev.visiondatasetstudio.domain.inference.*
+import com.unicornwhodev.visiondatasetstudio.domain.validation.HumanAnnotationReview
 import com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings
 import com.unicornwhodev.visiondatasetstudio.data.source.SourceCatalog
 import com.unicornwhodev.visiondatasetstudio.core.storage.ImageNormalizer
@@ -161,7 +162,7 @@ class BatchEngine(
                 val digest=UUID.nameUUIDFromBytes(row.assetId.toByteArray()).toString().take(12)
                 SampleEntity(sampleId="p${project.id}_b${batchNumber}_r${row.ordinal}_$digest",projectId=project.id,batchNumber=batchNumber,
                     assetId=row.assetId,sourceRowIndex=row.sourceRowIndex ?: row.ordinal,sourceOrdinal=row.ordinal,sourceFileUrl=row.imageRef,localImagePath=null,
-                    groupId=row.groupId,split=project.targetSplit,acquisitionStatus="DISCOVERED",annotationStatus=if(row.annotationJson==null) "PENDING" else "PROPOSALS_AVAILABLE",syncStatus="NOT_EXPORTED")
+                    groupId=row.groupId,split=project.targetSplit,acquisitionStatus="DISCOVERED",annotationStatus=if(row.annotationJson==null) "PENDING" else "DRAFTS_AVAILABLE",syncStatus="NOT_EXPORTED")
             }
             db.withTransaction {
                 val current=db.projectDao().getProjectSync(project.id) ?: error(tr("Projet absent", "Project not found"))
@@ -358,7 +359,7 @@ class BatchEngine(
             val project=db.projectDao().getProjectSync(projectId) ?: error(tr("Projet absent", "Project not found"))
             val selectedProposals=com.unicornwhodev.visiondatasetstudio.domain.inference.ModelClassCompatibility.forProject(proposals,config,project.classesCsv)
             val updated=ProposalMerger.merge(existing,selectedProposals,project.activeTasksCsv,config.captionLanguage,ModelContract.compatibility(config,project.activeTasksCsv).usableOutputs)
-            val status=if(updated.unreviewedCount==0) AnnotationStatus.IN_PROGRESS.name else AnnotationStatus.PROPOSALS_AVAILABLE.name
+            val status=HumanAnnotationReview.pendingStatus(updated)
             val applied=db.withTransaction {
                 // A correction or decision made while inference was running wins over its result.
                 if(db.sampleDao().getSampleSync(sample.sampleId)!=sample ||
