@@ -825,11 +825,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setModelCatalog(repository: String, revision: String, folder: String) = operation {
         val source = CommunityModelCatalog.Source(repository.trim().removePrefix("https://huggingface.co/"), revision.trim(), folder.trim().trim('/'))
         source.validate()
-        val found = CommunityModelCatalog.discover(hfApiClient, source)
-        preferenceStore.modelCatalog = source
-        _catalogSource.value = source
-        _communityModels.value = found
-        _operationProgress.value = OperationProgress("${found.size} conversion(s)", 1, 1)
+        _modelCatalogLoading.value=true
+        try {
+            val custom=CommunityModelCatalog.discover(hfApiClient, source)
+            check(custom.isNotEmpty()) { tr("Aucun modèle LiteRT détecté dans cette source", "No LiteRT model detected in this source") }
+            preferenceStore.modelCatalog = source
+            _catalogSource.value = source
+            _communityModels.value = discoverModelCatalogs()
+            val sourceCount=_communityModels.value.map{it.sourceRepo}.distinct().size
+            _operationProgress.value = OperationProgress(tr("${_communityModels.value.size} modèle(s) sur $sourceCount source(s), dont ${custom.size} dans la source ajoutée.",
+                "${_communityModels.value.size} model(s) across $sourceCount source(s), including ${custom.size} in the added source."), 1, 1)
+        } finally { _modelCatalogLoading.value=false }
     }
     fun loadWorkflow()=operation { _workflow.value=withContext(Dispatchers.IO) { workflowJournal.read(_activeProjectId.value,_activeBatchNumber.value) } }
     fun startWorkflow(template:String,instructions:String)=operation {
