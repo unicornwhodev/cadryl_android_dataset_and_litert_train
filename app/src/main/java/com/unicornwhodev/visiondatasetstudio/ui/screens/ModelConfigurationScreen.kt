@@ -29,7 +29,6 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
     val config = remember(p.modelConfigJson) { runCatching {
         p.modelConfigJson?.let { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(it) }
     }.getOrNull() }
-    var classes by remember(p.id, p.classesCsv) { mutableStateOf(p.classesCsv) }
     LaunchedEffect(p.id, p.modelPath, p.modelConfigJson) { vm.isBusy.first { !it }; vm.inspectActiveModelInput() }
     Scaffold(contentWindowInsets = WindowInsets(0), modifier = Modifier.imePadding(), topBar = {
         WorkspaceTopBar(vm, tr("Réglages du modèle", "Model settings"), p.name)
@@ -42,11 +41,16 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
                         "Choose a catalog model to get its settings. A raw file needs its author's contract."))
                     OutlinedButton(onClick = { vm.navigateTo(Screen.Models) }) { Text(tr("Choisir un modèle", "Choose a model")) }
                 }
-                StudioDisclosure(tr("Classes du projet", "Project classes"), Icons.Default.Label, true) {
-                    ModelCompatibilityPanel(config, p.activeTasksCsv, classes)
-                    ClassVocabularyEditor(classes, { classes = it }, !busy, config?.let { ModelClassCompatibility.inspect(it, p.activeTasksCsv, classes).available }.orEmpty())
-                    Button(onClick = { vm.saveProjectClasses(classes) }, enabled = !busy && classes.isNotBlank() && classes != p.classesCsv) {
-                        Text(tr("Enregistrer les classes", "Save classes"))
+                StudioSection(tr("Compatibilité avec le projet", "Project compatibility"),
+                    tr("Les tâches et classes du dataset se configurent à un seul endroit : Configuration du projet. Ici, vous vérifiez uniquement ce que le modèle peut proposer.",
+                        "Dataset tasks and classes are configured in one place: Project setup. Here you only check what the model can propose."),
+                    Icons.Default.Checklist) {
+                    ModelCompatibilityPanel(config, p.activeTasksCsv, p.classesCsv)
+                    val classCount=com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv).size
+                    Text(tr("${p.activeTasksCsv.ifBlank{"Aucune tâche"}} · $classCount classe(s)",
+                        "${p.activeTasksCsv.ifBlank{"No task"}} · $classCount class(es)"),style=MaterialTheme.typography.bodySmall)
+                    OutlinedButton(onClick={vm.navigateTo(Screen.Setup)},enabled=!busy,modifier=Modifier.fillMaxWidth()) {
+                        Text(tr("Modifier tâches et classes", "Edit tasks and classes"))
                     }
                 }
                 ModelSettingsPanel(p, busy, vm::saveModelConfig, spec)
