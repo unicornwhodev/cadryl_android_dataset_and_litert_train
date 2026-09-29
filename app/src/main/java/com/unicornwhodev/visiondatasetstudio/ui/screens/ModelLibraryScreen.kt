@@ -33,6 +33,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
     var editSource by remember { mutableStateOf(false) }
     val remote by vm.communityModels.collectAsState()
     val warnings by vm.modelCatalogWarnings.collectAsState()
+    val catalogLoading by vm.modelCatalogLoading.collectAsState()
     val local by vm.modelProfiles.collectAsState()
     val project by vm.projectFlow.collectAsState()
     val busy by vm.isBusy.collectAsState()
@@ -53,7 +54,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
         WorkspaceTopBar(vm, stringResource(R.string.screen_models), stringResource(R.string.models_summary,local.size), actions = {
             IconButton(onClick = { vm.navigateTo(Screen.Training) }, enabled = !busy) { Icon(Icons.Default.ModelTraining, tr("Apprentissage sur cet appareil", "Training on this device"), Modifier.size(19.dp)) }
             IconButton(onClick = { editSource = true }, enabled = !busy) { Icon(Icons.Default.Storage, tr("Source HF supplémentaire", "Additional HF source"), Modifier.size(19.dp)) }
-            IconButton(onClick = vm::refreshCommunityModelCatalog, enabled = !busy) { Icon(Icons.Default.Refresh, tr("Actualiser le catalogue", "Refresh catalog"), Modifier.size(19.dp)) }
+            IconButton(onClick = vm::refreshCommunityModelCatalog, enabled = !busy && !catalogLoading) { Icon(Icons.Default.Refresh, tr("Actualiser le catalogue", "Refresh catalog"), Modifier.size(19.dp)) }
         })
     }) { inset ->
         Column(Modifier.fillMaxSize().padding(inset)) {
@@ -80,7 +81,19 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                             }
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         }
-                        if(remote.isEmpty()) item { EmptyWorkspace(stringResource(R.string.models_empty_title), stringResource(R.string.models_empty_body), Icons.Default.Memory, if (!busy) stringResource(R.string.models_explore) else null, vm::refreshCommunityModelCatalog) }
+                        if(remote.isEmpty() && catalogLoading) item {
+                            Column(Modifier.fillMaxWidth().padding(vertical=36.dp),horizontalAlignment=Alignment.CenterHorizontally,
+                                verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                                CircularProgressIndicator()
+                                Text(tr("Chargement des catalogues…", "Loading catalogs…"),style=MaterialTheme.typography.bodyMedium)
+                                Text(tr("Inspection de FireViewer, du catalogue communautaire et de la source HF supplémentaire.",
+                                    "Inspecting FireViewer, the community catalog, and the additional HF source."),
+                                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        } else if(remote.isEmpty()) item {
+                            EmptyWorkspace(stringResource(R.string.models_empty_title), stringResource(R.string.models_empty_body), Icons.Default.Memory,
+                                if (!busy) stringResource(R.string.models_explore) else null, vm::refreshCommunityModelCatalog)
+                        }
                         items(visibleRemote.size, key = { visibleRemote[it].sourceRepo + "@" + visibleRemote[it].repoSha + ":" + visibleRemote[it].entry.id }) { index ->
                             val item = visibleRemote[index]
                             var showInfo by remember { mutableStateOf(false) }
