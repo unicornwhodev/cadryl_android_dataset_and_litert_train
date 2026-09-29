@@ -632,8 +632,8 @@ private fun InstanceLinkEditor(a:SampleAnnotations,targetId:String,onUpdate:(Sam
 
 private fun reviewStatusLabel(verified:Boolean,provenance:String)=when {
     !verified -> tr("Proposition IA · à relire", "AI suggestion · needs review")
-    provenance=="human_correction" -> tr("Corrigé manuellement", "Manually corrected")
-    provenance=="human_validated" -> tr("Validé manuellement", "Manually validated")
+    provenance.startsWith("human_correction") -> tr("Corrigé manuellement", "Manually corrected")
+    provenance.startsWith("human_validated") -> tr("Validé manuellement", "Manually validated")
     else -> tr("Traité manuellement", "Manually handled")
 }
 
