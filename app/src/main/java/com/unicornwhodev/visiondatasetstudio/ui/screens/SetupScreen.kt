@@ -139,9 +139,9 @@ fun SetupScreen(viewModel: MainViewModel) {
                         Text(tr("D’où viennent vos images ?", "Where are your images?"), style = MaterialTheme.typography.headlineSmall)
                         OutlinedTextField(name, { name = it }, label = { Text(stringResource(R.string.setup_project_name)) }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy)
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FilterChip(selected = sourceKind == "local", onClick = { sourceKind = "local" }, enabled = !busy && !policy.sourceIndexReady && batches.isEmpty(),
+                            FilterChip(selected = sourceKind == "local", onClick = { sourceKind = "local" }, enabled = !busy && batches.isEmpty(),
                                 label = { Text(tr("Sur cet appareil", "On this device")) })
-                            FilterChip(selected = sourceKind == "hf", onClick = { sourceKind = "hf" }, enabled = !busy && !policy.sourceIndexReady && batches.isEmpty(),
+                            FilterChip(selected = sourceKind == "hf", onClick = { sourceKind = "hf" }, enabled = !busy && batches.isEmpty(),
                                 label = { Text(tr("Sur Hugging Face", "On Hugging Face")) })
                         }
                         if (sourceKind == "local") {
