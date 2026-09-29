@@ -41,9 +41,21 @@ fun ModelLibraryScreen(vm: MainViewModel) {
     var url by rememberSaveable { mutableStateOf("") }
     var deleteId by remember { mutableStateOf<String?>(null) }
     var search by rememberSaveable { mutableStateOf("") }
-    val visibleRemote = remote.filter { search.isBlank() || it.entry.title.contains(search, true) || it.entry.purpose.contains(search, true) || it.sourceRepo.contains(search,true) }
+    var compatibleOnly by rememberSaveable { mutableStateOf(false) }
+    val activeTasks=project?.activeTasksCsv.orEmpty()
+    val visibleRemote = remote.filter {
+        (search.isBlank() || it.entry.title.contains(search, true) || it.entry.purpose.contains(search, true) || it.sourceRepo.contains(search,true)) &&
+            (!compatibleOnly || it.entry.capabilities.supports(activeTasks))
+    }
     val visibleLocal = local.filter { search.isBlank() || it.name.contains(search, true) }
-    val visiblePublic = PublicModelCatalog.entries.filter { search.isBlank() || it.title.contains(search,true) || it.purpose.contains(search,true) }
+    val visiblePublic = PublicModelCatalog.entries.filter {
+        (search.isBlank() || it.title.contains(search,true) || it.purpose.contains(search,true)) &&
+            (!compatibleOnly || when(it.family) {
+                "ssd" -> activeTasks.split(',').any { task -> task.trim() in setOf("DETECTION","GROUNDING") }
+                "classification" -> "CLASSIFICATION" in activeTasks.split(',').map(String::trim)
+                else -> true
+            })
+    }
     val visiblePresets = ModelPresets.recommended(project?.activeTasksCsv.orEmpty()).filter {
         search.isBlank() || it.title.contains(search,true) || it.description.contains(search,true) || it.category.contains(search,true)
     }
@@ -66,6 +78,11 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                             leadingIcon = { Icon(Icons.Default.Search, null) }, modifier = Modifier.fillMaxWidth())
                         Text(tr("Choisissez un modèle pour votre objectif. Ses classes seront vérifiées une fois installé.", "Choose a model for your task. Its classes will be checked once installed."),
                             Modifier.padding(vertical = 8.dp), style = MaterialTheme.typography.bodySmall)
+                        if(tab==0) {
+                            FilterChip(selected=compatibleOnly,onClick={compatibleOnly=!compatibleOnly},
+                                leadingIcon=if(compatibleOnly){{Icon(Icons.Default.FilterAlt,null,Modifier.size(16.dp))}}else null,
+                                label={Text(tr("Compatibles avec le projet", "Compatible with project"))})
+                        }
                         if(tab==0 && warnings.isNotEmpty()) {
                             StudioDetails(tr("Certaines sources HF n’ont pas pu être chargées :\n", "Some HF sources could not be loaded:\n") + warnings.joinToString("\n"),
                                 style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.error)
