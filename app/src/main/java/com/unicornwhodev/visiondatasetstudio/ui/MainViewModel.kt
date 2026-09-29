@@ -276,7 +276,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         check(!ProjectVocabulary.requiredFor(tasks) || ProjectVocabulary.parse(classesCsv).isNotEmpty()) { tr("Définissez au moins une classe.", "Define at least one class.") }
         val p = old
         check(db.batchDao().getBatches(p.id).first().none{it.status in setOf("PREPARED","PUBLISHING","PUBLISHED","CONFLICT","PURGING")}) { tr("Terminez le transfert interrompu avant de modifier le projet", "Complete the interrupted transfer before changing the project") }
-        val hasBatches = db.batchDao().getLatestBatchSync(_activeProjectId.value) != null || ProjectSettings.read(p).sourceIndexReady
+        val hasBatches = db.batchDao().getLatestBatchSync(_activeProjectId.value) != null
         val published = db.batchDao().getBatches(_activeProjectId.value).first().any { it.hfCommitSha != null || it.remotePrefix != null }
         check(!published || destination == p.hfDestRepo) { tr("La destination d’un atelier déjà publié est verrouillée pour préserver les preuves de publication.", "A published project's destination is locked to preserve publication evidence.") }
         check(!hasBatches || (currentSettings.sourceMode==targetSourceMode && p.hfSourceRepo == source && p.sourceConfig == sourceConfig.trim() && p.sourceSplit == sourceSplit.trim() && p.imageColumn == imageColumn.trim())) {
