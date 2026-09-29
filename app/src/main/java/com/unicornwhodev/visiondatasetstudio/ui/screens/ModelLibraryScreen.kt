@@ -52,12 +52,12 @@ fun ModelLibraryScreen(vm: MainViewModel) {
     Scaffold(contentWindowInsets = WindowInsets(0), topBar = {
         WorkspaceTopBar(vm, stringResource(R.string.screen_models), stringResource(R.string.models_summary,local.size), actions = {
             IconButton(onClick = { vm.navigateTo(Screen.Training) }, enabled = !busy) { Icon(Icons.Default.ModelTraining, tr("Apprentissage sur cet appareil", "Training on this device"), Modifier.size(19.dp)) }
-            IconButton(onClick = { editSource = true }, enabled = !busy) { Icon(Icons.Default.Storage, tr("Dépôt du catalogue", "Catalog repository"), Modifier.size(19.dp)) }
+            IconButton(onClick = { editSource = true }, enabled = !busy) { Icon(Icons.Default.Storage, tr("Source HF supplémentaire", "Additional HF source"), Modifier.size(19.dp)) }
             IconButton(onClick = vm::refreshCommunityModelCatalog, enabled = !busy) { Icon(Icons.Default.Refresh, tr("Actualiser le catalogue", "Refresh catalog"), Modifier.size(19.dp)) }
         })
     }) { inset ->
         Column(Modifier.fillMaxSize().padding(inset)) {
-            StudioTabs(listOf(tr("Catalogue HF","HF catalog"),tr("Installés","Installed"),tr("Presets","Presets"),tr("Importer","Import")), tab, { tab = it }, Modifier.padding(horizontal = 16.dp))
+            StudioTabs(listOf(tr("Catalogue","Catalog"),tr("Installés","Installed"),tr("Presets","Presets"),tr("Importer","Import")), tab, { tab = it }, Modifier.padding(horizontal = 16.dp))
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                 LazyColumn(Modifier.widthIn(max = 1000.dp).fillMaxSize(), state = listState, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     if (tab != 3) item {
@@ -246,8 +246,11 @@ fun ModelLibraryScreen(vm: MainViewModel) {
         var repo by remember { mutableStateOf(source.repository) }
         var revision by remember { mutableStateOf(source.revision) }
         var folder by remember { mutableStateOf(source.folder) }
-        AlertDialog(onDismissRequest = { editSource = false }, title = { Text(stringResource(R.string.models_catalog_source)) }, text = {
+        AlertDialog(onDismissRequest = { editSource = false }, title = { Text(tr("Source HF supplémentaire", "Additional HF source")) }, text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(tr("FireViewer et le catalogue communautaire restent toujours chargés. Ce dépôt s’ajoute aux sources standard.",
+                    "FireViewer and the community catalog are always loaded. This repository is added to the standard sources."),
+                    style=MaterialTheme.typography.bodySmall)
                 OutlinedTextField(repo, { repo = it }, label = { Text(stringResource(R.string.models_repo)) }, singleLine = true)
                 OutlinedTextField(revision, { revision = it }, label = { Text(stringResource(R.string.models_revision)) }, singleLine = true)
                 OutlinedTextField(folder, { folder = it }, label = { Text(stringResource(R.string.models_folder)) }, singleLine = true)
