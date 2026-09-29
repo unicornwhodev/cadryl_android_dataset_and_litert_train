@@ -183,8 +183,13 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                             Button(onClick={vm.navigateTo(Screen.Models)},enabled=!busy){Text(stringResource(R.string.controls_open_models))}
                             Text(tr("Cette page conserve les outils avancés de contrat, diagnostic et correction adaptative.", "This page keeps advanced contract, diagnostic and adaptive correction tools."),style=MaterialTheme.typography.bodySmall)
                         }
-                        StudioSection(stringResource(R.string.controls_contract_preprocessing),tr("Choisissez un gabarit, puis adaptez-le aux véritables tenseurs du modèle. Un nom de famille de modèles ne garantit pas la compatibilité.", "Choose a template and adapt it to the model's actual tensors. A model family name does not guarantee compatibility."),Icons.Default.Tune) {
-                            FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)){ModelPresets.names.forEach{(id,title)->AssistChip(onClick={contract=configAdapter.toJson(ModelPresets.create(id,com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv)));contractError=null},label={Text(title)},enabled=!busy)}}
+                        StudioSection(stringResource(R.string.controls_contract_preprocessing),
+                            tr("Édition technique du contrat actif. Les presets se choisissent dans Modèles afin d’éviter deux chemins de configuration concurrents.",
+                                "Technical editing of the active contract. Presets are selected in Models to avoid two competing configuration paths."),
+                            Icons.Default.Tune) {
+                            OutlinedButton(onClick={vm.navigateTo(Screen.Models)},enabled=!busy,modifier=Modifier.fillMaxWidth()) {
+                                Text(tr("Ouvrir les presets modèles", "Open model presets"))
+                            }
                             StudioDetails(tr("Entrées : NHWC/NCHW, RGB/BGR/gris, FLOAT32/UINT8/INT8, normalisation par canal, stretch/letterbox/crop. Sorties : index, layout, coordonnées, activation, seuil, NMS, points issus de boîtes et comptage proposé.", "Inputs: NHWC/NCHW, RGB/BGR/grayscale, FLOAT32/UINT8/INT8, per-channel normalization, stretch/letterbox/crop. Outputs: indices, layout, coordinates, activation, threshold, NMS, box-derived points and proposed counts."), style =MaterialTheme.typography.bodySmall)
                             OutlinedTextField(contract,{contract=it;contractError=null},label={Text(stringResource(R.string.controls_versioned_contract))},modifier=Modifier.fillMaxWidth().heightIn(min=240.dp,max=500.dp),textStyle=MaterialTheme.typography.bodySmall.copy(fontFamily=FontFamily.Monospace),isError=contractError!=null)
                             contractError?.let{Text(it,color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.bodySmall)}
