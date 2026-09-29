@@ -29,6 +29,7 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
     val config = remember(p.modelConfigJson) { runCatching {
         p.modelConfigJson?.let { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(it) }
     }.getOrNull() }
+    val runtimeReady=config?.let { it.runtime=="local_http" || !p.modelPath.isNullOrBlank() } == true
     LaunchedEffect(p.id, p.modelPath, p.modelConfigJson) { vm.isBusy.first { !it }; vm.inspectActiveModelInput() }
     Scaffold(contentWindowInsets = WindowInsets(0), modifier = Modifier.imePadding(), topBar = {
         WorkspaceTopBar(vm, tr("Réglages du modèle", "Model settings"), p.name)
@@ -61,7 +62,13 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
                 ModelSettingsPanel(p, busy, vm::saveModelConfig, spec)
                 StudioSection(tr("Essayer sur une image", "Try on an image"),
                     tr("Utilise les réglages enregistrés. Les annotations sont conservées.", "Uses saved settings. Annotations are preserved."), Icons.Default.Science) {
-                    Button(onClick = vm::dryRunActiveModel, enabled = !busy && config != null && ModelContract.adapter(config) != "inspect_only") {
+                    if(config!=null && ModelContract.adapter(config)!="inspect_only" && !runtimeReady) {
+                        StudioDetails(tr("Le contrat est configuré, mais aucun poids LiteRT ou endpoint local n’est actif. Installez ou importez le modèle avant l’essai.",
+                            "The contract is configured, but no LiteRT weights or local endpoint is active. Install or import the model before testing."),
+                            style=MaterialTheme.typography.bodySmall)
+                        OutlinedButton(onClick={vm.navigateTo(Screen.Models)},enabled=!busy) { Text(tr("Ouvrir Modèles", "Open Models")) }
+                    }
+                    Button(onClick = vm::dryRunActiveModel, enabled = !busy && runtimeReady && config != null && ModelContract.adapter(config) != "inspect_only") {
                         Text(tr("Tester le modèle", "Test model"))
                     }
                     result?.let { Text(if (!it.success) it.error.orEmpty() else if (it.proposals.isEmpty())
