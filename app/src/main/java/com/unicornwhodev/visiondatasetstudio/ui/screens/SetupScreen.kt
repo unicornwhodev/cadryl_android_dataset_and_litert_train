@@ -63,18 +63,13 @@ fun SetupScreen(viewModel: MainViewModel) {
     var advanced by rememberSaveable { mutableStateOf(false) }
     var showToken by remember { mutableStateOf(false) }
     var token by remember { mutableStateOf("") } // Never place a credential in saved instance state.
-    var sourceKind by rememberSaveable { mutableStateOf(if (p.hfSourceRepo.isNotBlank()) "hf" else "local") }
+    var sourceKind by rememberSaveable { mutableStateOf(if (policy.sourceMode=="LOCAL_INDEX") "local" else "hf") }
     var assistance by rememberSaveable { mutableStateOf(policy.autoPreannotate && modelConfig != null) }
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri -> if (uri != null) viewModel.importSourceFolder(uri) }
     LaunchedEffect(p.id, p.settingsJson, p.hfSourceRepo) {
         val savedPolicy = com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings.read(p)
-        if (savedPolicy.sourceMode == "LOCAL_INDEX" && savedPolicy.sourceIndexReady) {
-            sourceKind = "local"
-            source = p.hfSourceRepo
-        } else if (p.hfSourceRepo.isNotBlank()) {
-            sourceKind = "hf"
-            source = p.hfSourceRepo
-        }
+        sourceKind = if(savedPolicy.sourceMode=="LOCAL_INDEX") "local" else "hf"
+        if(sourceKind=="hf") source=p.hfSourceRepo
     }
     LaunchedEffect(inspection) {
         if (batches.isEmpty() && !com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings.read(p).sourceIndexReady &&
@@ -106,7 +101,8 @@ fun SetupScreen(viewModel: MainViewModel) {
                 if (step > 0) OutlinedButton(onClick = { step-- }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.common_previous)) }
                 Button(onClick = {
                     if (step < 3) step++ else viewModel.saveSetup(name, if (sourceKind == "local") "" else source, p.hfDestRepo, config, split, imageColumn, classes,
-                        budget.toLongOrNull() ?: 500L, tasks, prepare, assistance && canAutomate)
+                        budget.toLongOrNull() ?: 500L, tasks, prepare, assistance && canAutomate,
+                        if(sourceKind=="local") "LOCAL_INDEX" else "HF_VIEWER")
                 }, enabled = !busy && !frozen && when(step) {
                     0 -> sourceOk
                     1 -> classesOk
