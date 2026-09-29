@@ -335,9 +335,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val destination = if (destRepo.isBlank()) "" else StudioWorkflow.normalizeRepo(destRepo, true) ?: error(tr("Destination invalide : utilisateur/dataset attendu.", "Invalid destination: expected user/dataset."))
         check(destination.isBlank() || source != destination) { tr("Source et destination doivent être différentes.", "Source and destination must be different.") }
         val parsedClasses=ProjectVocabulary.parse(classesCsv)
+        val formattedClasses=ProjectVocabulary.format(parsedClasses)
+        val formattedTasks=StudioWorkflow.tasksCsv(tasks)
         check(!ProjectVocabulary.requiredFor(tasks) || parsedClasses.isNotEmpty()) { tr("Définissez au moins une classe.", "Define at least one class.") }
-        requireClassVocabularySafe(old.id,parsedClasses)
-        requireTaskSetSafe(old.id,tasks)
+        if(formattedClasses!=old.classesCsv) requireClassVocabularySafe(old.id,parsedClasses)
+        if(formattedTasks!=old.activeTasksCsv) requireTaskSetSafe(old.id,tasks)
         val p = old
         check(db.batchDao().getBatches(p.id).first().none{it.status in setOf("PREPARED","PUBLISHING","PUBLISHED","CONFLICT","PURGING")}) { tr("Terminez le transfert interrompu avant de modifier le projet", "Complete the interrupted transfer before changing the project") }
         val cleanConfig=sourceConfig.trim().ifBlank { "default" }
@@ -374,8 +376,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
         val updated = p.copy(name = name.trim().ifBlank { tr("Mon atelier", "My studio") }, hfSourceRepo = source, hfDestRepo = destination,
             sourceConfig = cleanConfig, sourceSplit = cleanSplit,
-            imageColumn = cleanImageColumn, classesCsv = ProjectVocabulary.format(parsedClasses),
-            diskBudgetMb = diskBudgetMb.coerceIn(128L, 65536L), activeTasksCsv = StudioWorkflow.tasksCsv(tasks),
+            imageColumn = cleanImageColumn, classesCsv = formattedClasses,
+            diskBudgetMb = diskBudgetMb.coerceIn(128L, 65536L), activeTasksCsv = formattedTasks,
             settingsJson = ProjectSettings.write(nextSettings), updatedAt = System.currentTimeMillis())
         if (autoPreannotate == true) ModelClassCompatibility.requireAssistance(modelConfig(updated), updated.activeTasksCsv, updated.classesCsv)
         db.projectDao().saveProject(updated)
@@ -390,9 +392,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun updateTasks(tasks: Set<StudioTask>) = operation {
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@operation
+        val formatted=StudioWorkflow.tasksCsv(tasks)
+        if(formatted==p.activeTasksCsv)return@operation
         requireTaskSetSafe(p.id,tasks)
         check(db.batchDao().getBatches(p.id).first().none{it.status in setOf("PUBLISHING","PUBLISHED")}) { tr("Transfert en attente : profil verrouillé", "Transfer pending: profile locked") }
-        db.projectDao().saveProject(p.copy(activeTasksCsv = StudioWorkflow.tasksCsv(tasks), updatedAt = System.currentTimeMillis()))
+        db.projectDao().saveProject(p.copy(activeTasksCsv = formatted, updatedAt = System.currentTimeMillis()))
         _operationProgress.value = null
     }
     fun inspectSourceDataset(repoId: String, config: String? = null, split: String? = null) = operation {
@@ -427,12 +431,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveProjectClasses(value: String) = operation {
         val labels = ProjectVocabulary.parse(value)
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@operation
+        val formatted=ProjectVocabulary.format(labels)
+        if(formatted==p.classesCsv)return@operation
         require(!ProjectVocabulary.requiredFor(StudioWorkflow.parseTasks(p.activeTasksCsv)) || labels.isNotEmpty()) { tr("Ajoutez au moins une classe.", "Add at least one class.") }
         requireClassVocabularySafe(p.id,labels)
         check(db.batchDao().getBatches(p.id).first().none { it.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT", "PURGING") }) {
             tr("Terminez le transfert en cours avant de modifier les classes.", "Complete the pending transfer before changing classes.")
         }
-        db.projectDao().saveProject(p.copy(classesCsv = ProjectVocabulary.format(labels), updatedAt = System.currentTimeMillis()))
+        db.projectDao().saveProject(p.copy(classesCsv = formatted, updatedAt = System.currentTimeMillis()))
         _operationProgress.value = OperationProgress(tr("Classes enregistrées. Annotations conservées.", "Classes saved. Annotations preserved."), 1, 1)
     }
     fun saveExportFormats(tar: Boolean, coco: Boolean, yolo: Boolean, vl: Boolean) = operation {
