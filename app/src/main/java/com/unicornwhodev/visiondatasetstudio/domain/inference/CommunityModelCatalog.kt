@@ -116,7 +116,7 @@ object CommunityModelCatalog {
             "AGPL-3.0 · voir THIRD_PARTY_NOTICES", listOf("model.tflite"), "contract", "FireViewer"),
         Entry("fireviewer_yolo11m_strict_v1_learning", "FireViewer YOLO11-M strict v1 · learning",
             tr("Détection fumée/flamme · adaptation locale", "Smoke/flame detection · local adaptation"),
-            "AGPL-3.0 / droits amont à vérifier", listOf("model.tflite"), "contract", "FireViewer"),
+            "AGPL-3.0 · voir THIRD_PARTY_NOTICES", listOf("model.tflite"), "contract", "FireViewer"),
         Entry("fireviewer_dinov3_pointing_pilot_v1_learning", "FireViewer DINOv3 pointing pilot v1 · learning",
             tr("Présence, segmentation et pointing fumée/flamme · pilote recherche", "Smoke/flame presence, segmentation and pointing · research pilot"),
             tr("Voir RIGHTS_AND_ATTRIBUTION · restrictions recherche", "See RIGHTS_AND_ATTRIBUTION · research restrictions"), listOf("model.tflite"), "contract", "FireViewer")
