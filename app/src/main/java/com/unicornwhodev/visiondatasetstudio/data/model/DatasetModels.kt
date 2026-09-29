@@ -27,6 +27,7 @@ enum class AcquisitionStatus {
 
 enum class AnnotationStatus {
     PENDING,
+    DRAFTS_AVAILABLE,
     PROPOSALS_AVAILABLE,
     IN_PROGRESS,
     VALIDATED,
