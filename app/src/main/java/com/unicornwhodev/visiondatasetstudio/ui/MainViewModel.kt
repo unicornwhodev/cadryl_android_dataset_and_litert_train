@@ -911,7 +911,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             check(custom.isNotEmpty()) { tr("Aucun modèle LiteRT détecté dans cette source", "No LiteRT model detected in this source") }
             preferenceStore.modelCatalog = source
             _catalogSource.value = source
-            _communityModels.value = discoverModelCatalogs()
+            _communityModels.value = discoverModelCatalogs(source to custom)
             val sourceCount=_communityModels.value.map{it.sourceRepo}.distinct().size
             _operationProgress.value = OperationProgress(tr("${_communityModels.value.size} modèle(s) sur $sourceCount source(s), dont ${custom.size} dans la source ajoutée.",
                 "${_communityModels.value.size} model(s) across $sourceCount source(s), including ${custom.size} in the added source."), 1, 1)
@@ -985,13 +985,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } catch(e:CancellationException) { withContext(NonCancellable){record("paused",tr("Interrompu · reprise disponible", "Interrupted · can resume"))};throw e }
         catch(e:Exception) { record("failed",e.message ?: tr("Étape échouée", "Step failed"));throw e }
     }
-    private suspend fun discoverModelCatalogs():List<CommunityModelCatalog.Availability> {
+    private suspend fun discoverModelCatalogs(preloaded:Pair<CommunityModelCatalog.Source,List<CommunityModelCatalog.Availability>>?=null):List<CommunityModelCatalog.Availability> {
         val sources=(CommunityModelCatalog.standardSources + _catalogSource.value)
             .distinctBy { listOf(it.repository,it.revision,it.folder) }
         val result=mutableListOf<CommunityModelCatalog.Availability>()
         val failures=mutableListOf<String>()
         for(source in sources) {
-            try { result+=CommunityModelCatalog.discover(hfApiClient,source) }
+            try {
+                val cached=preloaded?.takeIf { (known,_) ->
+                    known.repository==source.repository && known.revision==source.revision && known.folder==source.folder
+                }?.second
+                result+=cached ?: CommunityModelCatalog.discover(hfApiClient,source)
+            }
             catch(e:CancellationException){throw e}
             catch(e:Exception){failures+="${source.repository}: ${e.message ?: "error"}"}
         }
