@@ -16,10 +16,11 @@ object AnnotationReview {
         if (a.boxes.any { !valid(it.xmin) || !valid(it.ymin) || !valid(it.xmax) || !valid(it.ymax) || it.xmin >= it.xmax || it.ymin >= it.ymax || it.label.isBlank() })
             add(tr("Une boîte est vide, hors image ou sans classe.", "A box is empty, outside the image or has no class."))
         if (StudioTask.POINTING in tasks && a.points.size > 1) add(tr("Le profil Point unique n’autorise qu’une cible. Choisissez Points multiples pour ce cas.", "Single-point mode allows only one target. Choose Multiple points for this sample."))
-        if ((a.points.any { !it.isHumanVerified }) || a.boxes.any { !it.isHumanVerified } || a.tags.any { !it.isHumanVerified } || a.captions.any { !it.isHumanVerified && it.sourceProvenance != "human" } || a.vqaList.any { !it.isHumanVerified && it.sourceProvenance != "human" } || a.counts.any { !it.isHumanVerified && it.sourceProvenance != "human" } || a.groundings.any { !it.isHumanVerified })
-            add(tr("Des propositions restent à relire. Acceptez-les explicitement ou supprimez-les.", "Some proposals still need review. Explicitly accept or delete them."))
+        if ((a.points.any { !it.isHumanVerified }) || a.boxes.any { !it.isHumanVerified } || a.tags.any { !it.isHumanVerified } || a.captions.any { !it.isHumanVerified } || a.vqaList.any { !it.isHumanVerified } || a.counts.any { !it.isHumanVerified } || a.groundings.any { !it.isHumanVerified })
+            add(tr("Des annotations restent à relire (suggestions IA ou brouillons importés). Marquez-les comme relues, corrigez-les ou supprimez-les avant validation.",
+                "Some annotations still need review (AI suggestions or imported drafts). Mark, correct, or delete them before approval."))
         if(a.masks.any { it.label.isBlank() || runCatching { com.unicornwhodev.visiondatasetstudio.domain.inference.MaskCodec.validate(it) }.isFailure }) add(tr("Un masque est invalide.", "A mask is invalid."))
-        if(a.masks.any { !it.isHumanVerified }) add(tr("Des masques restent à relire.", "Some masks still need review."))
+        if(a.masks.any { !it.isHumanVerified }) add(tr("Des masques restent à relire (suggestions IA ou brouillons importés).", "Some masks still need review (AI suggestions or imported drafts)."))
         if(StudioTask.SEGMENTATION in tasks && a.masks.none { it.runs.withIndex().any { (i,n) -> i%2==1 && n>0 } } && a.quality.verifiedNegativeQueries.isEmpty()) add(tr("Dessinez un masque ou vérifiez son absence.", "Draw a mask or verify absence."))
         val located = a.masks.any { it.runs.withIndex().any { (i,n) -> i%2==1 && n>0 } } || a.boxes.isNotEmpty() || visiblePoints.isNotEmpty()
         val absent = a.quality.verifiedNegativeQueries.isNotEmpty() || a.quality.isHardNegative
