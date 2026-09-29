@@ -207,7 +207,7 @@ private fun PreviewCaption(sample: SampleEntity?) {
 @Composable
 private fun QueueRow(sample: SampleEntity, index: Int, selected: Boolean, onClick: () -> Unit) {
     val background by animateColorAsState(if(selected) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.background, label = "preview selection")
-    val status = when(sample.annotationStatus) { "VALIDATED" -> tr("Traitée manuellement", "Manually reviewed"); "REJECTED" -> tr("Rejetée", "Rejected"); "IN_PROGRESS" -> tr("Traité manuellement · à valider", "Manually handled · needs approval"); "DEFERRED" -> tr("À revoir", "To review"); "PROPOSALS_AVAILABLE" -> tr("Suggestions IA", "AI suggestions"); else -> tr("À traiter", "To process") }
+    val status = when(sample.annotationStatus) { "VALIDATED" -> tr("Traitée manuellement", "Manually reviewed"); "REJECTED" -> tr("Rejetée", "Rejected"); "IN_PROGRESS" -> tr("Traité manuellement · à valider", "Manually handled · needs approval"); "DEFERRED" -> tr("À revoir", "To review"); "DRAFTS_AVAILABLE" -> tr("Brouillon importé · à relire", "Imported draft · needs review"); "PROPOSALS_AVAILABLE" -> tr("Suggestions IA", "AI suggestions"); else -> tr("À traiter", "To process") }
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)).background(background).clickable(role = Role.Tab, onClick = onClick)
         .semantics { this.selected = selected }.padding(horizontal = 8.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
         Text((index+1).toString().padStart(2,'0'), style = MaterialTheme.typography.labelSmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)
