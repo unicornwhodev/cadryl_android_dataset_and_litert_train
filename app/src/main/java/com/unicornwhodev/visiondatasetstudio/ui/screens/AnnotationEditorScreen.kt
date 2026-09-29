@@ -233,7 +233,7 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_reject_reason)) }, enabled = !locked, onClick = { rejectDialog = true; more = false })
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_retry_save)) }, onClick = { viewModel.retrySave(); more = false })
-                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_accept_reviewed)) }, enabled = hasProposals && !locked, onClick = { acceptDialog = true; more = false })
+                        DropdownMenuItem(text = { Text(tr("Marquer les propositions comme relues", "Mark suggestions as reviewed")) }, enabled = hasProposals && !locked, onClick = { acceptDialog = true; more = false })
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_customize_tools)) }, onClick = { viewModel.navigateTo(Screen.Preferences); more = false })
                     }
                 }
@@ -338,9 +338,12 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
             OutlinedTextField(reason, { reason = it }, label = { Text(stringResource(R.string.editor_rejection_reason)) }, modifier = Modifier.fillMaxWidth())
         }
     }, confirmButton = { Button(onClick = { rejectDialog = false; viewModel.rejectCurrent(reason) }, enabled = reason.isNotBlank()) { Text(stringResource(R.string.editor_confirm_rejection)) } }, dismissButton = { TextButton(onClick = { rejectDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
-    if (acceptDialog) AlertDialog(onDismissRequest = { acceptDialog = false }, title = { Text(stringResource(R.string.editor_confirm_review)) }, text = {
-        Text(stringResource(R.string.editor_accept_explanation))
-    }, confirmButton = { Button(onClick = { acceptDialog = false; viewModel.acceptCurrentProposals() }) { Text(stringResource(R.string.editor_verified_proposals)) } }, dismissButton = { TextButton(onClick = { acceptDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
+    if (acceptDialog) AlertDialog(onDismissRequest = { acceptDialog = false },
+        title = { Text(tr("Marquer toutes les propositions comme relues ?", "Mark all suggestions as reviewed?")) },
+        text = { Text(tr("Les propositions restantes deviennent des décisions humaines relues, mais l’image reste « à valider ». Utilisez ensuite Valider l’image pour finaliser le cas.",
+            "Remaining suggestions become human-reviewed decisions, but the image still needs approval. Then use Approve image to finalize the sample.")) },
+        confirmButton = { Button(onClick = { acceptDialog = false; viewModel.acceptCurrentProposals() }) { Text(tr("Marquer comme relues", "Mark as reviewed")) } },
+        dismissButton = { TextButton(onClick = { acceptDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
 }
 
 @Composable
