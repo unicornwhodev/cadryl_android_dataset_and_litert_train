@@ -57,6 +57,12 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                 else -> true
             })
     }
+    val activeConfig=remember(project?.modelConfigJson) {
+        runCatching {
+            project?.modelConfigJson?.let { com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi
+                .adapter(com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig::class.java).fromJson(it) }
+        }.getOrNull()
+    }
     val visiblePresets = ModelPresets.recommended(project?.activeTasksCsv.orEmpty()).filter {
         search.isBlank() || it.title.contains(search,true) || it.description.contains(search,true) || it.category.contains(search,true)
     }
@@ -225,10 +231,10 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                 profile.configJson==json && if(profile.modelPath.isBlank()) project?.modelPath.isNullOrBlank() else profile.modelPath==project?.modelPath
                             }
                         } == true
-                        if(project?.modelConfigJson != null && !activeAlreadySaved) item {
+                        if(activeConfig?.runtime=="local_http" && !activeAlreadySaved) item {
                             StudioDisclosure(tr("Enregistrer la configuration active", "Save active configuration"), Icons.Default.BookmarkAdd, true) {
-                                Text(tr("Utile notamment pour un endpoint local ou un contrat préparé avant installation des poids. Le profil reste local à cet appareil.",
-                                    "Useful for a local endpoint or a contract prepared before installing weights. The profile stays on this device."),
+                                Text(tr("Enregistre cet endpoint local comme profil réutilisable dans d’autres projets. Aucun serveur ni modèle n’est copié.",
+                                    "Saves this local endpoint as a reusable profile for other projects. No server or model is copied."),
                                     style=MaterialTheme.typography.bodySmall)
                                 OutlinedTextField(profileName,{profileName=it},label={Text(tr("Nom du profil", "Profile name"))},singleLine=true,modifier=Modifier.fillMaxWidth())
                                 Button(onClick={vm.saveActiveModelProfile(profileName);profileName=""},enabled=!busy && profileName.isNotBlank()) {
