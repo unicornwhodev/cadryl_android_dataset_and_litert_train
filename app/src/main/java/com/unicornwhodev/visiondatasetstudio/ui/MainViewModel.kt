@@ -163,7 +163,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         db.withTransaction {
                             val sample = db.sampleDao().getSampleSync(command.sampleId)
                             check(sample != null && db.batchDao().getBatchSync(sample.projectId, sample.batchNumber)?.status !in com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety.lockedStates) { tr("Lot verrouillé : correction non écrite", "Batch locked: correction not saved") }
-                            db.sampleDao().updateSample(sample.copy(annotationStatus = if (command.annotations.unreviewedCount>0) "PROPOSALS_AVAILABLE" else "IN_PROGRESS", updatedAt = System.currentTimeMillis()))
+                            db.sampleDao().updateSample(sample.copy(annotationStatus = HumanAnnotationReview.pendingStatus(command.annotations), updatedAt = System.currentTimeMillis()))
                             batchEngine.saveSampleAnnotations(command.sampleId, command.annotations)
                         }
                         failedSaves.remove(command.sampleId)
