@@ -38,6 +38,15 @@ class HumanAnnotationReviewTest {
         assertTrue(HumanAnnotationReview.wasModelAssisted(reviewed))
     }
 
+    @Test fun pendingStatusSeparatesImportedDraftsFromAiSuggestions() {
+        val imported=SampleAnnotations(tags=listOf(TagTarget("i","smoke",sourceProvenance="import")))
+        val model=SampleAnnotations(tags=listOf(TagTarget("m","smoke",sourceProvenance="model_litert")))
+        assertEquals(AnnotationStatus.DRAFTS_AVAILABLE.name,HumanAnnotationReview.pendingStatus(imported))
+        assertEquals(AnnotationStatus.PROPOSALS_AVAILABLE.name,HumanAnnotationReview.pendingStatus(model))
+        assertEquals(1,HumanAnnotationReview.unreviewedDraftCount(imported))
+        assertEquals(1,HumanAnnotationReview.unreviewedModelCount(model))
+    }
+
     @Test fun importedReviewIsHumanButNotModelAssisted() {
         val reviewed=HumanAnnotationReview.validateAll(SampleAnnotations(tags=listOf(TagTarget("t","smoke",sourceProvenance="import"))))
         assertEquals("human_validated:import",reviewed.tags.single().sourceProvenance)
