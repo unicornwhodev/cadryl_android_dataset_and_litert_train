@@ -28,12 +28,15 @@ class AdaptiveCorrectionStore(private val context:Context) {
         pairs.filter{it.first.annotationStatus=="VALIDATED"}.forEach{(s,a)->
             val image=s.sha256 ?: return@forEach
             a.points.filter{it.explicitlyAdjusted && it.isHumanVerified && it.canProvideCoordinates && it.modelX!=null && it.modelY!=null && it.modelLabel==it.label}.forEach{p->
-                val modelSource=HumanAnnotationReview.modelSource(p.sourceProvenance)?.takeIf{it.startsWith("model_litert:")} ?: return@forEach
-                val key=AdaptiveCorrection.groupKey(modelSource,p.label)
-                additions.getOrPut(key){mutableListOf()}.add(CorrectionExample(AdaptiveCorrection.hash("$image:${p.id}"),image,p.modelX!!.toDouble(),p.modelY!!.toDouble(),p.boxWidth.toDouble(),p.boxHeight.toDouble(),(p.modelScore ?: .5f).toDouble(),p.x.toDouble(),p.y.toDouble(),true,true))
+                val modelSource=HumanAnnotationReview.modelSource(p.sourceProvenance)?.takeIf{it.startsWith("model_litert:")}
+                if(modelSource!=null) {
+                    val key=AdaptiveCorrection.groupKey(modelSource,p.label)
+                    additions.getOrPut(key){mutableListOf()}.add(CorrectionExample(AdaptiveCorrection.hash("$image:${p.id}"),image,p.modelX!!.toDouble(),p.modelY!!.toDouble(),p.boxWidth.toDouble(),p.boxHeight.toDouble(),(p.modelScore ?: .5f).toDouble(),p.x.toDouble(),p.y.toDouble(),true,true))
+                }
             }
-            a.boxes.filter{(it.correctionGeneration==null || it.modelCoordinatesVersion>=1) && it.explicitlyAdjusted && it.isHumanVerified && it.modelXmin!=null && it.modelYmin!=null && it.modelXmax!=null && it.modelYmax!=null}.forEach{b->
-                val modelSource=HumanAnnotationReview.modelSource(b.sourceProvenance)?.takeIf{it.startsWith("model_litert:")} ?: return@forEach
+            a.boxes.filter{(it.correctionGeneration==null || it.modelCoordinatesVersion>=1) && it.explicitlyAdjusted && it.isHumanVerified && it.modelXmin!=null && it.modelYmin!=null && it.modelXmax!=null && it.modelYmax!=null}.forEach boxLoop@{b->
+                val modelSource=HumanAnnotationReview.modelSource(b.sourceProvenance)?.takeIf{it.startsWith("model_litert:")}
+                if(modelSource==null) return@boxLoop
                 val mx=(b.modelXmin!!+b.modelXmax!!)/2.0;val my=(b.modelYmin!!+b.modelYmax!!)/2.0
                 val mw=(b.modelXmax!!-b.modelXmin!!).toDouble();val mh=(b.modelYmax!!-b.modelYmin!!).toDouble()
                 val cx=(b.xmin+b.xmax)/2.0;val cy=(b.ymin+b.ymax)/2.0;val w=(b.xmax-b.xmin).toDouble();val h=(b.ymax-b.ymin).toDouble()
