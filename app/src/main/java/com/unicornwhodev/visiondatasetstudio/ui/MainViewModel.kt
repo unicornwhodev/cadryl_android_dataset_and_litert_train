@@ -6,6 +6,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
@@ -675,12 +676,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _operationProgress.value = OperationProgress(tr("Action appliquée aux cas modifiables. Aucune validation automatique.", "Applied to editable samples. No automatic approval."), 1, 1)
     }
 
+    private suspend fun importedModelDisplayName(uri:Uri):String=withContext(Dispatchers.IO) {
+        val resolver=getApplication<Application>().contentResolver
+        val raw=resolver.query(uri,arrayOf(OpenableColumns.DISPLAY_NAME),null,null,null)?.use { cursor ->
+            if(cursor.moveToFirst())cursor.getString(0) else null
+        } ?: uri.lastPathSegment
+        raw.orEmpty().substringBeforeLast('.',raw.orEmpty()).trim().take(120).ifBlank { tr("Modèle LiteRT importé", "Imported LiteRT model") }
+    }
+
     private fun modelConfig(project: ProjectEntity): ModelConfig = project.modelConfigJson?.takeIf { it.isNotBlank() }?.let {
         moshi.adapter(ModelConfig::class.java).failOnUnknown().fromJson(it) ?: error(tr("Configuration modèle vide", "Empty model configuration"))
     }?.also(ModelContract::validate) ?: ModelConfig.defaultDetectionPreset(com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(project.classesCsv)).also(ModelContract::validate)
 
     fun importModel(uri: Uri) = operation {
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Atelier absent", "Studio not found"))
+        val displayName=importedModelDisplayName(uri)
         val file = storageManager.getModelFile("model-${UUID.randomUUID()}.tflite")
         try {
             withContext(Dispatchers.IO) {
@@ -708,13 +718,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val imported=p.copy(modelPath=file.absolutePath,modelConfigJson=moshi.adapter(ModelConfig::class.java).toJson(inspection),
                 settingsJson=TrainingPolicy.settingsForModel(p,inspection),updatedAt=System.currentTimeMillis())
             db.projectDao().saveProject(imported)
-            registerModel(imported,file,file.nameWithoutExtension)
+            registerModel(imported,file,displayName)
             liteRtEngine.close()
             _operationProgress.value = OperationProgress(tr("Modèle importé. Vérifiez son contrat d’entrée/sortie avant l’inférence.", "Model imported. Check its input/output contract before inference."), 1, 1)
         } catch (e: Exception) { liteRtEngine.close(); file.delete(); throw e }
     }
     fun importModelUrl(url: String) = operation {
         require(url.startsWith("https://")) { tr("Un lien HTTPS direct vers les poids est requis.", "A direct HTTPS link to the weights is required.") }
+        val displayName=Uri.parse(url.trim()).lastPathSegment.orEmpty().substringBeforeLast('.',Uri.parse(url.trim()).lastPathSegment.orEmpty())
+            .take(120).ifBlank { tr("Modèle LiteRT téléchargé", "Downloaded LiteRT model") }
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Atelier absent", "Studio not found"))
         val policy=ProjectSettings.read(p);batchEngine.checkNetwork(policy);hfApiClient.configureTimeout(policy.timeoutSeconds)
         val file = storageManager.getModelFile("model-${UUID.randomUUID()}.tflite")
@@ -735,7 +747,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val imported=p.copy(modelPath=file.absolutePath,modelConfigJson=moshi.adapter(ModelConfig::class.java).toJson(inspection),
                 settingsJson=TrainingPolicy.settingsForModel(p,inspection),updatedAt=System.currentTimeMillis())
             db.projectDao().saveProject(imported)
-            registerModel(imported,file,file.nameWithoutExtension)
+            registerModel(imported,file,displayName)
             liteRtEngine.close()
             _operationProgress.value = OperationProgress(tr("Modèle téléchargé. Le contrat d’inférence doit être vérifié.", "Model downloaded. Its inference contract needs verification."), 1, 1)
         } catch (e: Exception) { liteRtEngine.close(); file.delete(); throw e }
