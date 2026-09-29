@@ -9,7 +9,8 @@ object HumanAnnotationReview {
         source.startsWith("human_validated:") -> source.substringAfter("human_validated:")
         else -> source
     }
-    fun isModelAssistedSource(source:String):Boolean = origin(source).startsWith("model_")
+    fun modelSource(source:String):String? = origin(source).takeIf { it.startsWith("model_") }
+    fun isModelAssistedSource(source:String):Boolean = modelSource(source)!=null
     private fun machine(source:String)=isModelAssistedSource(source)
 
     fun markEdited(before:SampleAnnotations, after:SampleAnnotations):SampleAnnotations {
