@@ -678,9 +678,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun importedModelDisplayName(uri:Uri):String=withContext(Dispatchers.IO) {
         val resolver=getApplication<Application>().contentResolver
-        val raw=resolver.query(uri,arrayOf(OpenableColumns.DISPLAY_NAME),null,null,null)?.use { cursor ->
-            if(cursor.moveToFirst())cursor.getString(0) else null
-        } ?: uri.lastPathSegment
+        val raw=runCatching {
+            resolver.query(uri,arrayOf(OpenableColumns.DISPLAY_NAME),null,null,null)?.use { cursor ->
+                if(cursor.moveToFirst())cursor.getString(0) else null
+            }
+        }.getOrNull() ?: uri.lastPathSegment
         raw.orEmpty().substringBeforeLast('.',raw.orEmpty()).trim().take(120).ifBlank { tr("Modèle LiteRT importé", "Imported LiteRT model") }
     }
 
