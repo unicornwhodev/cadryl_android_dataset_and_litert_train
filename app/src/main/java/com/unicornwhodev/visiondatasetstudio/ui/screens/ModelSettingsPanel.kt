@@ -13,7 +13,8 @@ import com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity
 import com.unicornwhodev.visiondatasetstudio.domain.inference.*
 import com.unicornwhodev.visiondatasetstudio.ui.components.StudioDisclosure
 
-/** Project overrides do not mutate a shared model profile or its weights. */
+/** Model settings never mutate the weight bytes. Saving a configured raw model also updates its installed profile contract. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ModelSettingsPanel(project: ProjectEntity, busy: Boolean, save: (String) -> Unit, inputSpec: ModelInputSpec? = null) {
     val adapter=remember { StudioJson.moshi.adapter(ModelConfig::class.java).failOnUnknown() }
@@ -21,6 +22,9 @@ fun ModelSettingsPanel(project: ProjectEntity, busy: Boolean, save: (String) -> 
     var config by remember(project.id,project.modelConfigJson) { mutableStateOf(original) }
     var threads by remember(project.id,project.modelConfigJson) { mutableStateOf(original.threads.toString()) }
     var count by remember(project.id,project.modelConfigJson) { mutableStateOf(if(original.bundleKind=="tinyclip" || ModelContract.adapter(original)=="classification") original.topK.toString() else original.maxDetections.toString()) }
+    var modelLabels by remember(project.id,project.modelConfigJson) {
+        mutableStateOf(com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.format(original.labels))
+    }
     val kind=ModelContract.adapter(config)
     val classification=config.bundleKind=="tinyclip" || kind=="classification"
     val scored=config.httpOutputMode!="caption_text" && (config.bundleKind=="tinyclip" || (config.bundleKind.isBlank() && kind !in setOf("embedding","inspect_only")))
@@ -37,6 +41,67 @@ fun ModelSettingsPanel(project: ProjectEntity, busy: Boolean, save: (String) -> 
     val valid=validation.isSuccess
     StudioDisclosure(tr("Réglages du modèle actif", "Active model settings"), initiallyExpanded=true) {
         Text(tr("$width × $height px · ${config.labels.size} classes", "$width × $height px · ${config.labels.size} classes"),style=MaterialTheme.typography.labelSmall)
+        if (original.adapter == "inspect_only" && original.bundleKind.isBlank() && original.runtime == "litert_interpreter") {
+            StudioDisclosure(tr("Configurer le fichier LiteRT brut", "Configure raw LiteRT file"), initiallyExpanded=true) {
+                Text(tr("Le fichier est chargé, mais son format de sortie n’est pas deviné. Choisissez l’adaptateur correspondant au convertisseur ou à la documentation du modèle.",
+                    "The file is loaded, but its output semantics are not guessed. Choose the adapter documented by the converter or model author."), style=MaterialTheme.typography.bodySmall)
+                val rawAdapters=listOf(
+                    "classification" to tr("Classification", "Classification"),
+                    "ssd" to "SSD",
+                    "yolo" to "YOLO",
+                    "rfdetr" to "RF-DETR",
+                    "rtmdet" to "RTMDet",
+                    "xyxy_score_class" to tr("Boîtes XYXY", "XYXY boxes"),
+                    "points" to tr("Points directs", "Direct points"),
+                    "heatmap" to "Heatmap",
+                    "embedding" to tr("Représentation visuelle", "Visual embedding")
+                )
+                FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                    rawAdapters.forEach { (adapterId,title) ->
+                        FilterChip(selected=kind==adapterId,onClick={
+                            val task=when(adapterId) {
+                                "classification" -> "classification"
+                                "points","heatmap" -> "pointing"
+                                "embedding" -> "embedding"
+                                else -> "object_detection"
+                            }
+                            config=config.copy(adapter=adapterId,task=task,
+                                outputMode=if(adapterId in setOf("points","heatmap"))"points" else "boxes",
+                                embeddingOutputIndex=if(adapterId=="embedding")config.outputIndex else config.embeddingOutputIndex)
+                        },enabled=!busy,label={Text(title)})
+                    }
+                }
+                if (kind !in setOf("inspect_only","embedding")) {
+                    OutlinedTextField(modelLabels,{ text ->
+                        modelLabels=text
+                        config=config.copy(labels=com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(text))
+                    },enabled=!busy,label={Text(tr("Classes du modèle, dans l’ordre des indices", "Model classes, in index order"))},
+                        supportingText={Text(tr("Ne triez pas cette liste : sa position doit correspondre exactement à l’indice produit par le réseau.",
+                            "Do not sort this list: each position must exactly match the class index produced by the network."))},
+                        minLines=3,maxLines=8,modifier=Modifier.fillMaxWidth())
+                    val parsed=com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(modelLabels)
+                    if(parsed.isNotEmpty()) Text(parsed.take(12).mapIndexed { index,label -> "$index · $label" }.joinToString("\n")+
+                        if(parsed.size>12)"\n… +${parsed.size-12}" else "",style=MaterialTheme.typography.bodySmall)
+                }
+                Text(tr("Les indices de sorties, activations et formats avancés restent disponibles dans Contrat JSON.",
+                    "Output indices, activations and advanced layouts remain available in JSON contract."), style=MaterialTheme.typography.bodySmall)
+            }
+        }
+        if (original.adapter != "inspect_only" && config.runtime == "litert_interpreter" && config.bundleKind.isBlank() &&
+            kind !in setOf("inspect_only","embedding")) {
+            StudioDisclosure(tr("Vocabulaire indexé du modèle", "Indexed model vocabulary")) {
+                OutlinedTextField(modelLabels,{ text ->
+                    modelLabels=text
+                    config=config.copy(labels=com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(text))
+                },enabled=!busy,label={Text(tr("Classes du modèle, dans l’ordre des indices", "Model classes, in index order"))},
+                    supportingText={Text(tr("Modifier cette liste change l’interprétation des indices de sortie. Conservez exactement l’ordre du modèle.",
+                        "Changing this list changes how output indices are interpreted. Keep the model's exact order."))},
+                    minLines=3,maxLines=8,modifier=Modifier.fillMaxWidth())
+                val parsed=com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(modelLabels)
+                if(parsed.isNotEmpty()) Text(parsed.take(16).mapIndexed { index,label -> "$index · $label" }.joinToString("\n")+
+                    if(parsed.size>16)"\n… +${parsed.size-16}" else "",style=MaterialTheme.typography.bodySmall)
+            }
+        }
         if (config.runtime == "litert_interpreter" && config.bundleKind.isBlank()) StudioDisclosure(tr("Dimensions de l’image du modèle", "Model image dimensions")) {
             Text(tr("Les photos sont adaptées à cette taille pendant l’inférence. Les originaux sont conservés.", "Photos are fitted to this size during inference. Originals are preserved."), style=MaterialTheme.typography.bodySmall)
             inputSpec?.let { Text(tr("Entrée du fichier : ${it.signature} · ${it.type}", "File input: ${it.signature} · ${it.type}"),style=MaterialTheme.typography.bodySmall) }

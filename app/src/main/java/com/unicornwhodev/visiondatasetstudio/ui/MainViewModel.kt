@@ -22,6 +22,7 @@ import com.unicornwhodev.visiondatasetstudio.domain.batch.BatchEngine
 import com.unicornwhodev.visiondatasetstudio.domain.export.DatasetExporters
 import com.unicornwhodev.visiondatasetstudio.domain.inference.*
 import com.unicornwhodev.visiondatasetstudio.domain.validation.AnnotationReview
+import com.unicornwhodev.visiondatasetstudio.domain.validation.HumanAnnotationReview
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.*
@@ -81,6 +82,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val agentChoice=_agentChoice.asStateFlow()
     private val _communityModels = MutableStateFlow<List<CommunityModelCatalog.Availability>>(emptyList())
     val communityModels = _communityModels.asStateFlow()
+    private val _modelCatalogWarnings = MutableStateFlow<List<String>>(emptyList())
+    val modelCatalogWarnings = _modelCatalogWarnings.asStateFlow()
     private val _modelDiagnostics = MutableStateFlow("")
     val modelDiagnostics = _modelDiagnostics.asStateFlow()
     private val _modelInputSpec = MutableStateFlow<ModelInputSpec?>(null)
@@ -190,7 +193,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         checkTokenStatus()
-        viewModelScope.launch { runCatching { _communityModels.value=CommunityModelCatalog.discover(hfApiClient, _catalogSource.value) } }
+        viewModelScope.launch { runCatching { _communityModels.value=discoverModelCatalogs() } }
     }
 
     fun updatePreferences(value: StudioPreferences) = preferenceStore.update(value)
@@ -270,11 +273,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         check(!hasBatches || (p.hfSourceRepo == source && p.sourceConfig == sourceConfig.trim() && p.sourceSplit == sourceSplit.trim() && p.imageColumn == imageColumn.trim())) {
             tr("La source est verrouillée après l’import pour conserver la provenance. Pour changer de source, créez un projet dans Projets.", "The source is locked after import to preserve provenance. To change sources, create a project in Projects.")
         }
+        val cleanConfig=sourceConfig.trim().ifBlank { "default" }
+        val cleanSplit=sourceSplit.trim().ifBlank { "train" }
+        val currentSettings=ProjectSettings.read(p)
+        val sourceUnchanged=p.hfSourceRepo==source && p.sourceConfig==cleanConfig && p.sourceSplit==cleanSplit
+        val inspection=_sourceInspection.value
+        val inspectionMatches=inspection.isInspected && inspection.repoId==source &&
+            inspection.selectedConfig==cleanConfig && inspection.selectedSplit==cleanSplit
+        val expectedRows=when {
+            currentSettings.sourceMode!="HF_VIEWER" || source.isBlank() ||
+                currentSettings.filterExpression.isNotBlank() || currentSettings.orderBy.isNotBlank() -> null
+            inspectionMatches -> inspection.splits.firstOrNull { it.config==cleanConfig && it.split==cleanSplit }?.numRows
+            sourceUnchanged -> currentSettings.viewerExpectedRows
+            else -> null
+        }
+        val nextSettings=currentSettings.copy(
+            autoPreannotate=autoPreannotate ?: currentSettings.autoPreannotate,
+            viewerExpectedRows=expectedRows
+        )
         val updated = p.copy(name = name.trim().ifBlank { tr("Mon atelier", "My studio") }, hfSourceRepo = source, hfDestRepo = destination,
-            sourceConfig = sourceConfig.trim().ifBlank { "default" }, sourceSplit = sourceSplit.trim().ifBlank { "train" },
+            sourceConfig = cleanConfig, sourceSplit = cleanSplit,
             imageColumn = imageColumn.trim().ifBlank { "image" }, classesCsv = ProjectVocabulary.format(ProjectVocabulary.parse(classesCsv)),
             diskBudgetMb = diskBudgetMb.coerceIn(128L, 65536L), activeTasksCsv = StudioWorkflow.tasksCsv(tasks),
-            settingsJson = if (autoPreannotate == null) p.settingsJson else ProjectSettings.write(ProjectSettings.read(p).copy(autoPreannotate=autoPreannotate)), updatedAt = System.currentTimeMillis())
+            settingsJson = ProjectSettings.write(nextSettings), updatedAt = System.currentTimeMillis())
         if (autoPreannotate == true) ModelClassCompatibility.requireAssistance(modelConfig(updated), updated.activeTasksCsv, updated.classesCsv)
         db.projectDao().saveProject(updated)
         _operationProgress.value = null
@@ -302,7 +323,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val rows = hfApiClient.fetchViewerRows(clean, cfg, sp, 0, 3)
         _sourceInspection.value = HfSourceInspectionState(rows.success, clean, result.splits, cfg, sp,
             rows.columns, com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.suggest(rows.columns, rows.rows).orEmpty(), rows.rows,
-            if (!rows.success) rows.error ?: result.error else null)
+            if (!rows.success) rows.error ?: result.error else null, rows.partial)
         _operationProgress.value = if (rows.success) null else OperationProgress(rows.error ?: tr("Dataset Viewer indisponible pour cette source.", "Dataset Viewer is unavailable for this source."), 0, 1, true)
     }
     fun checkDestinationRepo(destRepo: String) = operation {
@@ -422,9 +443,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val failed=unique.count{it.acquisitionStatus!="AVAILABLE" && it.annotationStatus!="REJECTED"}
         val duplicates=cases.size-unique.size
         var inferenceError:String?=null
-        if(policy.autoPreannotate && project.modelPath!=null && unique.any{it.acquisitionStatus=="AVAILABLE" && it.annotationStatus=="PENDING"}) {
+        val activeConfig=runCatching { modelConfig(project) }.getOrNull()
+        val modelReady=activeConfig?.runtime=="local_http" || project.modelPath!=null
+        if(policy.autoPreannotate && modelReady && activeConfig!=null && unique.any{it.acquisitionStatus=="AVAILABLE" && it.annotationStatus=="PENDING"}) {
             try {
-                val config=modelConfig(project)
+                val config=activeConfig
                 loadForInference(project,config)
                 batchEngine.runBatchInference(project.id,batchNumber,config) { done,total ->
                     _operationProgress.value=OperationProgress(tr("Préannotation", "Preannotation"),done,total)
@@ -481,22 +504,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun retrySave() = enqueueSave(_currentAnnotations.value)
     fun updateAnnotations(newAnnot: SampleAnnotations) {
         if (_editorBusy.value || _isBusy.value || newAnnot == _currentAnnotations.value) return
-        undoStack.add(_currentAnnotations.value)
+        val before=_currentAnnotations.value
+        undoStack.add(before)
         if (undoStack.size > 60) undoStack.removeAt(0)
         redoStack.clear()
-        val oldPoints = _currentAnnotations.value.points.associateBy { it.id }
-        val oldBoxes = _currentAnnotations.value.boxes.associateBy { it.id }
-        val adjusted = newAnnot.copy(
-            points=newAnnot.points.map { point ->
-                val before=oldPoints[point.id]
-                if (before != null && point.modelX != null && point.modelY != null && (before.x != point.x || before.y != point.y)) point.copy(explicitlyAdjusted=true) else point
-            },
-            boxes=newAnnot.boxes.map { box ->
-                val before=oldBoxes[box.id]
-                if(before!=null && box.modelXmin!=null && box.modelYmin!=null && box.modelXmax!=null && box.modelYmax!=null &&
-                    (before.xmin!=box.xmin || before.ymin!=box.ymin || before.xmax!=box.xmax || before.ymax!=box.ymax)) box.copy(explicitlyAdjusted=true) else box
-            }
-        )
+        val adjusted = HumanAnnotationReview.markEdited(before,newAnnot)
         _currentAnnotations.value = adjusted
         _editorIssues.value = emptyList()
         refreshUndo(); enqueueSave(adjusted)
@@ -518,6 +530,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@editorAction
         val issues = AnnotationReview.problems(_currentAnnotations.value, StudioWorkflow.parseTasks(p.activeTasksCsv))
         if (issues.isNotEmpty()) { _editorIssues.value = issues; return@editorAction }
+        val reviewed=HumanAnnotationReview.validateAll(_currentAnnotations.value)
+        _currentAnnotations.value=reviewed
+        batchEngine.saveSampleAnnotations(s.sampleId,reviewed)
         batchEngine.validateSample(s.sampleId, s.batchNumber)
         if (preferences.value.autoAdvance) {
             val list = db.sampleDao().getSamplesForBatchSync(s.projectId, s.batchNumber)
@@ -584,7 +599,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             check(withContext(Dispatchers.IO) { liteRtEngine.loadModel(file) }) { tr("Modèle incompatible avec le runtime installé.", "Model incompatible with the installed runtime.") }
             // A raw graph does not carry the previous model's labels, preprocessing or training contract.
             val baseInspection=ModelConfig(task="inspection",adapter="inspect_only")
-            val inspection=withContext(Dispatchers.IO) { liteRtEngine.inputSpec(baseInspection)?.fixedImageConfig(baseInspection) } ?: baseInspection
+            val inspection=withContext(Dispatchers.IO) {
+                liteRtEngine.inputSpec(baseInspection)?.let { spec ->
+                    spec.fixedImageConfig(baseInspection) ?: spec.imageConfigHint(baseInspection)
+                }
+            } ?: baseInspection
             val imported=p.copy(modelPath=file.absolutePath,modelConfigJson=moshi.adapter(ModelConfig::class.java).toJson(inspection),
                 settingsJson=TrainingPolicy.settingsForModel(p,inspection),updatedAt=System.currentTimeMillis())
             db.projectDao().saveProject(imported)
@@ -607,7 +626,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             check(withContext(Dispatchers.IO) { liteRtEngine.loadModel(file) }) { tr("Modèle incompatible avec le runtime installé.", "Model incompatible with the installed runtime.") }
             // A raw graph does not carry the previous model's labels, preprocessing or training contract.
             val baseInspection=ModelConfig(task="inspection",adapter="inspect_only")
-            val inspection=withContext(Dispatchers.IO) { liteRtEngine.inputSpec(baseInspection)?.fixedImageConfig(baseInspection) } ?: baseInspection
+            val inspection=withContext(Dispatchers.IO) {
+                liteRtEngine.inputSpec(baseInspection)?.let { spec ->
+                    spec.fixedImageConfig(baseInspection) ?: spec.imageConfigHint(baseInspection)
+                }
+            } ?: baseInspection
             val imported=p.copy(modelPath=file.absolutePath,modelConfigJson=moshi.adapter(ModelConfig::class.java).toJson(inspection),
                 settingsJson=TrainingPolicy.settingsForModel(p,inspection),updatedAt=System.currentTimeMillis())
             db.projectDao().saveProject(imported)
@@ -616,6 +639,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _operationProgress.value = OperationProgress(tr("Modèle téléchargé. Le contrat d’inférence doit être vérifié.", "Model downloaded. Its inference contract needs verification."), 1, 1)
         } catch (e: Exception) { liteRtEngine.close(); file.delete(); throw e }
     }
+    fun applyModelPreset(id:String)=operation {
+        val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
+        var config=ModelPresets.create(id,ProjectVocabulary.parse(p.classesCsv))
+        if(config.runtime!="local_http" && p.modelPath!=null) {
+            try {
+                val file=File(p.modelPath)
+                check(withContext(Dispatchers.IO){liteRtEngine.loadModel(file,config.threads)}) { tr("Modèle non chargeable", "Model could not be loaded") }
+                val spec=withContext(Dispatchers.IO){liteRtEngine.inputSpec(config)}
+                config=spec?.fixedImageConfig(config) ?: spec?.imageConfigHint(config) ?: config
+                withContext(Dispatchers.IO){liteRtEngine.validateInput(config)}
+                _modelDiagnostics.value=liteRtEngine.tensorReport()
+            } finally { liteRtEngine.close() }
+        }
+        val serialized=moshi.adapter(ModelConfig::class.java).toJson(config)
+        val updated=p.copy(modelPath=if(config.runtime=="local_http")null else p.modelPath,modelConfigJson=serialized,
+            settingsJson=TrainingPolicy.settingsForModel(p,config),updatedAt=System.currentTimeMillis())
+        db.projectDao().saveProject(updated)
+        p.modelPath?.takeIf{config.runtime!="local_http"}?.let { path ->
+            db.modelProfileDao().observe().first().filter{it.modelPath==path}.forEach { profile ->
+                db.modelProfileDao().save(profile.copy(configJson=serialized))
+            }
+        }
+        _dryRunResult.value=null
+        _operationProgress.value=OperationProgress(tr("Preset appliqué. Vérifiez les classes, le prétraitement et exécutez un essai sur image.",
+            "Preset applied. Check classes and preprocessing, then run an image trial."),1,1)
+        setScreen(Screen.ModelSettings)
+    }
+
     fun saveModelConfig(json: String) = operation {
         val config=moshi.adapter(ModelConfig::class.java).failOnUnknown().fromJson(json) ?: error(tr("Contrat JSON absent", "Missing JSON contract"))
         ModelContract.validate(config)
@@ -626,7 +677,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 withContext(Dispatchers.IO) { liteRtEngine.validateInput(config) }
             } finally { liteRtEngine.close() }
         }
-        db.projectDao().saveProject(p.copy(modelConfigJson=moshi.adapter(ModelConfig::class.java).toJson(config),settingsJson=TrainingPolicy.settingsForModel(p,config),updatedAt=System.currentTimeMillis()))
+        val serialized=moshi.adapter(ModelConfig::class.java).toJson(config)
+        db.projectDao().saveProject(p.copy(modelConfigJson=serialized,settingsJson=TrainingPolicy.settingsForModel(p,config),updatedAt=System.currentTimeMillis()))
+        // A configured raw file must not fall back to its original inspect_only contract when
+        // the user later re-selects the installed model. Keep the installed profile contract in sync.
+        p.modelPath?.let { activePath ->
+            db.modelProfileDao().observe().first().filter { it.modelPath==activePath }.forEach { profile ->
+                db.modelProfileDao().save(profile.copy(configJson=serialized))
+            }
+        }
         _dryRunResult.value=null
         _operationProgress.value=OperationProgress(tr("Contrat enregistré. Exécutez un essai sur une image réelle avant le lot.", "Contract saved. Try a real image before processing the batch."),1,1)
     }
@@ -682,10 +741,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } finally { liteRtEngine.close() }
     }
     fun acceptCurrentProposals() {
-        val a=_currentAnnotations.value
-        updateAnnotations(a.copy(masks=a.masks.map{it.copy(isHumanVerified=true)},points=a.points.map{it.copy(isHumanVerified=true)},boxes=a.boxes.map{it.copy(isHumanVerified=true)},
-            tags=a.tags.map{it.copy(isHumanVerified=true)},captions=a.captions.map{it.copy(isHumanVerified=true)},
-            groundings=a.groundings.map{it.copy(isHumanVerified=true)},vqaList=a.vqaList.map{it.copy(isHumanVerified=true)},counts=a.counts.map{it.copy(isHumanVerified=true)}))
+        if (_editorBusy.value || _isBusy.value) return
+        val before=_currentAnnotations.value
+        val reviewed=HumanAnnotationReview.validateAll(before)
+        if(reviewed==before)return
+        undoStack.add(before);if(undoStack.size>60)undoStack.removeAt(0);redoStack.clear()
+        _currentAnnotations.value=reviewed
+        _editorIssues.value=emptyList()
+        refreshUndo();enqueueSave(reviewed)
     }
     fun dryRunActiveModel() = operation {
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
@@ -805,13 +868,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } catch(e:CancellationException) { withContext(NonCancellable){record("paused",tr("Interrompu · reprise disponible", "Interrupted · can resume"))};throw e }
         catch(e:Exception) { record("failed",e.message ?: tr("Étape échouée", "Step failed"));throw e }
     }
-    fun refreshCommunityModelCatalog()=operation {
-        _operationProgress.value=OperationProgress(tr("Lecture du catalogue LiteRT UWD…", "Reading the UWD LiteRT catalog…"),0,1)
-        _communityModels.value=CommunityModelCatalog.discover(hfApiClient, _catalogSource.value)
-        _operationProgress.value=OperationProgress(tr("Catalogue actualisé : ${_communityModels.value.count{it.available}} conversion(s) disponible(s).", "Catalog refreshed: ${_communityModels.value.count{it.available}} conversion(s) available."),1,1)
+    private suspend fun discoverModelCatalogs():List<CommunityModelCatalog.Availability> {
+        val sources=(CommunityModelCatalog.standardSources + _catalogSource.value)
+            .distinctBy { listOf(it.repository,it.revision,it.folder) }
+        val result=mutableListOf<CommunityModelCatalog.Availability>()
+        val failures=mutableListOf<String>()
+        for(source in sources) {
+            try { result+=CommunityModelCatalog.discover(hfApiClient,source) }
+            catch(e:CancellationException){throw e}
+            catch(e:Exception){failures+="${source.repository}: ${e.message ?: "error"}"}
+        }
+        _modelCatalogWarnings.value=failures
+        if(result.isEmpty() && failures.isNotEmpty()) error(failures.joinToString("\n"))
+        return result.distinctBy { "${it.sourceRepo}@${it.repoSha}:${it.sourcePrefix}" }
+            .sortedWith(compareBy<CommunityModelCatalog.Availability>(
+                {if(it.sourceRepo==CommunityModelCatalog.fireviewerRepoId)0 else if(it.sourceRepo==CommunityModelCatalog.repoId)1 else 2},
+                {it.entry.title}
+            ))
     }
-    fun downloadCommunityModel(id:String)=operation {
-        val item=_communityModels.value.firstOrNull{it.entry.id==id} ?: CommunityModelCatalog.discover(hfApiClient, _catalogSource.value).firstOrNull{it.entry.id==id} ?: error(tr("Modèle absent du catalogue", "Model not found in the catalog"))
+
+    fun refreshCommunityModelCatalog()=operation {
+        _operationProgress.value=OperationProgress(tr("Lecture des catalogues LiteRT…", "Reading LiteRT catalogs…"),0,1)
+        _communityModels.value=discoverModelCatalogs()
+        val sourceCount=_communityModels.value.map{it.sourceRepo}.distinct().size
+        _operationProgress.value=OperationProgress(tr("Catalogue actualisé : ${_communityModels.value.count{it.available}} conversion(s) sur $sourceCount source(s).",
+            "Catalog refreshed: ${_communityModels.value.count{it.available}} conversion(s) across $sourceCount source(s)."),1,1)
+    }
+    fun downloadCommunityModel(id:String, sourceRepo:String?=null)=operation {
+        fun matches(item:CommunityModelCatalog.Availability)=item.entry.id==id && (sourceRepo==null || item.sourceRepo==sourceRepo)
+        val item=_communityModels.value.firstOrNull { matches(it) } ?: discoverModelCatalogs().firstOrNull { matches(it) } ?: error(tr("Modèle absent du catalogue", "Model not found in the catalog"))
         require(item.available && item.installableNow){item.note}
         val project=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
         val settings=ProjectSettings.read(project);batchEngine.checkNetwork(settings)
@@ -982,13 +1067,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         require(targetSplit.matches(Regex("[A-Za-z0-9_-]{1,80}"))) { tr("Split de sortie invalide", "Invalid output split") }
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
         val old=ProjectSettings.read(p);val existing=db.batchDao().getBatches(p.id).first()
-        val identityChanged=listOf(old.sourceMode,old.sourceRevision,old.manifestPath,old.filterExpression,old.orderBy,old.importAnnotations.toString()) !=
-            listOf(policy.sourceMode,policy.sourceRevision,policy.manifestPath,policy.filterExpression,policy.orderBy,policy.importAnnotations.toString()) || idColumn!=p.idColumn
+        val identityChanged=listOf(old.sourceMode,old.sourceRevision,old.manifestPath,old.filterExpression,old.orderBy,old.importAnnotations.toString(),old.allowPartialViewer.toString()) !=
+            listOf(policy.sourceMode,policy.sourceRevision,policy.manifestPath,policy.filterExpression,policy.orderBy,policy.importAnnotations.toString(),policy.allowPartialViewer.toString()) || idColumn!=p.idColumn
         check(existing.isEmpty() || !identityChanged) { tr("La source et sa sélection sont figées après le premier lot. Créez un autre projet.", "The source and its selection are locked after the first batch. Create another project.") }
         check(existing.isEmpty() || targetSplit==p.targetSplit) { tr("Le split de sortie est figé après le premier lot", "The output split is locked after the first batch") }
         check(existing.none{it.status in setOf("PUBLISHING","PUBLISHED")} || policy==old) { tr("Terminez d’abord le transfert interrompu", "Complete the interrupted transfer first") }
+        val viewerCoverageInvalidated=old.sourceMode!=policy.sourceMode ||
+            old.filterExpression!=policy.filterExpression || old.orderBy!=policy.orderBy
         val clean=policy.copy(sourceIndexReady=old.sourceIndexReady && !identityChanged,resolvedSourceRevision=if(identityChanged)null else old.resolvedSourceRevision,
-            localSourceLabel=old.localSourceLabel,localTreeUri=old.localTreeUri)
+            localSourceLabel=old.localSourceLabel,localTreeUri=old.localTreeUri,
+            viewerExpectedRows=if(viewerCoverageInvalidated)null else old.viewerExpectedRows)
         db.projectDao().saveProject(p.copy(settingsJson=ProjectSettings.write(clean),diskBudgetMb=budgetMb,idColumn=idColumn.trim(),targetSplit=targetSplit,updatedAt=System.currentTimeMillis()))
         _operationProgress.value=OperationProgress(tr("Réglages enregistrés. La taille du prochain lot n’altère pas les lots déjà acquis.", "Settings saved. The next batch size does not affect existing batches."),1,1)
     }
@@ -1191,6 +1279,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 data class HfSourceInspectionState(
     val isInspected: Boolean = false, val repoId: String = "", val splits: List<DatasetSplitItem> = emptyList(),
     val selectedConfig: String = "default", val selectedSplit: String = "train", val availableColumns: List<String> = emptyList(),
-    val selectedImageColumn: String = "image", val previewRows: List<ViewerRowData> = emptyList(), val error: String? = null
+    val selectedImageColumn: String = "image", val previewRows: List<ViewerRowData> = emptyList(), val error: String? = null,
+    val viewerPartial: Boolean = false
 )
 data class OperationProgress(val message: String, val current: Int, val total: Int, val isError: Boolean = false)

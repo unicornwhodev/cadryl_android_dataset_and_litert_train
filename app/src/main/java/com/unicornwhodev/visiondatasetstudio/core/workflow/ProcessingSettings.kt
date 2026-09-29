@@ -40,7 +40,11 @@ data class ProcessingSettings(
     // Claims are stored in the destination dataset repo using optimistic Hub commits.
     val collaborationEnabled: Boolean = false,
     val collaborationWorkerId: String = "",
-    val claimLeaseMinutes: Int = 720
+    val claimLeaseMinutes: Int = 720,
+    /** Explicit opt-in: a partial HF Viewer must never be presented as exhaustive by default. */
+    val allowPartialViewer: Boolean = false,
+    /** Split row count returned by HF /splits for unfiltered Viewer traversal; derived, never user-entered. */
+    val viewerExpectedRows: Long? = null
 ) {
     fun validate(): ProcessingSettings {
         require(schemaVersion == 1) { tr("Version des réglages inconnue", "Unknown settings version") }
@@ -54,6 +58,7 @@ data class ProcessingSettings(
         require(safeRelativePath(destPrefix)) { tr("Préfixe de destination invalide", "Invalid destination prefix") }
         require(safeRelativePath(manifestPath)) { tr("Chemin du manifeste invalide", "Invalid manifest path") }
         require(filterExpression.length <= 4000 && orderBy.length <= 500)
+        require(viewerExpectedRows == null || viewerExpectedRows >= 0L)
         require(claimLeaseMinutes in 15..4320) { tr("Bail partagé : 15 minutes à 72 heures", "Shared lease: 15 minutes to 72 hours") }
         if (collaborationEnabled) require(collaborationWorkerId.matches(Regex("[A-Za-z0-9._-]{3,64}"))) {
             tr("Identifiant collaborateur : 3 à 64 caractères (lettres, chiffres, . _ -)", "Collaborator ID: 3 to 64 characters (letters, digits, . _ -)")

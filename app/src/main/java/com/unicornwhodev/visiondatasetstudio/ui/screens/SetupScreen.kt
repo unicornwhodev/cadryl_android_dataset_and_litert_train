@@ -7,6 +7,7 @@ import com.unicornwhodev.visiondatasetstudio.R
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.rememberScrollState
@@ -65,9 +66,15 @@ fun SetupScreen(viewModel: MainViewModel) {
     var sourceKind by rememberSaveable { mutableStateOf(if (p.hfSourceRepo.isNotBlank()) "hf" else "local") }
     var assistance by rememberSaveable { mutableStateOf(policy.autoPreannotate && modelConfig != null) }
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri -> if (uri != null) viewModel.importSourceFolder(uri) }
-    LaunchedEffect(p.settingsJson, p.hfSourceRepo) {
+    LaunchedEffect(p.id, p.settingsJson, p.hfSourceRepo) {
         val savedPolicy = com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings.read(p)
-        if (savedPolicy.sourceMode == "LOCAL_INDEX" && savedPolicy.sourceIndexReady) source = p.hfSourceRepo
+        if (savedPolicy.sourceMode == "LOCAL_INDEX" && savedPolicy.sourceIndexReady) {
+            sourceKind = "local"
+            source = p.hfSourceRepo
+        } else if (p.hfSourceRepo.isNotBlank()) {
+            sourceKind = "hf"
+            source = p.hfSourceRepo
+        }
     }
     LaunchedEffect(inspection) {
         if (batches.isEmpty() && !com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings.read(p).sourceIndexReady &&
@@ -82,27 +89,39 @@ fun SetupScreen(viewModel: MainViewModel) {
     val modelLabels = coverage?.available.orEmpty()
     val canAutomate = coverage?.canAssist == true && coverage.kind != ModelVocabularyKind.INTERACTIVE &&
         (!p.modelPath.isNullOrBlank() || modelConfig?.runtime == "local_http")
+    val hfPreviewReady = inspection.isInspected && inspection.repoId == StudioWorkflow.normalizeRepo(source) &&
+        inspection.selectedConfig == config && inspection.selectedSplit == split &&
+        imageColumn in com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.candidates(inspection.availableColumns, inspection.previewRows)
+    val viewerExpectedRows=inspection.splits.firstOrNull { it.config==config && it.split==split }?.numRows
+    val viewerCoverageContract=viewerExpectedRows!=null && policy.filterExpression.isBlank() && policy.orderBy.isBlank()
+    val sourceReadyToPrepare = sourceKind != "hf" || policy.sourceIndexReady ||
+        (hfPreviewReady && (!inspection.viewerPartial || viewerCoverageContract || policy.allowPartialViewer))
     val frozen = batches.any { it.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT", "PURGING") }
-    val steps = listOf(tr("Images", "Images"), tr("Objectif", "Task"), tr("Vérifier", "Review"))
+    val steps = listOf(tr("Images", "Images"), tr("Annotations", "Annotations"), tr("Modèle IA", "AI model"), tr("Vérification", "Review"))
     Scaffold(contentWindowInsets = WindowInsets(0), modifier = Modifier.imePadding(), topBar = {
-        StudioTopBar(stringResource(R.string.screen_setup), tr("Étape ${step + 1} sur 3 · ${steps[step]}", "Step ${step + 1} of 3 · ${steps[step]}"), onBack = viewModel::back)
+        StudioTopBar(stringResource(R.string.screen_setup), tr("Étape ${step + 1} sur 4 · ${steps[step]}", "Step ${step + 1} of 4 · ${steps[step]}"), onBack = viewModel::back)
     }, bottomBar = {
         Surface(shadowElevation = 3.dp) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (step > 0) OutlinedButton(onClick = { step-- }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.common_previous)) }
                 Button(onClick = {
-                    if (step < 2) step++ else viewModel.saveSetup(name, if (sourceKind == "local") "" else source, p.hfDestRepo, config, split, imageColumn, classes,
+                    if (step < 3) step++ else viewModel.saveSetup(name, if (sourceKind == "local") "" else source, p.hfDestRepo, config, split, imageColumn, classes,
                         budget.toLongOrNull() ?: 500L, tasks, prepare, assistance && canAutomate)
-                }, enabled = !busy && !frozen && when(step) { 0 -> sourceOk; 1 -> classesOk; else -> sourceOk && classesOk && (budget.toLongOrNull() ?: 0L) in 128L..65536L },
+                }, enabled = !busy && !frozen && when(step) {
+                    0 -> sourceOk
+                    1 -> classesOk
+                    2 -> true
+                    else -> sourceOk && classesOk && (!prepare || sourceReadyToPrepare) && (budget.toLongOrNull() ?: 0L) in 128L..65536L
+                },
                     modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("setup_next")) {
-                    Text(if (step < 2) tr("Continuer", "Continue") else if (prepare) stringResource(R.string.setup_start) else tr("Enregistrer", "Save"))
+                    Text(if (step < 3) tr("Continuer", "Continue") else if (prepare) stringResource(R.string.setup_start) else tr("Enregistrer", "Save"))
                 }
             }
         }
     }) { inset ->
         Box(Modifier.fillMaxSize().padding(inset), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 820.dp).fillMaxWidth().verticalScroll(scroll).padding(16.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                LinearProgressIndicator(progress = { (step + 1) / 3f }, modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(progress = { (step + 1) / 4f }, modifier = Modifier.fillMaxWidth())
                 if (frozen) {
                     Text(tr("Un transfert attend d’être terminé. Vos réglages sont conservés.", "A transfer needs to be completed. Your settings are preserved."))
                     TextButton(onClick = { viewModel.navigateTo(Screen.Publication) }) { Text(tr("Reprendre l’export", "Resume export")) }
@@ -134,7 +153,24 @@ fun SetupScreen(viewModel: MainViewModel) {
                                 Icon(Icons.Default.Search, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.setup_inspect_source))
                             }
                             if (inspection.isInspected && inspection.repoId == StudioWorkflow.normalizeRepo(source)) {
-                                StatusPill(stringResource(R.string.setup_rows_verified,inspection.previewRows.size), Icons.Default.CheckCircleOutline)
+                                val previewUsable=com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.usableCount(inspection.selectedImageColumn,inspection.previewRows)
+                                StatusPill(tr("$previewUsable/${inspection.previewRows.size} lignes d’aperçu avec image exploitable",
+                                    "$previewUsable/${inspection.previewRows.size} preview rows have a usable image"), Icons.Default.CheckCircleOutline)
+                                if(inspection.viewerPartial) {
+                                    val partialMessage=when {
+                                        viewerCoverageContract -> tr("HF signale une vue partielle, mais /splits annonce $viewerExpectedRows lignes. Cadryl exigera une pagination continue jusqu’à ce total et interrompra l’import au premier trou.",
+                                            "HF reports a partial view, but /splits announces $viewerExpectedRows rows. Cadryl will require continuous pagination to that total and stop at the first gap.")
+                                        policy.allowPartialViewer -> tr("Vue HF partielle autorisée : seuls les cas exposés par le Viewer seront parcourus. Ce mode ne constitue pas un import exhaustif du corpus.",
+                                            "Partial HF Viewer enabled: only samples exposed by the Viewer will be traversed. This is not an exhaustive dataset import.")
+                                        else -> tr("Le Viewer HF indique une couverture partielle sans total vérifiable. L’import est bloqué par défaut pour ne pas présenter cette vue comme le corpus complet.",
+                                            "The HF Viewer reports partial coverage without a verifiable total. Import is blocked by default so this view is not presented as the complete dataset.")
+                                    }
+                                    Text(partialMessage, style=MaterialTheme.typography.bodySmall,
+                                        color=if(viewerCoverageContract) MaterialTheme.colorScheme.primary else if(policy.allowPartialViewer) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error)
+                                    if(!viewerCoverageContract) TextButton(onClick={viewModel.navigateTo(Screen.SourceSettings)},enabled=!busy) {
+                                        Text(tr("Réglages de source", "Source settings"))
+                                    }
+                                }
                                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     inspection.splits.forEach { item ->
                                         FilterChip(selected = config == item.config && split == item.split, onClick = {
@@ -194,17 +230,6 @@ fun SetupScreen(viewModel: MainViewModel) {
                             }
                         }
                         Text(tr("Outils choisis : ", "Selected tools: ") + tasks.joinToString { it.title }, style = MaterialTheme.typography.bodySmall)
-                        StudioDisclosure(tr("Choisir une aide IA (facultatif)", "Choose AI assistance (optional)"), Icons.Default.AutoAwesome) {
-                            Text(tr("Un modèle propose des annotations que vous relisez.", "A model suggests annotations for you to review."), style = MaterialTheme.typography.bodySmall)
-                            models.forEach { profile ->
-                                val cfg = remember(profile.configJson) { runCatching { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(profile.configJson) }.getOrNull() }
-                                FilterChip(selected = p.modelPath == profile.modelPath && p.modelConfigJson == profile.configJson, onClick = { viewModel.selectModelProfile(profile.id) }, enabled = !busy && !frozen,
-                                    label = { Text(profile.name) })
-                                cfg?.let { Text(ModelClassCompatibility.inspect(it, tasksCsv, classes).summary, style = MaterialTheme.typography.bodySmall) }
-                            }
-                            TextButton(onClick = { viewModel.navigateTo(Screen.Models) }) { Text(tr("Ouvrir la bibliothèque de modèles", "Open model library")) }
-                        }
-                        ModelCompatibilityPanel(modelConfig, tasksCsv, classes)
                         if (ProjectVocabulary.requiredFor(tasks)) {
                             StudioSection(tr("Quelles classes rechercher ?", "Which classes should you look for?"),
                                 tr("Une classe est le nom d’un objet ou d’une catégorie.", "A class is the name of an object or category."), Icons.Default.Label) {
@@ -214,6 +239,81 @@ fun SetupScreen(viewModel: MainViewModel) {
                         }
                     }
                     2 -> {
+                        Text(tr("Souhaitez-vous une aide IA ?", "Would you like AI assistance?"), style = MaterialTheme.typography.headlineSmall)
+                        Text(tr("Cette étape est facultative. Sans modèle, Cadryl fonctionne entièrement en annotation manuelle.",
+                            "This step is optional. Without a model, Cadryl works entirely with manual annotation."), style=MaterialTheme.typography.bodyMedium)
+
+                        StudioSection(tr("Mode de traitement", "Processing mode"), icon=Icons.Default.AutoAwesome) {
+                            Row(Modifier.fillMaxWidth().selectable(selected=!assistance || !canAutomate,onClick={assistance=false},enabled=!busy).padding(vertical=6.dp),
+                                verticalAlignment=Alignment.CenterVertically) {
+                                RadioButton(selected=!assistance || !canAutomate,onClick=null)
+                                Column(Modifier.padding(start=10.dp)) {
+                                    Text(tr("Annotation manuelle", "Manual annotation"),style=MaterialTheme.typography.titleSmall)
+                                    Text(tr("Aucune proposition automatique. Vous gardez tous les outils de correction.",
+                                        "No automatic suggestions. All correction tools remain available."),style=MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                            if(modelConfig!=null) {
+                                HorizontalDivider()
+                                Row(Modifier.fillMaxWidth().selectable(selected=assistance && canAutomate,onClick={ assistance=true },enabled=!busy && canAutomate).padding(vertical=6.dp),
+                                    verticalAlignment=Alignment.CenterVertically) {
+                                    RadioButton(selected=assistance && canAutomate,onClick=null,enabled=canAutomate)
+                                    Column(Modifier.padding(start=10.dp).weight(1f)) {
+                                        Text(tr("Propositions IA à relire", "AI suggestions to review"),style=MaterialTheme.typography.titleSmall)
+                                        Text(coverage?.summary ?: tr("Compatibilité à vérifier", "Compatibility needs review"),style=MaterialTheme.typography.bodySmall)
+                                    }
+                                }
+                            }
+                        }
+
+                        if(models.isNotEmpty()) {
+                            StudioSection(tr("Modèles installés", "Installed models"), tr("Choisissez le modèle utilisé pour les propositions.", "Choose the model used for suggestions."), Icons.Default.Memory) {
+                                models.take(4).forEach { profile ->
+                                    val cfg=remember(profile.configJson){runCatching{StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(profile.configJson)}.getOrNull()}
+                                    val selectedProfile=if(profile.modelPath.isNotBlank()) p.modelPath==profile.modelPath && p.modelConfigJson==profile.configJson
+                                        else p.modelPath.isNullOrBlank() && p.modelConfigJson==profile.configJson
+                                    Surface(shape=MaterialTheme.shapes.medium,color=if(selectedProfile)MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow) {
+                                        Row(Modifier.fillMaxWidth().clickable(enabled=!busy && !frozen){viewModel.selectModelProfile(profile.id)}.padding(12.dp),
+                                            verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                                            RadioButton(selected=selectedProfile,onClick=null)
+                                            Column(Modifier.weight(1f)) {
+                                                Text(profile.name,style=MaterialTheme.typography.titleSmall)
+                                                cfg?.let { Text(ModelClassCompatibility.inspect(it,tasksCsv,classes).summary,style=MaterialTheme.typography.bodySmall) }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if(models.size>4) Text(tr("+${models.size-4} autre(s) modèle(s) dans la bibliothèque",
+                                "+${models.size-4} more model(s) in the library"),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+
+                        modelConfig?.let {
+                            ModelCompatibilityPanel(it,tasksCsv,classes)
+                            if(ModelContract.adapter(it)=="inspect_only") {
+                                Text(tr("Le fichier est chargé mais son contrat n’est pas encore configuré.",
+                                    "The file is loaded but its contract is not configured yet."),color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.bodySmall)
+                                FilledTonalButton(onClick={viewModel.navigateTo(Screen.ModelSettings)},enabled=!busy,modifier=Modifier.fillMaxWidth()) {
+                                    Text(tr("Configurer ce modèle", "Configure this model"))
+                                }
+                            } else {
+                                Row(verticalAlignment=Alignment.CenterVertically) {
+                                    Switch(assistance && canAutomate,{assistance=it},enabled=!busy && canAutomate,modifier=Modifier.testTag("setup_assistance"))
+                                    Column(Modifier.padding(start=12.dp)) {
+                                        Text(tr("Préannoter automatiquement le prochain lot", "Automatically preannotate the next batch"))
+                                        if(!canAutomate) Text(tr("Installez les poids ou configurez un endpoint local compatible pour activer ce mode.",
+                                            "Install model weights or configure a compatible local endpoint to enable this mode."),style=MaterialTheme.typography.bodySmall)
+                                    }
+                                }
+                            }
+                        } ?: Text(tr("Aucun modèle actif. Vous pouvez continuer en manuel ou ouvrir le catalogue.",
+                            "No active model. Continue manually or open the catalog."),style=MaterialTheme.typography.bodySmall)
+
+                        OutlinedButton(onClick={viewModel.navigateTo(Screen.Models)},enabled=!busy,modifier=Modifier.fillMaxWidth()) {
+                            Icon(Icons.Default.Memory,null);Spacer(Modifier.width(8.dp));Text(tr("Parcourir modèles et presets", "Browse models and presets"))
+                        }
+                    }
+                    3 -> {
                         Text(tr("Vérifiez avant de démarrer", "Review before you start"), style = MaterialTheme.typography.headlineSmall)
                         StudioSection(name, icon = Icons.Default.CheckCircleOutline) {
                             Text(if (sourceKind == "local") policy.localSourceLabel.ifBlank { tr("Dossier local", "Local folder") } else source)
@@ -223,10 +323,10 @@ fun SetupScreen(viewModel: MainViewModel) {
                             ModelCompatibilityPanel(modelConfig, tasksCsv, classes)
                         }
                         if (sourceKind == "hf" && !policy.sourceIndexReady && batches.isEmpty()) {
-                            val previewChecked = inspection.isInspected && inspection.repoId == StudioWorkflow.normalizeRepo(source) &&
-                                inspection.selectedConfig == config && inspection.selectedSplit == split &&
-                                imageColumn in com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.candidates(inspection.availableColumns, inspection.previewRows)
-                            Text(if (previewChecked) tr("La colonne image est vérifiée sur ${inspection.previewRows.size} lignes d’aperçu.", "The image column is checked on ${inspection.previewRows.size} preview rows.")
+                            val previewChecked = hfPreviewReady
+                            val usablePreview=com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.usableCount(imageColumn,inspection.previewRows)
+                            Text(if (previewChecked) tr("$usablePreview/${inspection.previewRows.size} lignes d’aperçu sont exploitables. Les lignes incompatibles seront ignorées plutôt que de bloquer le lot.",
+                                    "$usablePreview/${inspection.previewRows.size} preview rows are usable. Incompatible rows will be skipped instead of blocking the batch.")
                                 else tr("La source n’est pas encore vérifiée. Contrôlez son accès et ses images avant le premier lot.", "The source is not checked yet. Check access and images before the first batch."), style=MaterialTheme.typography.bodySmall)
                             if (!previewChecked) OutlinedButton(onClick={viewModel.inspectSourceDataset(source,config,split)}, enabled=!busy && sourceOk) {
                                 Text(tr("Vérifier la source", "Check source"))
@@ -238,12 +338,10 @@ fun SetupScreen(viewModel: MainViewModel) {
                                 TextButton(onClick={step=0}, enabled=!busy) { Text(tr("Revoir la source", "Review source")) }
                             }
                         }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Switch(assistance && canAutomate, { assistance = it }, enabled = !busy && canAutomate, modifier = Modifier.testTag("setup_assistance"))
-                            Text(tr("Proposer les annotations avec le modèle", "Suggest annotations with the model"), Modifier.padding(start = 12.dp))
-                        }
-                        Text(if (assistance && canAutomate) tr("Les classes prises en charge seront proposées. Vous compléterez les autres à la main.", "Supported classes will be suggested. You will add the others manually.")
-                            else tr("Vous commencerez à la main. L’aide IA reste accessible depuis le lot.", "You will start manually. AI assistance remains available from the batch."), style = MaterialTheme.typography.bodySmall)
+                        Text(if(assistance && canAutomate)
+                            tr("Aide IA : activée · toutes les propositions restent à relire.", "AI assistance: enabled · every suggestion still requires review.")
+                            else tr("Aide IA : désactivée · annotation manuelle.", "AI assistance: disabled · manual annotation."),
+                            style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                         StudioSection(tr("Et ensuite ?", "What happens next?"), icon = Icons.Default.ArrowForward) {
                             Text(tr("1. Ouvrez une image du lot.\n2. Annotez puis validez chaque image.\n3. Dans Exporter, enregistrez votre archive ou publiez sur Hugging Face.",
                                 "1. Open an image from the batch.\n2. Annotate and approve each image.\n3. In Export, save your archive or publish on Hugging Face."))

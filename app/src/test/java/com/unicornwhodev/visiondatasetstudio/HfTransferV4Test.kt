@@ -30,6 +30,21 @@ class HfTransferV4Test {
             block(server,HfApiClient(client){"test-only-placeholder"})
         } finally {server.shutdown()}
     }
+    @Test fun partialViewerResponseKeepsUsableRows()=exercise { server,api ->
+        server.enqueue(MockResponse().setHeader("Content-Type","application/json").setBody("""{
+          "features":[{"feature_idx":0,"name":"image","type":{"_type":"Image"}},{"feature_idx":1,"name":"original_image","type":{"_type":"Image"}}],
+          "rows":[{"row_idx":0,"row":{"image":{"src":"https://datasets-server.huggingface.co/assets/example.jpg"},"original_image":null},"truncated_cells":["original_image"]}],
+          "num_rows_per_page":1,
+          "partial":true
+        }"""))
+        val result=api.fetchViewerRows("example/dataset","prepared","unvalidated",0,1)
+        assertTrue(result.success)
+        assertTrue(result.partial)
+        assertEquals(listOf("image","original_image"),result.columns)
+        assertEquals(1,result.rows.size)
+        assertEquals(listOf("original_image"),result.rows.single().truncatedCells)
+    }
+
     @Test fun disconnectedDownloadResumesHashedPrefix()=exercise { server,api ->
         val bytes=ByteArray(256*1024){(it%251).toByte()};val file=File(temp.root,"image.bin")
         server.enqueue(MockResponse().setBody(Buffer().write(bytes)).addHeader("ETag","\"v1\"").setSocketPolicy(SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY))

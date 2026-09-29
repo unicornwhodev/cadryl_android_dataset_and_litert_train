@@ -18,9 +18,12 @@ object SourceImageColumn {
         }.getOrDefault(false) }
     }
 
+    fun usableCount(column: String, rows: List<ViewerRowData>): Int =
+        rows.count { column !in it.truncatedCells && reference(it.rowData[column]) != null }
+
     fun candidates(columns: List<String>, rows: List<ViewerRowData>): List<String> = columns.filter { column ->
-        rows.any { column !in it.truncatedCells && reference(it.rowData[column]) != null }
-    }
+        usableCount(column, rows) > 0
+    }.sortedByDescending { usableCount(it, rows) }
 
     fun suggest(columns: List<String>, rows: List<ViewerRowData>): String? {
         val usable = candidates(columns, rows)

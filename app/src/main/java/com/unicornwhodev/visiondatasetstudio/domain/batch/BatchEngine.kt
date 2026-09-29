@@ -83,29 +83,51 @@ class BatchEngine(
     suspend fun discoverViewerBatch(requestedProject:ProjectEntity,batchNumber:Int,count:Int=100,append:Boolean=false):BatchDiscoveryResult = discoveryMutex.withLock { withContext(Dispatchers.IO) {
         try {
             require(count in 1..1000)
-            val project=db.projectDao().getProjectSync(requestedProject.id) ?: error(tr("Projet absent", "Project not found"))
+            var project=db.projectDao().getProjectSync(requestedProject.id) ?: error(tr("Projet absent", "Project not found"))
             val batch=db.batchDao().getBatchSync(project.id,batchNumber)
             check(if(append)batch!=null && batch.status !in PublicationSafety.lockedStates else batch==null) { tr("Lot déjà découvert ou verrouillé", "Batch already discovered or locked") }
-            val settings=ProjectSettings.read(project)
-            if(settings.sourceMode=="HF_VIEWER")checkNetwork(settings)
-            hfApiClient.configureTimeout(settings.timeoutSeconds)
+            var settings=ProjectSettings.read(project)
+            if(settings.sourceMode=="HF_VIEWER") {
+                checkNetwork(settings)
+                hfApiClient.configureTimeout(settings.timeoutSeconds)
+                if(settings.viewerExpectedRows==null && settings.filterExpression.isBlank() && settings.orderBy.isBlank()) {
+                    val splits=hfApiClient.fetchViewerSplits(project.hfSourceRepo)
+                    val total=splits.splits.firstOrNull { it.config==project.sourceConfig && it.split==project.sourceSplit }?.numRows
+                    if(total!=null) {
+                        settings=settings.copy(viewerExpectedRows=total)
+                        project=project.copy(settingsJson=ProjectSettings.write(settings),updatedAt=System.currentTimeMillis())
+                        db.projectDao().saveProject(project)
+                    }
+                }
+            } else hfApiClient.configureTimeout(settings.timeoutSeconds)
             val claimSelection=if(settings.collaborationEnabled) {
                 val selected=mutableListOf<SourceEntryEntity>();var consumed=0;var skipped=0;var rounds=0
                 while(selected.size<count && rounds++<12) {
                     val wanted=count-selected.size
                     val scanCount=minOf(1000,maxOf(wanted,wanted*5))
-                    val candidates=sourceCatalog.page(project,project.lastRowCursor+consumed,scanCount)
-                    if(candidates.isEmpty())break
-                    val part=workClaims.claim(project,settings,candidates,wanted)
-                    selected+=part.entries;skipped+=part.skipped
-                    // If the whole window was unavailable, advance over it so a shared project can reach later free rows.
-                    val advance=if(part.consumed>0)part.consumed else candidates.size
+                    val startOffset=project.lastRowCursor+consumed
+                    val page=sourceCatalog.page(project,startOffset,scanCount)
+                    if(page.consumed==0)break
+                    if(page.entries.isEmpty()) {
+                        consumed+=page.consumed
+                        skipped+=page.rejected
+                        continue
+                    }
+                    val part=workClaims.claim(project,settings,page.entries,wanted)
+                    selected+=part.entries
+                    skipped+=part.skipped+page.rejected
+                    // Advance in upstream coordinates, including invalid rows that appeared before
+                    // the last candidate inspected by collaboration. Valid rows after that point remain reachable.
+                    val advance=if(part.consumed>0) {
+                        val last=page.entries.getOrNull(part.consumed-1)
+                        ((last?.ordinal ?: (startOffset+page.consumed-1))-startOffset+1).toInt().coerceIn(1,page.consumed)
+                    } else page.consumed
                     consumed+=advance
                 }
                 ClaimSelection(selected,consumed,skipped)
             } else {
-                val candidates=sourceCatalog.page(project,project.lastRowCursor,count)
-                ClaimSelection(candidates.take(count),candidates.take(count).size,0)
+                val page=sourceCatalog.page(project,project.lastRowCursor,count)
+                ClaimSelection(page.entries.take(count),page.consumed,page.rejected)
             }
             val entries=claimSelection.entries
             if(entries.isEmpty() && claimSelection.consumed==0) return@withContext BatchDiscoveryResult(true,endOfSource=true)
@@ -170,7 +192,11 @@ class BatchEngine(
                             } catch(e:CancellationException){throw e} catch(e:Exception){lastFailure=e.message}
                             if(attempt<settings.retryCount) {
                                 if(settings.sourceMode=="HF_VIEWER") {
-                                    val fresh=sourceCatalog.page(project,sample.sourceOrdinal ?: sample.sourceRowIndex,1).singleOrNull()
+                                    val freshPage=sourceCatalog.page(project,sample.sourceOrdinal ?: sample.sourceRowIndex,1)
+                                    val fresh=freshPage.entries.singleOrNull()
+                                    check(freshPage.consumed==0 || fresh!=null) {
+                                        tr("La ligne source n’est plus exploitable; reprise suspendue pour préserver la provenance", "The source row is no longer usable; resumption suspended to preserve provenance")
+                                    }
                                     check(fresh==null || fresh.assetId==sample.assetId){tr("La source Viewer a changé; reprise suspendue pour préserver la provenance", "The Viewer source changed; resumption suspended to preserve provenance")}
                                     if(fresh!=null)sample=sample.copy(sourceFileUrl=fresh.imageRef)
                                 }

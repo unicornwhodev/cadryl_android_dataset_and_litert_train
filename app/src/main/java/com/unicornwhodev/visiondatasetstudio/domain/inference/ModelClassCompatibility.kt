@@ -2,6 +2,7 @@ package com.unicornwhodev.visiondatasetstudio.domain.inference
 
 import com.unicornwhodev.visiondatasetstudio.core.i18n.tr
 import com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary
+import java.util.Locale
 
 /** Vocabulary coverage is distinct from task coverage and from accuracy on real images. */
 enum class ModelVocabularyKind { FIXED, TEXT_CANDIDATES, INTERACTIVE, OPEN, NONE }
@@ -30,6 +31,9 @@ data class ModelClassCoverage(
 object ModelClassCompatibility {
     val labelOutputs = setOf("box", "point", "mask", "tag", "count")
 
+    /** Comparison key only. Original model labels and their numeric indices are never rewritten. */
+    fun classKey(value: String): String = value.trim().lowercase(Locale.ROOT).replace(Regex("\\s+"), " ")
+
     fun kind(c: ModelConfig): ModelVocabularyKind = when {
         c.runtime == "local_http" || c.bundleKind == "florence2" -> ModelVocabularyKind.OPEN
         c.bundleKind == "tinyclip" -> ModelVocabularyKind.TEXT_CANDIDATES
@@ -55,7 +59,8 @@ object ModelClassCompatibility {
         val tasks = ModelContract.compatibility(c, tasksCsv)
         val labels = ProjectVocabulary.parse(classesCsv)
         val available = available(c, tasks.usableOutputs)
-        return ModelClassCoverage(kind(c), available, labels.filter { it in available }, labels.filterNot { it in available },
+        val availableKeys = available.map(::classKey).toSet()
+        return ModelClassCoverage(kind(c), available, labels.filter { classKey(it) in availableKeys }, labels.filterNot { classKey(it) in availableKeys },
             tasks, tasks.usableOutputs.any { it in labelOutputs })
     }
 
@@ -70,8 +75,10 @@ object ModelClassCompatibility {
     /** Restrict known-vocabulary proposals, never human annotations or open text responses. */
     fun forProject(proposals: List<ModelProposal>, c: ModelConfig, classesCsv: String): List<ModelProposal> {
         if (kind(c) in setOf(ModelVocabularyKind.OPEN, ModelVocabularyKind.NONE)) return proposals
-        val labels = ProjectVocabulary.parse(classesCsv).toSet()
-        val kept = proposals.filter { it.type !in labelOutputs || (if (it.type == "mask") it.mask?.label else it.label) in labels }
+        val labels = ProjectVocabulary.parse(classesCsv).map(::classKey).toSet()
+        val kept = proposals.filter {
+            it.type !in labelOutputs || classKey((if (it.type == "mask") it.mask?.label else it.label).orEmpty()) in labels
+        }
         val ids = kept.map { it.proposalId }.filter { it.isNotBlank() }.toSet()
         return kept.filter { it.type != "grounding" || it.linkedProposalIds.all(ids::contains) }
     }
