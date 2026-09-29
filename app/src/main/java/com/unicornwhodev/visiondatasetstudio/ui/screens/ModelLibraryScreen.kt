@@ -39,6 +39,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
     val busy by vm.isBusy.collectAsState()
     var tab by rememberSaveable { mutableStateOf(0) }
     var url by rememberSaveable { mutableStateOf("") }
+    var profileName by rememberSaveable { mutableStateOf("") }
     var deleteId by remember { mutableStateOf<String?>(null) }
     var search by rememberSaveable { mutableStateOf("") }
     var compatibleOnly by rememberSaveable { mutableStateOf(false) }
@@ -217,6 +218,22 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                     IconButton(onClick = { deleteId = profile.id }, enabled = !busy) { Icon(Icons.Default.DeleteOutline, stringResource(R.string.models_delete,profile.name), Modifier.size(18.dp)) }
                                 }
                                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            }
+                        }
+                        val activeAlreadySaved=project?.modelConfigJson?.let { json ->
+                            local.any { profile ->
+                                profile.configJson==json && if(profile.modelPath.isBlank()) project?.modelPath.isNullOrBlank() else profile.modelPath==project?.modelPath
+                            }
+                        } == true
+                        if(project?.modelConfigJson != null && !activeAlreadySaved) item {
+                            StudioDisclosure(tr("Enregistrer la configuration active", "Save active configuration"), Icons.Default.BookmarkAdd, true) {
+                                Text(tr("Utile notamment pour un endpoint local ou un contrat préparé avant installation des poids. Le profil reste local à cet appareil.",
+                                    "Useful for a local endpoint or a contract prepared before installing weights. The profile stays on this device."),
+                                    style=MaterialTheme.typography.bodySmall)
+                                OutlinedTextField(profileName,{profileName=it},label={Text(tr("Nom du profil", "Profile name"))},singleLine=true,modifier=Modifier.fillMaxWidth())
+                                Button(onClick={vm.saveActiveModelProfile(profileName);profileName=""},enabled=!busy && profileName.isNotBlank()) {
+                                    Text(tr("Enregistrer dans la bibliothèque", "Save to library"))
+                                }
                             }
                         }
                         if(!project?.modelPath.isNullOrBlank() || project?.modelConfigJson != null) item {
