@@ -285,6 +285,12 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                 OutlinedTextField(revision, { revision = it }, label = { Text(stringResource(R.string.models_revision)) }, singleLine = true)
                 OutlinedTextField(folder, { folder = it }, label = { Text(stringResource(R.string.models_folder)) }, singleLine = true)
                 Text(stringResource(R.string.models_private_access), style = MaterialTheme.typography.bodySmall)
+                if(source.repository!=CommunityModelCatalog.repoId || source.revision!="main" || source.folder!="models") {
+                    TextButton(onClick={
+                        vm.setModelCatalog(CommunityModelCatalog.repoId,"main","models")
+                        editSource=false
+                    }) { Text(tr("Retirer la source supplémentaire", "Remove additional source")) }
+                }
             }
         }, confirmButton = { TextButton(onClick = { vm.setModelCatalog(repo, revision, folder); editSource = false }) { Text(stringResource(R.string.action_open)) } },
             dismissButton = { TextButton(onClick = { editSource = false }) { Text(stringResource(R.string.action_cancel)) } })
