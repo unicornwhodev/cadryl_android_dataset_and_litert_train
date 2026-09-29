@@ -9,6 +9,7 @@ import com.unicornwhodev.visiondatasetstudio.core.workflow.SourceIdentity
 import com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings
 import com.unicornwhodev.visiondatasetstudio.data.db.AppDatabase
 import com.unicornwhodev.visiondatasetstudio.data.hf.HfApiClient
+import com.unicornwhodev.visiondatasetstudio.data.hf.ViewerRowData
 import com.unicornwhodev.visiondatasetstudio.data.model.*
 import com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ProposalMerger
@@ -21,52 +22,103 @@ import java.io.*
 import java.security.MessageDigest
 import kotlin.coroutines.coroutineContext
 
+data class SourcePageResult(
+    val entries: List<SourceEntryEntity>,
+    val consumed: Int,
+    val rejected: Int = 0,
+    val diagnostics: List<String> = emptyList()
+) {
+    init {
+        require(consumed >= 0)
+        require(rejected in 0..consumed)
+    }
+}
+
+object ViewerCoverage {
+    fun contiguous(rows: List<ViewerRowData>, offset: Long): Boolean =
+        rows.withIndex().all { (index,row) -> row.rowIdx==offset+index }
+
+    fun reachesRequestedOrEnd(offset: Long, requested: Int, returned: Int, expectedRows: Long): Boolean {
+        require(offset>=0 && requested>=0 && returned in 0..requested && expectedRows>=0)
+        return returned==requested || offset+returned>=expectedRows
+    }
+}
+
 interface DatasetSource {
-    suspend fun page(project:ProjectEntity,offset:Long,count:Int):List<SourceEntryEntity>
+    suspend fun page(project:ProjectEntity,offset:Long,count:Int):SourcePageResult
 }
 
 class SourceCatalog(private val context:Context,private val db:AppDatabase,private val hf:HfApiClient):DatasetSource {
     private val moshi=com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi
     private val annotationAdapter=moshi.adapter(SampleAnnotations::class.java).failOnUnknown()
-    override suspend fun page(project:ProjectEntity,offset:Long,count:Int):List<SourceEntryEntity> {
+    override suspend fun page(project:ProjectEntity,offset:Long,count:Int):SourcePageResult {
         val settings=ProjectSettings.read(project)
         require(count in 1..1000)
         if(settings.sourceMode!="HF_VIEWER") {
             check(settings.sourceIndexReady) { tr("Importez/indexez la source avant de préparer un lot", "Import/index the source before preparing a batch") }
-            val result=mutableListOf<SourceEntryEntity>();var chars=0L
-            while(result.size<count) {
-                val rows=db.sourceEntryDao().page(project.id,offset+result.size,minOf(16,count-result.size))
-                if(rows.isEmpty())break
-                for(row in rows) {
-                    val cost=row.assetId.length.toLong()+row.imageRef.length+(row.annotationJson?.length ?: 0)
-                    require(cost<=4L*1024*1024) { tr("Métadonnées d’un cas trop volumineuses", "Sample metadata too large") }
-                    if(result.isNotEmpty() && chars+cost>4L*1024*1024)return result
-                    result+=row;chars+=cost
-                }
-                if(rows.size<16)break
-            }
-            return result
-        }
-        val result=mutableListOf<SourceEntryEntity>()
+            val result=mutableListOf<SourceEntryEntity>()
+        val rejectionReasons=linkedMapOf<String,Int>()
+        val exhaustiveViewer=settings.filterExpression.isBlank() && settings.orderBy.isBlank() && settings.viewerExpectedRows!=null
+        val expectedRows=settings.viewerExpectedRows
+        if(exhaustiveViewer && offset>=expectedRows!!) return SourcePageResult(emptyList(),0)
         var cursor=offset
-        for(size in ProcessingSettings.pageSizes(count)) {
+        var consumed=0
+        fun reject(reason:String) {
+            rejectionReasons[reason]=(rejectionReasons[reason] ?: 0)+1
+        }
+        for(requestedSize in ProcessingSettings.pageSizes(count)) {
             coroutineContext.ensureActive()
+            val remaining=if(exhaustiveViewer) (expectedRows!!-cursor).coerceAtLeast(0L) else Long.MAX_VALUE
+            if(remaining==0L) break
+            val size=if(exhaustiveViewer) minOf(requestedSize.toLong(),remaining).toInt() else requestedSize
             val response=hf.fetchViewerRows(project.hfSourceRepo,project.sourceConfig,project.sourceSplit,cursor,size,settings.filterExpression,settings.orderBy)
             check(response.success) { response.error ?: tr("Lecture HF impossible", "Cannot read HF source") }
-            for((n,row) in response.rows.withIndex()) {
-                check(project.imageColumn !in row.truncatedCells) { tr("Cellule image tronquée : ligne ${row.rowIdx}", "Truncated image cell: row ${row.rowIdx}") }
-                val raw=row.rowData[project.imageColumn]
-                val ref=SourceImageColumn.reference(raw)
-                check(ref?.startsWith("https://")==true) { tr("Colonne ${project.imageColumn} sans URL HTTPS exploitable. Utilisez une source manifeste.", "Column ${project.imageColumn} has no usable HTTPS URL. Use a manifest source.") }
-                val id=SourceIdentity.string(row.rowData[project.idColumn]) ?: "${project.sourceConfig}:${project.sourceSplit}:${row.rowIdx}"
-                val a=if(settings.importAnnotations) row.rowData["annotations"]?.let{annotationJson(it)} else null
-                // ordinal is the position in the selected/filtered stream, not necessarily upstream row_idx.
-                result.add(SourceEntryEntity(project.id,cursor+n,id,ref!!,row.rowIdx,SourceIdentity.string(row.rowData["group_id"] ?: row.rowData["group"]),a))
+            val contiguous=exhaustiveViewer && ViewerCoverage.contiguous(response.rows,cursor)
+            check(!response.partial || settings.allowPartialViewer || contiguous) {
+                tr("Le Viewer HF ne garantit pas la couverture complète de ce corpus. Activez explicitement « Autoriser une vue HF partielle » dans Source pour traiter uniquement la portion exposée, ou utilisez une source exhaustive.",
+                    "The HF Viewer does not guarantee full coverage of this dataset. Explicitly enable “Allow partial HF Viewer” in Source to process only the exposed portion, or use an exhaustive source.")
             }
+            if(exhaustiveViewer) {
+                check(contiguous) {
+                    tr("Pagination HF discontinue : la provenance exhaustive ne peut pas être garantie à partir de la ligne $cursor.",
+                        "Discontinuous HF pagination: exhaustive provenance cannot be guaranteed from row $cursor.")
+                }
+                check(ViewerCoverage.reachesRequestedOrEnd(cursor,size,response.rows.size,expectedRows!!)) {
+                    tr("Le Viewer HF s’arrête avant les $expectedRows lignes annoncées par /splits. Import interrompu pour éviter un corpus silencieusement incomplet.",
+                        "The HF Viewer stopped before the $expectedRows rows announced by /splits. Import stopped to avoid a silently incomplete dataset.")
+                }
+            }
+            for((n,row) in response.rows.withIndex()) {
+                val ordinal=cursor+n
+                if(project.imageColumn in row.truncatedCells) {
+                    reject(tr("cellule image tronquée", "truncated image cell"))
+                    continue
+                }
+                val ref=SourceImageColumn.reference(row.rowData[project.imageColumn])
+                if(ref==null) {
+                    reject(tr("référence image non exploitable", "unusable image reference"))
+                    continue
+                }
+                val id=SourceIdentity.string(row.rowData[project.idColumn]) ?: "${project.sourceConfig}:${project.sourceSplit}:${row.rowIdx}"
+                val annotations=if(settings.importAnnotations) {
+                    try {
+                        row.rowData["annotations"]?.let{annotationJson(it)}
+                    } catch(_:Exception) {
+                        reject(tr("annotations canoniques invalides", "invalid canonical annotations"))
+                        continue
+                    }
+                } else null
+                result.add(SourceEntryEntity(project.id,ordinal,id,ref,row.rowIdx,SourceIdentity.string(row.rowData["group_id"] ?: row.rowData["group"]),annotations))
+            }
+            consumed+=response.rows.size
             cursor+=response.rows.size
+            if(exhaustiveViewer && cursor>=expectedRows!!) break
             if(response.rows.size<size) break
         }
-        return result
+        val diagnostics=rejectionReasons.entries.map { (reason,total) ->
+            tr("$total ligne(s) ignorée(s) : $reason", "$total row(s) skipped: $reason")
+        }
+        return SourcePageResult(result,consumed,consumed-result.size,diagnostics)
     }
     private fun annotationJson(value:Any):String {
         val a=if(value is String) annotationAdapter.fromJson(value) else annotationAdapter.fromJsonValue(value)

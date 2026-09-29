@@ -15,7 +15,8 @@ class ModelClassCompatibilityTest {
         assertEquals(listOf("dog","traffic light"),check.supported)
         assertEquals(listOf("chat"),check.missing)
         assertEquals(listOf("cat","dog","traffic light"),detector.labels)
-        assertFalse(ModelClassCompatibility.inspect(detector,"DETECTION","Cat,chat").canAssist)
+        assertTrue(ModelClassCompatibility.inspect(detector,"DETECTION","Cat,chat").canAssist)
+        assertEquals(listOf("Cat"),ModelClassCompatibility.inspect(detector,"DETECTION","  Cat  ,chat").supported)
         assertTrue(runCatching{ModelClassCompatibility.requireAssistance(detector,"DETECTION","chat")}.isFailure)
         assertFalse(ModelClassCompatibility.inspect(detector,"CLASSIFICATION","cat").canAssist)
     }

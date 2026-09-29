@@ -36,16 +36,13 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
     val project by vm.projectFlow.collectAsState()
     val allProjects by vm.projects.collectAsState()
-    val models by vm.modelProfiles.collectAsState()
     val busy by vm.isBusy.collectAsState()
     val diagnostics by vm.modelDiagnostics.collectAsState()
     val receipts by vm.inferenceReceipts.collectAsState()
     val dryRun by vm.dryRunResult.collectAsState()
     val benchmark by vm.benchmarkReport.collectAsState()
     var benchmarkRuns by rememberSaveable { mutableStateOf(10) }
-    var catalogChoice by remember { mutableStateOf<PublicModelCatalog.Entry?>(null) }
     val correctionReport by vm.correctionReport.collectAsState()
-    var removeProfile by remember{mutableStateOf<String?>(null)}
     var confirmReset by remember{mutableStateOf(false)}
     var destructiveAction by remember{mutableStateOf<String?>(null)}
     val p=project ?: return
@@ -59,8 +56,6 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
     var workerId by remember(p.id,p.settingsJson){mutableStateOf(stored.collaborationWorkerId)}
     var leaseText by remember(p.id,p.settingsJson){mutableStateOf(stored.claimLeaseMinutes.toString())}
     var newName by rememberSaveable{mutableStateOf("")}
-    var modelName by rememberSaveable{mutableStateOf("")}
-    var modelUrl by rememberSaveable{mutableStateOf("")}
     val moshi=remember{com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi}
     val configAdapter=remember{moshi.adapter(ModelConfig::class.java).indent("  ")}
     var contract by remember(p.id,p.modelConfigJson){mutableStateOf(p.modelConfigJson ?: configAdapter.toJson(ModelConfig.defaultDetectionPreset(com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv))))}
@@ -68,7 +63,6 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
     val folder=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()){it?.let(vm::importSourceFolder)}
     val manifestFolder=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()){it?.let(vm::chooseManifestImageFolder)}
     val manifest=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){it?.let(vm::importSourceManifest)}
-    val weights=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){it?.let(vm::importModel)}
     val packIn=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){it?.let(vm::importPack)}
     val benchmarkOut=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")){it?.let(vm::saveBenchmark)}
     val packOut=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")){it?.let(vm::exportPack)}
@@ -93,7 +87,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                             OutlinedButton(onClick={destructiveAction="project"},enabled=!busy){Text(stringResource(R.string.controls_reset_project))}
                             TextButton(onClick={destructiveAction="delete"},enabled=!busy,colors=ButtonDefaults.textButtonColors(contentColor=MaterialTheme.colorScheme.error)){Text(stringResource(R.string.controls_delete_project))}
                         }
-                        StudioSection(stringResource(R.string.controls_presets),tr("Un pack configure les tâches, classes, taille de lot et contrat modèle. Il exclut les poids, le jeton HF du coffre, le corpus et ses emplacements. Le contrat, le prompt et le corps JSON personnalisé sont inclus : retirez tout secret avant partage.", "A preset configures tasks, classes, batch size and the model contract. It excludes weights, the vault's HF token, corpus and locations. The contract, prompt and custom JSON body are included: remove secrets before sharing."),Icons.Default.Inventory2) {
+                        StudioSection(tr("Packs de projet","Project packs"),tr("Un pack configure les tâches, classes, taille de lot et contrat modèle. Il exclut les poids, le jeton HF du coffre, le corpus et ses emplacements. Le contrat, le prompt et le corps JSON personnalisé sont inclus : retirez tout secret avant partage.", "A preset configures tasks, classes, batch size and the model contract. It excludes weights, the vault's HF token, corpus and locations. The contract, prompt and custom JSON body are included: remove secrets before sharing."),Icons.Default.Inventory2) {
                             Button(onClick={packIn.launch(arrayOf("application/json","text/*","application/octet-stream"))},enabled=!busy){Text(stringResource(R.string.controls_import_preset))}
                             OutlinedButton(onClick={packOut.launch("studio-preset.json")},enabled=!busy){Text(stringResource(R.string.controls_export_preset))}
                             StudioDetails(tr("Chaque projet peut utiliser son propre pack de tâches et de classes. Sélectionnez séparément les modèles que vous êtes autorisé à utiliser.", "Each project can use its own task and class preset. Select models you are authorized to use separately."), style =MaterialTheme.typography.bodyMedium)
@@ -111,7 +105,12 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                             if(policy.sourceMode=="HF_VIEWER") {
                                 ControlField(tr("Filtre HF (where), facultatif", "HF filter (where), optional"),policy.filterExpression){policy=policy.copy(filterExpression=it)}
                                 ControlField(tr("Ordre HF (orderby), facultatif", "HF sort order (orderby), optional"),policy.orderBy){policy=policy.copy(orderBy=it)}
-                                StudioDetails(tr("Le Viewer doit prendre en charge cette source. Les requêtes sont paginées à 100 lignes maximum. Une révision de fichier épinglée n’est pas disponible pour cette voie.", "The Viewer must support this source. Requests are paginated with at most 100 rows. This route does not support pinning a file revision."), style =MaterialTheme.typography.bodySmall)
+                                ControlSwitch(tr("Autoriser une vue HF partielle", "Allow partial HF Viewer"),policy.allowPartialViewer){policy=policy.copy(allowPartialViewer=it)}
+                                if(policy.allowPartialViewer) Text(tr("Attention : Cadryl traitera uniquement les lignes exposées par le Viewer. Cette option ne garantit pas une couverture exhaustive du dataset.",
+                                    "Warning: Cadryl will process only rows exposed by the Viewer. This option does not guarantee exhaustive dataset coverage."),
+                                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.error)
+                                StudioDetails(tr("Le Viewer doit prendre en charge cette source. Les requêtes sont paginées à 100 lignes maximum. Une révision de fichier épinglée n’est pas disponible pour cette voie. Les réponses partielles sont refusées sauf activation explicite ci-dessus.",
+                                    "The Viewer must support this source. Requests are paginated with at most 100 rows. This route does not support pinning a file revision. Partial responses are refused unless explicitly enabled above."), style =MaterialTheme.typography.bodySmall)
                             } else if(policy.sourceMode=="HF_MANIFEST") {
                                 ControlField(tr("Révision source : branche ou SHA", "Source revision: branch or SHA"),policy.sourceRevision){policy=policy.copy(sourceRevision=it)}
                                 ControlField(tr("Chemin du JSONL dans le dépôt", "JSONL path in the repository"),policy.manifestPath){policy=policy.copy(manifestPath=it)}
@@ -180,31 +179,9 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                         }
                     }
                     3 -> {
-                        StudioSection(stringResource(R.string.controls_model_library),tr("Le sélecteur principal est maintenant séparé des réglages avancés : catalogue UWD réellement disponible, modèles installés et import manuel.", "The main selector is separate from advanced settings: available UWD catalog, installed models and manual import."),Icons.Default.Memory) {
+                        StudioSection(stringResource(R.string.controls_model_library),tr("Catalogue HF, FireViewer, modèles installés, presets et import manuel sont réunis dans Modèles. Cette page ne conserve que les réglages techniques avancés.", "HF catalog, FireViewer, installed models, presets and manual import are unified in Models. This page only keeps advanced technical settings."),Icons.Default.Memory) {
                             Button(onClick={vm.navigateTo(Screen.Models)},enabled=!busy){Text(stringResource(R.string.controls_open_models))}
                             Text(tr("Cette page conserve les outils avancés de contrat, diagnostic et correction adaptative.", "This page keeps advanced contract, diagnostic and adaptive correction tools."),style=MaterialTheme.typography.bodySmall)
-                        }
-                        StudioSection(stringResource(R.string.controls_public_catalog),tr("Profils TensorFlow avec métadonnées. Les tenseurs, labels et normalisations sont vérifiés à l’import; un essai sur image reste nécessaire. Aucun poids n’est inclus dans l’APK.", "TensorFlow profiles with metadata. Tensors, labels and normalization are checked on import; an image trial is still required. No weights are bundled in the APK."),Icons.Default.Download) {
-                            PublicModelCatalog.entries.forEach { item ->
-                                Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                                    Text(item.title,style=MaterialTheme.typography.titleSmall)
-                                    Text(item.purpose,style=MaterialTheme.typography.bodySmall)
-                                    OutlinedButton(onClick={catalogChoice=item},enabled=!busy) { Text(stringResource(R.string.controls_download_inspect)) }
-                                }
-                            }
-                        }
-                        StudioSection(stringResource(R.string.controls_model_library),tr("Poids locaux et profils d’appel sont sélectionnés explicitement. Importer des poids ne lance ni inférence ni validation.", "Local weights and call profiles are selected explicitly. Importing weights starts neither inference nor approval."),Icons.Default.Memory) {
-                            Text(tr("Poids actifs : ${p.modelPath?.substringAfterLast('/') ?: "aucun"}", "Active weights: ${p.modelPath?.substringAfterLast('/') ?: "none"}"),style=MaterialTheme.typography.labelLarge)
-                            Button(onClick={weights.launch(arrayOf("application/octet-stream","*/*"))},enabled=!busy){Text(stringResource(R.string.controls_import_tflite))}
-                            ControlField(tr("URL HTTPS directe des poids", "Direct HTTPS weights URL"),modelUrl){modelUrl=it}
-                            OutlinedButton(onClick={vm.importModelUrl(modelUrl)},enabled=!busy && modelUrl.startsWith("https://")){Text(stringResource(R.string.controls_download_weights))}
-                            OutlinedButton(onClick=vm::detachModel,enabled=!busy){Text(stringResource(R.string.controls_detach_model))}
-                            models.forEach { profile->Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(6.dp)){
-                                OutlinedButton(onClick={vm.selectModelProfile(profile.id)},enabled=!busy,modifier=Modifier.weight(1f)){Text(profile.name)}
-                                IconButton(onClick={removeProfile=profile.id},enabled=!busy){Icon(Icons.Default.DeleteOutline,tr("Supprimer le profil ${profile.name}", "Delete profile ${profile.name}"))}
-                            } }
-                            ControlField(tr("Nom pour sauvegarder ce profil", "Name to save this profile"),modelName){modelName=it}
-                            OutlinedButton(onClick={vm.saveActiveModelProfile(modelName)},enabled=!busy && modelName.isNotBlank()){Text(stringResource(R.string.controls_keep_profile))}
                         }
                         StudioSection(stringResource(R.string.controls_contract_preprocessing),tr("Choisissez un gabarit, puis adaptez-le aux véritables tenseurs du modèle. Un nom de famille de modèles ne garantit pas la compatibilité.", "Choose a template and adapt it to the model's actual tensors. A model family name does not guarantee compatibility."),Icons.Default.Tune) {
                             FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)){ModelPresets.names.forEach{(id,title)->AssistChip(onClick={contract=configAdapter.toJson(ModelPresets.create(id,com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv)));contractError=null},label={Text(title)},enabled=!busy)}}
@@ -253,8 +230,6 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
             }
         }
     }
-    catalogChoice?.let { entry -> AlertDialog(onDismissRequest={catalogChoice=null},title={Text(stringResource(R.string.controls_download_title,entry.title))},text={Text(stringResource(R.string.controls_download_body))},confirmButton={TextButton(onClick={catalogChoice=null;vm.downloadCatalogModel(entry.id)}){Text(stringResource(R.string.common_download))}},dismissButton={TextButton(onClick={catalogChoice=null}){Text(stringResource(R.string.common_cancel))}}) }
-    removeProfile?.let{id->AlertDialog(onDismissRequest={removeProfile=null},title={Text(stringResource(R.string.controls_delete_profile_title))},text={Text(stringResource(R.string.controls_delete_profile_body))},confirmButton={TextButton(onClick={removeProfile=null;vm.removeModelProfile(id)}){Text(stringResource(R.string.common_delete))}},dismissButton={TextButton(onClick={removeProfile=null}){Text(stringResource(R.string.common_keep))}})}
     if(confirmReset)AlertDialog(onDismissRequest={confirmReset=false},title={Text(stringResource(R.string.controls_clear_corrector_title))},text={Text(stringResource(R.string.controls_clear_corrector_body))},confirmButton={TextButton(onClick={confirmReset=false;vm.resetCorrections()}){Text(stringResource(R.string.common_reset))}},dismissButton={TextButton(onClick={confirmReset=false}){Text(stringResource(R.string.common_keep))}})
     destructiveAction?.let { action ->
         val deleting=action in setOf("delete","discard")

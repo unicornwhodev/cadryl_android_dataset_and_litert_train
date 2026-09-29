@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.unicornwhodev.visiondatasetstudio.core.i18n.tr
 import com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary
+import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelClassCompatibility
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -38,15 +39,17 @@ fun ClassVocabularyEditor(value: String, onChange: (String) -> Unit, enabled: Bo
         val results = suggestions.distinct().filter { it.contains(query, ignoreCase = true) }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             results.take(limit).forEach { label ->
-                FilterChip(selected = label in labels, enabled = enabled,
-                    onClick = { onChange(if (label in labels) ProjectVocabulary.format(labels - label) else ProjectVocabulary.append(value, listOf(label))) },
+                val selectedLabel=labels.firstOrNull { ModelClassCompatibility.classKey(it)==ModelClassCompatibility.classKey(label) }
+                FilterChip(selected = selectedLabel != null, enabled = enabled,
+                    onClick = { onChange(if (selectedLabel != null) ProjectVocabulary.format(labels - selectedLabel) else ProjectVocabulary.append(value, listOf(label))) },
                     label = { Text(label) }, modifier = Modifier.testTag("model_class_$label"))
             }
         }
         if (results.isEmpty()) Text(tr("Aucune correspondance. Vous pouvez garder votre classe pour l’annotation manuelle.",
             "No match. You can keep your class for manual annotation."), style = MaterialTheme.typography.bodySmall)
         if (results.size > limit) TextButton(onClick = { limit += 36 }) { Text(tr("Voir plus (${results.size - limit})", "Show more (${results.size - limit})")) }
-        val missing = suggestions.filterNot { it in labels }.distinct()
+        val selectedKeys=labels.map { ModelClassCompatibility.classKey(it) }.toSet()
+        val missing = suggestions.filterNot { ModelClassCompatibility.classKey(it) in selectedKeys }.distinct()
         if (missing.isNotEmpty()) TextButton(onClick = { onChange(ProjectVocabulary.append(value, missing)) }, enabled = enabled) {
             Text(if (missing.size == 1) tr("Ajouter la classe restante", "Add remaining class") else tr("Ajouter les ${missing.size} classes du modèle", "Add ${missing.size} model classes"))
         }

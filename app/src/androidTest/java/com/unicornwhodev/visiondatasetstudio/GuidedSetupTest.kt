@@ -48,14 +48,14 @@ class GuidedSetupTest {
             rule.onNodeWithTag("setup_task_CLASSIFICATION").performScrollTo().performClick()
             rule.onNodeWithTag("project_classes").performScrollTo().performTextReplacement("chat")
             androidx.test.espresso.Espresso.closeSoftKeyboard();rule.waitForIdle()
-            rule.onNodeWithText(tr("Aucune classe du projet prise en charge","No project classes supported")).performScrollTo().assertIsDisplayed()
             rule.onNodeWithTag("class_search").performScrollTo().performTextReplacement("do")
             androidx.test.espresso.Espresso.closeSoftKeyboard();rule.waitForIdle()
             rule.onNodeWithTag("model_class_dog").performScrollTo().performClick()
             rule.onNodeWithTag("project_class_chat").performScrollTo().performClick()
-            rule.onNodeWithText(tr("1 classe prise en charge","1 class supported")).performScrollTo().assertIsDisplayed()
             rule.onNodeWithTag("setup_next").performClick()
-            rule.onNodeWithTag("setup_assistance").performScrollTo().assertIsOff().assertIsNotEnabled() // No weights installed.
+            rule.onNodeWithText(tr("1 classe prise en charge","1 class supported")).performScrollTo().assertIsDisplayed()
+            rule.onNodeWithTag("setup_assistance").performScrollTo().assertIsOff().assertIsNotEnabled() // Contract exists, but no weights installed.
+            rule.onNodeWithTag("setup_next").performClick()
             rule.onNodeWithTag("setup_prepare").performScrollTo().performClick() // Save only: no download or external write.
             rule.onNodeWithTag("setup_next").performClick()
             rule.waitUntil(10_000){!vm.isBusy.value && vm.currentScreen.value == Screen.Home}

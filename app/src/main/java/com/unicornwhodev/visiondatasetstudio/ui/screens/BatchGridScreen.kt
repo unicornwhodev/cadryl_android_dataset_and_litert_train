@@ -44,8 +44,8 @@ import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelClassCompatib
 private enum class BatchFilter(private val titleText: () -> String) {
     ALL({ tr("Tous", "All") }),
     PENDING({ tr("À traiter", "To process") }),
-    PROPOSALS({ "Suggestions" }),
-    VALIDATED({ tr("Validés", "Approved") }),
+    PROPOSALS({ tr("Suggestions IA", "AI suggestions") }),
+    VALIDATED({ tr("Traités", "Reviewed") }),
     DEFERRED({ tr("À revoir", "To review") }),
     REJECTED({ tr("Rejetés", "Rejected") }),
     ERRORS({ tr("Erreurs", "Errors") });
@@ -202,9 +202,24 @@ fun SampleThumbnailCard(sample: SampleEntity, onClick: () -> Unit, selected: Boo
     val label = when {
         published -> tr("Copie vérifiée", "Copy verified")
         sample.acquisitionStatus.startsWith("ERROR") -> tr("À récupérer", "To download")
-        else -> when(sample.annotationStatus) { "VALIDATED" -> tr("Validé", "Approved"); "REJECTED" -> tr("Rejeté", "Rejected"); "DEFERRED" -> tr("À revoir", "To review"); "PROPOSALS_AVAILABLE" -> "Suggestions"; "IN_PROGRESS" -> tr("En cours", "In progress"); else -> tr("À traiter", "To process") }
+        else -> when(sample.annotationStatus) {
+            "VALIDATED" -> tr("Traité manuellement", "Manually reviewed")
+            "REJECTED" -> tr("Rejeté", "Rejected")
+            "DEFERRED" -> tr("À revoir", "To review")
+            "PROPOSALS_AVAILABLE" -> tr("Suggestions IA", "AI suggestions")
+            "IN_PROGRESS" -> tr("Traité manuellement · à valider", "Manually handled · needs approval")
+            else -> tr("À traiter", "To process")
+        }
     }
-    val icon = when(label) { tr("Copie vérifiée", "Copy verified") -> Icons.Default.CloudDone; tr("Validé", "Approved") -> Icons.Default.CheckCircleOutline; tr("À revoir", "To review") -> Icons.Default.Schedule; tr("À récupérer", "To download") -> Icons.Default.ErrorOutline; tr("Rejeté", "Rejected") -> Icons.Default.Block; else -> Icons.Default.Edit }
+    val icon = when(label) {
+        tr("Copie vérifiée", "Copy verified") -> Icons.Default.CloudDone
+        tr("Traité manuellement", "Manually reviewed") -> Icons.Default.CheckCircleOutline
+        tr("Suggestions IA", "AI suggestions") -> Icons.Default.AutoAwesome
+        tr("À revoir", "To review") -> Icons.Default.Schedule
+        tr("À récupérer", "To download") -> Icons.Default.ErrorOutline
+        tr("Rejeté", "Rejected") -> Icons.Default.Block
+        else -> Icons.Default.Edit
+    }
     val outline by androidx.compose.animation.animateColorAsState(if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, label = "sample selection")
     Column(Modifier.clip(RoundedCornerShape(4.dp)).border(if(selected) 2.dp else 1.dp, outline, RoundedCornerShape(4.dp))
         .background(MaterialTheme.colorScheme.surface).combinedClickable(onClick = onClick, onLongClickLabel = tr("Sélectionner cette image", "Select this image"), onLongClick = onLongClick)

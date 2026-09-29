@@ -52,10 +52,7 @@ fun StudioHomeScreen(viewModel: MainViewModel) {
         ?: samples.firstOrNull { StudioWorkflow.isPending(it.annotationStatus) && it.localImagePath != null }
         ?: samples.firstOrNull()
     val previewEditable = preview?.let { StudioWorkflow.canEdit(it.acquisitionStatus, it.syncStatus, it.localImagePath != null) } == true
-    var presetMenu by remember { mutableStateOf(false) }
     var moreMenu by remember { mutableStateOf(false) }
-    var presetId by remember { mutableStateOf<String?>(null) }
-    val currentPreset = StudioWorkflow.presets.firstOrNull { it.tasks == StudioWorkflow.parseTasks(project?.activeTasksCsv ?: "DETECTION") }
     val openPreview: () -> Unit = {
         preview?.takeIf { previewEditable && !busy }?.let { viewModel.openSampleInEditor(it.sampleId) }
     }
@@ -67,18 +64,15 @@ fun StudioHomeScreen(viewModel: MainViewModel) {
             primary = true, enabled = !busy && project != null, modifier = Modifier.testTag("home_primary"))
     }
     val details: @Composable () -> Unit = {
-        WorkspaceLink("Source", if(policy?.sourceMode == "LOCAL_INDEX") tr("Dossier local", "Local folder") else project?.hfSourceRepo?.ifBlank { tr("À configurer", "Configure") } ?: tr("À configurer", "Configure"),
-            Icons.Default.FolderOpen, !busy) { viewModel.navigateTo(Screen.Setup) }
-        WorkspaceLink(tr("Modèle", "Model"), if(project?.modelPath != null || project?.modelConfigJson?.contains("local_http") == true) tr("Profil du projet", "Project profile")
-            else if(models.isEmpty()) tr("Aucun modèle actif", "No active model") else tr("${models.size} disponible(s)", "${models.size} available"), Icons.Default.Memory, !busy) { viewModel.navigateTo(Screen.Models) }
-        Box {
-            WorkspaceLink(stringResource(R.string.prefs_tools), currentPreset?.title ?: tr("Personnalisés", "Custom"), Icons.Default.CropFree, !busy) { presetMenu = true }
-            DropdownMenu(expanded = presetMenu, onDismissRequest = { presetMenu = false }) {
-                StudioWorkflow.presets.forEach { preset -> DropdownMenuItem(text = { Text(preset.title) }, onClick = { presetMenu = false; presetId = preset.id }) }
-                HorizontalDivider()
-                DropdownMenuItem(text = { Text(stringResource(R.string.editor_customize_tools)) }, onClick = { presetMenu = false; viewModel.navigateTo(Screen.Preferences) })
-            }
-        }
+        val sourceLabel=if(policy?.sourceMode=="LOCAL_INDEX") tr("Dossier local","Local folder")
+            else project?.hfSourceRepo?.ifBlank{tr("Source à configurer","Configure source")} ?: tr("Source à configurer","Configure source")
+        val taskLabel=StudioWorkflow.parseTasks(project?.activeTasksCsv ?: "DETECTION").joinToString { it.title }
+        WorkspaceLink(tr("Configuration du projet", "Project setup"), "$sourceLabel · $taskLabel",
+            Icons.Default.Tune, !busy) { viewModel.navigateTo(Screen.Setup) }
+        WorkspaceLink(tr("Modèles et presets", "Models & presets"),
+            if(project?.modelPath != null || project?.modelConfigJson?.contains("local_http") == true) tr("Un modèle actif", "One active model")
+            else if(models.isEmpty()) tr("Manuel · aucun modèle installé", "Manual · no installed model") else tr("${models.size} modèle(s) installé(s)", "${models.size} installed model(s)"),
+            Icons.Default.Memory, !busy) { viewModel.navigateTo(Screen.Models) }
     }
     Scaffold(contentWindowInsets = WindowInsets(0), topBar = {
         WorkspaceTopBar(viewModel, project?.name ?: tr("Atelier", "Studio"), tr("Cadryl  /  Lot ${batch.toString().padStart(2, '0')}", "Cadryl  /  Batch ${batch.toString().padStart(2, '0')}"), actions = {
@@ -90,6 +84,7 @@ fun StudioHomeScreen(viewModel: MainViewModel) {
                 DropdownMenu(moreMenu, { moreMenu = false }) {
                     DropdownMenuItem(text = { Text(tr("Réglages", "Settings")) }, onClick = { moreMenu = false; viewModel.navigateTo(Screen.Preferences) })
                     DropdownMenuItem(text = { Text(tr("Workflows et agent", "Workflows and agent")) }, enabled = !busy, onClick = { moreMenu = false; viewModel.navigateTo(Screen.Workflow) })
+                    DropdownMenuItem(text = { Text(tr("Configuration guidée", "Guided setup")) }, enabled = !busy, onClick = { moreMenu = false; viewModel.navigateTo(Screen.Setup) })
                     DropdownMenuItem(text = { Text(tr("Source et import avancé", "Source & advanced import")) }, enabled = !busy, onClick = { moreMenu = false; viewModel.navigateTo(Screen.SourceSettings) })
                 }
             }
@@ -103,13 +98,14 @@ fun StudioHomeScreen(viewModel: MainViewModel) {
                         Spacer(Modifier.height(12.dp))
                         Text(if (configured) tr("Votre source est prête", "Your source is ready") else tr("De vos images à votre dataset", "From your images to your dataset"), style = MaterialTheme.typography.headlineSmall)
                         Text(if (configured) tr("Préparez un lot pour commencer à annoter.", "Prepare a batch to start annotating.")
-                            else tr("Trois étapes pour démarrer. Aucun modèle n’est obligatoire.", "Three steps to get started. A model is optional."), Modifier.padding(vertical = 12.dp), style = MaterialTheme.typography.bodyLarge)
+                            else tr("Quatre étapes guidées pour démarrer. Aucun modèle n’est obligatoire.", "Four guided steps to get started. A model is optional."), Modifier.padding(vertical = 12.dp), style = MaterialTheme.typography.bodyLarge)
                         primary()
                     }
                     item { StudioSection(tr("Votre parcours", "Your workflow"), icon = Icons.Default.Checklist) {
                         HomeGuideStep("1", tr("Choisir les images", "Choose images"), tr("Un dossier sur l’appareil ou un dataset Hugging Face.", "A folder on this device or a Hugging Face dataset."))
-                        HomeGuideStep("2", tr("Choisir l’objectif et les classes", "Choose a task and classes"), tr("Entourer, classer ou décrire. Vérifier l’aide du modèle.", "Draw boxes, classify or describe. Check model assistance."))
-                        HomeGuideStep("3", tr("Annoter puis exporter", "Annotate, then export"), tr("Relire chaque image et enregistrer le résultat.", "Review each image and save the result."))
+                        HomeGuideStep("2", tr("Définir les annotations", "Define annotations"), tr("Choisissez les tâches et les classes du dataset.", "Choose dataset tasks and classes."))
+                        HomeGuideStep("3", tr("Choisir l’aide IA", "Choose AI assistance"), tr("Facultatif : modèle installé, catalogue HF ou preset.", "Optional: installed model, HF catalog or preset."))
+                        HomeGuideStep("4", tr("Vérifier puis travailler", "Review and work"), tr("Les propositions IA restent à relire; vos corrections deviennent humaines.", "AI suggestions require review; your corrections become human annotations."))
                     } }
                     item { details() }
                 }
@@ -174,12 +170,6 @@ fun StudioHomeScreen(viewModel: MainViewModel) {
             }
         }
     }
-    presetId?.let { id -> StudioWorkflow.presets.firstOrNull { it.id == id }?.let { preset ->
-        AlertDialog(onDismissRequest = { presetId = null }, title = { Text(preset.title) }, text = {
-            Text(tr("Activer ${preset.tasks.joinToString { it.title }} ? Vos annotations sont conservées.", "Enable ${preset.tasks.joinToString { it.title }}? Your annotations are preserved."))
-        }, confirmButton = { Button(onClick = { viewModel.updateTasks(preset.tasks); presetId = null }) { Text(stringResource(R.string.common_apply)) } },
-            dismissButton = { TextButton(onClick = { presetId = null }) { Text(stringResource(R.string.common_cancel)) } })
-    } }
 }
 
 @Composable
@@ -217,7 +207,7 @@ private fun PreviewCaption(sample: SampleEntity?) {
 @Composable
 private fun QueueRow(sample: SampleEntity, index: Int, selected: Boolean, onClick: () -> Unit) {
     val background by animateColorAsState(if(selected) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.background, label = "preview selection")
-    val status = when(sample.annotationStatus) { "VALIDATED" -> tr("Validée", "Approved"); "REJECTED" -> tr("Rejetée", "Rejected"); "IN_PROGRESS" -> tr("En cours", "In progress"); "DEFERRED" -> tr("À revoir", "To review"); "PROPOSALS_AVAILABLE" -> "Suggestions"; else -> tr("À traiter", "To process") }
+    val status = when(sample.annotationStatus) { "VALIDATED" -> tr("Traitée manuellement", "Manually reviewed"); "REJECTED" -> tr("Rejetée", "Rejected"); "IN_PROGRESS" -> tr("Traité manuellement · à valider", "Manually handled · needs approval"); "DEFERRED" -> tr("À revoir", "To review"); "PROPOSALS_AVAILABLE" -> tr("Suggestions IA", "AI suggestions"); else -> tr("À traiter", "To process") }
     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)).background(background).clickable(role = Role.Tab, onClick = onClick)
         .semantics { this.selected = selected }.padding(horizontal = 8.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
         Text((index+1).toString().padStart(2,'0'), style = MaterialTheme.typography.labelSmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)

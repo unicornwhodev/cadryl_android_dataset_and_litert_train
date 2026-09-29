@@ -3,6 +3,7 @@ import com.unicornwhodev.visiondatasetstudio.data.json.StudioJson
 import com.unicornwhodev.visiondatasetstudio.data.model.*
 import com.unicornwhodev.visiondatasetstudio.data.hf.*
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig
+import com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -37,6 +38,15 @@ class MoshiV4Test {
         val restored=adapter.fromJson(exported.useLines{it.single()})!!
         exported.delete()
         assertEquals(states,restored.annotations.points.map{it.effectiveLocalizationState})
+    }
+    @Test fun rc7ProcessingSettingsKeepSafePartialViewerDefault() {
+        val adapter=StudioJson.moshi.adapter(ProcessingSettings::class.java)
+        val legacy=adapter.fromJson("{}")!!
+        assertFalse(legacy.allowPartialViewer)
+        assertNull(legacy.viewerExpectedRows)
+        val enabled=adapter.fromJson("{\"allowPartialViewer\":true,\"viewerExpectedRows\":75937}")!!
+        assertTrue(enabled.allowPartialViewer)
+        assertEquals(75_937L,enabled.viewerExpectedRows)
     }
     @Test fun contractRejectsUnknownKeys() {
         assertThrows(com.squareup.moshi.JsonDataException::class.java) { StudioJson.moshi.adapter(ModelConfig::class.java).failOnUnknown().fromJson("{\"unimplemented_runtime_switch\":true}") }

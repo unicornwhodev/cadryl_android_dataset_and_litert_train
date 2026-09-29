@@ -2,8 +2,12 @@ package com.unicornwhodev.visiondatasetstudio
 
 import com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary
 import com.unicornwhodev.visiondatasetstudio.data.hf.ViewerRowData
+import com.unicornwhodev.visiondatasetstudio.data.hf.HfTreeItem
+import com.unicornwhodev.visiondatasetstudio.data.source.SourcePageResult
 import com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn
+import com.unicornwhodev.visiondatasetstudio.data.source.ViewerCoverage
 import com.unicornwhodev.visiondatasetstudio.data.model.*
+import com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings
 import com.unicornwhodev.visiondatasetstudio.domain.export.ExportReadiness
 import com.unicornwhodev.visiondatasetstudio.domain.inference.*
 import org.junit.Assert.*
@@ -18,11 +22,49 @@ class ConfigurationGuidanceTest {
     @Test fun imageColumnUsesPreviewValuesAndRejectsAmbiguousLists() {
         val rows = listOf(ViewerRowData(0, mapOf("image_id" to "123", "photo" to mapOf("src" to "https://example.org/a.png"))))
         assertEquals("photo", SourceImageColumn.suggest(listOf("image_id", "photo"), rows))
+        assertEquals(1, SourceImageColumn.usableCount("photo", rows))
+        assertEquals(0, SourceImageColumn.usableCount("image_id", rows))
         assertEquals("https://example.org/a.png", SourceImageColumn.reference(listOf(mapOf("src" to "https://example.org/a.png"))))
         assertNull(SourceImageColumn.reference(listOf("https://example.org/a.png", "https://example.org/b.png")))
         assertNull(SourceImageColumn.reference("https://token@example.org/a.png"))
         assertNull(SourceImageColumn.reference("file:///private/image.png"))
         assertNull(SourceImageColumn.suggest(listOf("photo"), listOf(rows.single().copy(truncatedCells=listOf("photo")))))
+    }
+
+    @Test fun viewerCoverageRequiresContiguousRowsAndDeclaredEnd() {
+        val rows=listOf(
+            ViewerRowData(100,mapOf("image" to mapOf("src" to "https://example.org/100.jpg"))),
+            ViewerRowData(101,mapOf("image" to mapOf("src" to "https://example.org/101.jpg")))
+        )
+        assertTrue(ViewerCoverage.contiguous(rows,100))
+        assertFalse(ViewerCoverage.contiguous(listOf(rows[0],rows[1].copy(rowIdx=103)),100))
+        assertTrue(ViewerCoverage.reachesRequestedOrEnd(100,2,2,200))
+        assertTrue(ViewerCoverage.reachesRequestedOrEnd(199,2,1,200))
+        assertFalse(ViewerCoverage.reachesRequestedOrEnd(100,2,1,200))
+    }
+
+    @Test fun partialViewerIsExplicitOptIn() {
+        assertFalse(ProcessingSettings().allowPartialViewer)
+        assertTrue(ProcessingSettings(allowPartialViewer=true).validate().allowPartialViewer)
+    }
+
+    @Test fun sourcePageCanAdvancePastRejectedRowsWithoutFabricatingEntries() {
+        val page=SourcePageResult(emptyList(),consumed=3,rejected=3,diagnostics=listOf("3 skipped"))
+        assertEquals(3,page.consumed)
+        assertEquals(3,page.rejected)
+        assertTrue(page.entries.isEmpty())
+        assertTrue(runCatching { SourcePageResult(emptyList(),consumed=1,rejected=2) }.isFailure)
+    }
+
+    @Test fun communityCatalogRecognizesPortableContractFileNames() {
+        val source=CommunityModelCatalog.Source(repository="example/models",revision="main",folder="models")
+        val tree=listOf(
+            HfTreeItem("models/custom/model.tflite","file",1024),
+            HfTreeItem("models/custom/contract.json","file",512)
+        )
+        val item=CommunityModelCatalog.fromTree(source,"0123456789012345678901234567890123456789",tree).single()
+        assertEquals("contract",item.entry.adapterStatus)
+        assertTrue(item.installableNow)
     }
 
     @Test fun fixedModelDimensionsAreCheckedBeforeSavingWithoutInventingSemantics() {
@@ -43,6 +85,12 @@ class ConfigurationGuidanceTest {
         val config=ModelConfig(inputLayout="NCHW",inputWidth=704,inputHeight=576,dynamicMinSize=32,dynamicMaxSize=1280,dynamicStride=32)
         input.validate(config)
         assertNull(input.fixedImageConfig(config))
+        val importedHint=requireNotNull(input.imageConfigHint(ModelConfig(inputWidth=512,inputHeight=384)))
+        assertEquals("NCHW",importedHint.inputLayout)
+        assertEquals("FLOAT32",importedHint.inputType)
+        assertEquals(3,importedHint.inputChannels)
+        assertEquals(512,importedHint.inputWidth)
+        assertEquals(384,importedHint.inputHeight)
         for (invalid in listOf(config.copy(inputWidth=700),config.copy(inputHeight=1312),config.copy(inputChannels=1),config.copy(inputType="UINT8")))
             assertTrue(runCatching { input.validate(invalid) }.isFailure)
     }
