@@ -65,6 +65,7 @@ class GuidedSetupTest {
             assertEquals("example/fixture",saved.hfSourceRepo)
             assertEquals("",saved.hfDestRepo)
             assertFalse(ProjectSettings.read(saved).autoPreannotate)
+            assertEquals("HF_VIEWER",ProjectSettings.read(saved).sourceMode)
             assertEquals(config.labels,StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(saved.modelConfigJson!!)!!.labels)
         } finally {
             if (created != null) { act{selectProject(created!!)};act{deleteCurrentProject()} }
