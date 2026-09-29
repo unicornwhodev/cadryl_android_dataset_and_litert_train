@@ -115,22 +115,53 @@ class BatchEngine(
                     }
                     val part=workClaims.claim(project,settings,page.entries,wanted)
                     selected+=part.entries
-                    skipped+=part.skipped+page.rejected
-                    // Advance in upstream coordinates, including invalid rows that appeared before
-                    // the last candidate inspected by collaboration. Valid rows after that point remain reachable.
+                    // Advance in upstream coordinates, including only rejected rows that occur
+                    // before the last valid candidate actually inspected by the claim coordinator.
                     val advance=if(part.consumed>0) {
                         val last=page.entries.getOrNull(part.consumed-1)
                         ((last?.ordinal ?: (startOffset+page.consumed-1))-startOffset+1).toInt().coerceIn(1,page.consumed)
                     } else page.consumed
+                    skipped+=part.skipped+(advance-part.consumed).coerceAtLeast(0)
                     consumed+=advance
                 }
                 ClaimSelection(selected,consumed,skipped)
             } else {
-                val page=sourceCatalog.page(project,project.lastRowCursor,count)
-                ClaimSelection(page.entries.take(count),page.consumed,page.rejected)
+                val selected=mutableListOf<SourceEntryEntity>();var consumed=0;var skipped=0;var rounds=0
+                while(selected.size<count && rounds++<12) {
+                    val wanted=count-selected.size
+                    val scanCount=minOf(1000,maxOf(wanted,wanted*5))
+                    val startOffset=project.lastRowCursor+consumed
+                    val page=sourceCatalog.page(project,startOffset,scanCount)
+                    if(page.consumed==0)break
+                    if(page.entries.isEmpty()) {
+                        consumed+=page.consumed
+                        skipped+=page.rejected
+                        continue
+                    }
+                    val taken=page.entries.take(wanted)
+                    selected+=taken
+                    val advance=if(taken.size>=wanted) {
+                        ((taken.last().ordinal-startOffset)+1).toInt().coerceIn(1,page.consumed)
+                    } else page.consumed
+                    skipped+=(advance-taken.size).coerceAtLeast(0)
+                    consumed+=advance
+                }
+                ClaimSelection(selected,consumed,skipped)
             }
             val entries=claimSelection.entries
-            if(entries.isEmpty() && claimSelection.consumed==0) return@withContext BatchDiscoveryResult(true,endOfSource=true)
+            if(entries.isEmpty()) {
+                if(claimSelection.consumed==0) return@withContext BatchDiscoveryResult(true,endOfSource=true)
+                db.withTransaction {
+                    val current=db.projectDao().getProjectSync(project.id) ?: error(tr("Projet absent", "Project not found"))
+                    check(current.lastRowCursor==project.lastRowCursor){tr("La source a avancé; relancez l’import", "The source has advanced; restart import")}
+                    db.projectDao().saveProject(current.copy(lastRowCursor=project.lastRowCursor+claimSelection.consumed,updatedAt=System.currentTimeMillis()))
+                    db.auditDao().insertLog(AuditLogEntity(sampleId=null,batchNumber=batchNumber,action="SKIP_SOURCE_ROWS",
+                        details=tr("${claimSelection.consumed} ligne(s) parcourue(s), aucune exploitable; curseur avancé sans créer de lot.",
+                            "${claimSelection.consumed} row(s) scanned, none usable; cursor advanced without creating a batch."),
+                        projectId=project.id))
+                }
+                return@withContext BatchDiscoveryResult(true,0)
+            }
             val samples=entries.map { row ->
                 val digest=UUID.nameUUIDFromBytes(row.assetId.toByteArray()).toString().take(12)
                 SampleEntity(sampleId="p${project.id}_b${batchNumber}_r${row.ordinal}_$digest",projectId=project.id,batchNumber=batchNumber,
