@@ -242,7 +242,16 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                         Text(preset.category+" · "+preset.task,style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.primary)
                                         Text(preset.description,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
-                                    StudioAction(tr("Appliquer","Apply"),{vm.applyModelPreset(preset.id)},enabled=!busy)
+                                    val bundleQuery=when(preset.id) {
+                                        "tinyclip" -> "TinyCLIP"
+                                        "efficientvit_sam" -> "EfficientViT"
+                                        "florence2" -> "Florence"
+                                        else -> null
+                                    }
+                                    if(bundleQuery!=null) StudioAction(tr("Voir le bundle","View bundle"),{
+                                        search=bundleQuery;compatibleOnly=false;tab=0
+                                    },enabled=!busy)
+                                    else StudioAction(tr("Appliquer","Apply"),{vm.applyModelPreset(preset.id)},enabled=!busy)
                                 }
                                 HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant.copy(alpha=.5f))
                             }
