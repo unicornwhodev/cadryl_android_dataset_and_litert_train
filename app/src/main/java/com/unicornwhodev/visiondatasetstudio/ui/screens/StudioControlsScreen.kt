@@ -36,6 +36,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
     val project by vm.projectFlow.collectAsState()
     val allProjects by vm.projects.collectAsState()
+    val batches by vm.batches.collectAsState()
     val busy by vm.isBusy.collectAsState()
     val diagnostics by vm.modelDiagnostics.collectAsState()
     val receipts by vm.inferenceReceipts.collectAsState()
@@ -47,6 +48,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
     var destructiveAction by remember{mutableStateOf<String?>(null)}
     val p=project ?: return
     val stored=remember(p.settingsJson){ProjectSettings.read(p)}
+    val sourceLocked=batches.isNotEmpty()
     val tab = section
     var policy by remember(p.id,p.settingsJson){mutableStateOf(stored)}
     var budget by remember(p.id,p.diskBudgetMb){mutableStateOf(p.diskBudgetMb.toString())}
@@ -95,35 +97,36 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                     }
                     1 -> {
                         StudioSection(stringResource(R.string.controls_source_selection),tr("Enregistrez les réglages avant d’indexer. Après le premier lot, changer de source ou de filtre exige un nouveau projet.", "Save settings before indexing. After the first batch, changing sources or filters requires a new project."),Icons.Default.CloudDownload) {
+                            if(sourceLocked) StatusPill(tr("Source figée depuis le premier lot", "Source locked since the first batch"),Icons.Default.Lock)
                             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                                 listOf("HF_VIEWER" to "HF Viewer","HF_MANIFEST" to tr("JSONL sur HF", "JSONL on HF"),"LOCAL_INDEX" to "Local").forEach{(value,label)->
-                                    FilterChip(selected=policy.sourceMode==value,onClick={policy=policy.copy(sourceMode=value)},enabled=!busy,label={Text(label)})
+                                    FilterChip(selected=policy.sourceMode==value,onClick={policy=policy.copy(sourceMode=value)},enabled=!busy && !sourceLocked,label={Text(label)})
                                 }
                             }
                             Text(tr("Source HF : ${p.hfSourceRepo.ifBlank { "non configurée" }}", "HF source: ${p.hfSourceRepo.ifBlank { "not configured" }}"),style=MaterialTheme.typography.bodyMedium)
                             TextButton(onClick={vm.navigateTo(Screen.Setup)},enabled=!busy){Text(stringResource(R.string.controls_configure_source))}
                             if(policy.sourceMode=="HF_VIEWER") {
-                                ControlField(tr("Filtre HF (where), facultatif", "HF filter (where), optional"),policy.filterExpression){policy=policy.copy(filterExpression=it)}
-                                ControlField(tr("Ordre HF (orderby), facultatif", "HF sort order (orderby), optional"),policy.orderBy){policy=policy.copy(orderBy=it)}
-                                ControlSwitch(tr("Autoriser une vue HF partielle", "Allow partial HF Viewer"),policy.allowPartialViewer){policy=policy.copy(allowPartialViewer=it)}
+                                ControlField(tr("Filtre HF (where), facultatif", "HF filter (where), optional"),policy.filterExpression,enabled=!sourceLocked){policy=policy.copy(filterExpression=it)}
+                                ControlField(tr("Ordre HF (orderby), facultatif", "HF sort order (orderby), optional"),policy.orderBy,enabled=!sourceLocked){policy=policy.copy(orderBy=it)}
+                                ControlSwitch(tr("Autoriser une vue HF partielle", "Allow partial HF Viewer"),policy.allowPartialViewer,enabled=!sourceLocked){policy=policy.copy(allowPartialViewer=it)}
                                 if(policy.allowPartialViewer) Text(tr("Attention : Cadryl traitera uniquement les lignes exposées par le Viewer. Cette option ne garantit pas une couverture exhaustive du dataset.",
                                     "Warning: Cadryl will process only rows exposed by the Viewer. This option does not guarantee exhaustive dataset coverage."),
                                     style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.error)
                                 StudioDetails(tr("Le Viewer doit prendre en charge cette source. Les requêtes sont paginées à 100 lignes maximum. Une révision de fichier épinglée n’est pas disponible pour cette voie. Les réponses partielles sont refusées sauf activation explicite ci-dessus.",
                                     "The Viewer must support this source. Requests are paginated with at most 100 rows. This route does not support pinning a file revision. Partial responses are refused unless explicitly enabled above."), style =MaterialTheme.typography.bodySmall)
                             } else if(policy.sourceMode=="HF_MANIFEST") {
-                                ControlField(tr("Révision source : branche ou SHA", "Source revision: branch or SHA"),policy.sourceRevision){policy=policy.copy(sourceRevision=it)}
-                                ControlField(tr("Chemin du JSONL dans le dépôt", "JSONL path in the repository"),policy.manifestPath){policy=policy.copy(manifestPath=it)}
-                                Button(onClick=vm::fetchHfManifest,enabled=!busy && stored.sourceMode=="HF_MANIFEST"){Text(stringResource(R.string.controls_index_manifest))}
+                                ControlField(tr("Révision source : branche ou SHA", "Source revision: branch or SHA"),policy.sourceRevision,enabled=!sourceLocked){policy=policy.copy(sourceRevision=it)}
+                                ControlField(tr("Chemin du JSONL dans le dépôt", "JSONL path in the repository"),policy.manifestPath,enabled=!sourceLocked){policy=policy.copy(manifestPath=it)}
+                                Button(onClick=vm::fetchHfManifest,enabled=!busy && !sourceLocked && stored.sourceMode=="HF_MANIFEST"){Text(stringResource(R.string.controls_index_manifest))}
                                 if(stored.resolvedSourceRevision!=null) SelectionContainer { Text(tr("Révision résolue : ${stored.resolvedSourceRevision}", "Resolved revision: ${stored.resolvedSourceRevision}"),style=MaterialTheme.typography.bodySmall) }
                             } else {
-                                OutlinedButton(onClick={folder.launch(null)},enabled=!busy && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.setup_choose_folder))}
-                                OutlinedButton(onClick={manifestFolder.launch(null)},enabled=!busy && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.controls_manifest_folder))}
-                                Button(onClick={manifest.launch(arrayOf("application/json","application/x-ndjson","text/*","application/octet-stream"))},enabled=!busy && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.controls_import_jsonl))}
+                                OutlinedButton(onClick={folder.launch(null)},enabled=!busy && !sourceLocked && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.setup_choose_folder))}
+                                OutlinedButton(onClick={manifestFolder.launch(null)},enabled=!busy && !sourceLocked && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.controls_manifest_folder))}
+                                Button(onClick={manifest.launch(arrayOf("application/json","application/x-ndjson","text/*","application/octet-stream"))},enabled=!busy && !sourceLocked && stored.sourceMode=="LOCAL_INDEX"){Text(stringResource(R.string.controls_import_jsonl))}
                                 StudioDetails(tr("Le dossier source n’est jamais modifié. Les chemins relatifs du JSONL sont résolus à partir du dossier choisi; les URL HTTPS sont également acceptées.", "The source folder is never modified. Relative JSONL paths are resolved from the selected folder; HTTPS URLs are also accepted."), style =MaterialTheme.typography.bodySmall)
                             }
-                            ControlField(tr("Colonne identifiant", "ID column"),idColumn){idColumn=it}
-                            ControlSwitch(tr("Importer les brouillons", "Import draft annotations"),policy.importAnnotations){policy=policy.copy(importAnnotations=it)}
+                            ControlField(tr("Colonne identifiant", "ID column"),idColumn,enabled=!sourceLocked){idColumn=it}
+                            ControlSwitch(tr("Importer les brouillons", "Import draft annotations"),policy.importAnnotations,enabled=!sourceLocked){policy=policy.copy(importAnnotations=it)}
                             Text(if(stored.sourceIndexReady)tr("Index prêt · ${stored.localSourceLabel}", "Index ready · ${stored.localSourceLabel}") else tr("Index local non préparé (inutile en mode Viewer)", "Local index not prepared (not required in Viewer mode)"),style=MaterialTheme.typography.labelMedium)
                         }
                         StudioSection(stringResource(R.string.controls_collaboration),tr("Évite que plusieurs personnes téléchargent et traitent les mêmes cas. Les réservations sont stockées dans le dépôt HF de destination et expirent si un appareil est abandonné.", "Prevents collaborators from downloading and processing the same samples. Reservations are stored in the destination HF repository and expire if a device is abandoned."),Icons.Default.Groups) {
@@ -168,7 +171,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                         StudioSection(stringResource(R.string.controls_hf_publication),tr("Destination : ${p.hfDestRepo.ifBlank{"non configurée — export local disponible"}}", "Destination: ${p.hfDestRepo.ifBlank{"not configured — local export available"}}"),Icons.Default.CloudUpload) {
                             ControlField(tr("Branche de destination existante", "Existing destination branch"),policy.destBranch){policy=policy.copy(destBranch=it)}
                             ControlField(tr("Préfixe de publication", "Publication prefix"),policy.destPrefix){policy=policy.copy(destPrefix=it)}
-                            ControlField(tr("Split de sortie", "Output split"),split){split=it}
+                            ControlField(tr("Split de sortie", "Output split"),split,enabled=!sourceLocked){split=it}
                             Text(tr("Choisissez les formats dans Exporter. Ils sont communs à la copie locale et à HF.", "Choose formats in Export. They apply to both local copies and HF."), style=MaterialTheme.typography.bodySmall)
                             StudioDetails(tr("Images et JSONL canonique restent obligatoires. Les fichiers sont isolés par projet et lot sous le préfixe. Aucun fichier du dépôt source n’est supprimé; pas de miroir destructif ni de suppression distante.", "Images and canonical JSONL are required. Files are isolated by project and batch under the prefix. Source repository files are never deleted; no destructive mirroring or remote deletion."), style =MaterialTheme.typography.bodyMedium)
                             TextButton(onClick={vm.navigateTo(Screen.Publication)},enabled=!busy){Text(stringResource(R.string.controls_open_exports))}
@@ -251,8 +254,8 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
 }
 
 @Composable
-private fun ControlField(label:String,value:String,numeric:Boolean=false,onChange:(String)->Unit) {
-    OutlinedTextField(value,onChange,label={Text(label)},singleLine=true,modifier=Modifier.fillMaxWidth(),keyboardOptions=KeyboardOptions(keyboardType=if(numeric)KeyboardType.Number else KeyboardType.Text))
+private fun ControlField(label:String,value:String,numeric:Boolean=false,enabled:Boolean=true,onChange:(String)->Unit) {
+    OutlinedTextField(value,onChange,enabled=enabled,label={Text(label)},singleLine=true,modifier=Modifier.fillMaxWidth(),keyboardOptions=KeyboardOptions(keyboardType=if(numeric)KeyboardType.Number else KeyboardType.Text))
 }
 @Composable
 private fun ControlInt(label:String,value:Int,onChange:(Int)->Unit) {
@@ -260,8 +263,11 @@ private fun ControlInt(label:String,value:Int,onChange:(Int)->Unit) {
     ControlField(label,text,true){text=it;onChange(it.toIntOrNull() ?: -1)}
 }
 @Composable
-private fun ControlSwitch(label:String,value:Boolean,onChange:(Boolean)->Unit) {
-    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) { Text(label,Modifier.weight(1f),style=MaterialTheme.typography.bodyMedium);Switch(checked=value,onCheckedChange=onChange) }
+private fun ControlSwitch(label:String,value:Boolean,enabled:Boolean=true,onChange:(Boolean)->Unit) {
+    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+        Text(label,Modifier.weight(1f),style=MaterialTheme.typography.bodyMedium,color=if(enabled)MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+        Switch(checked=value,onCheckedChange=onChange,enabled=enabled)
+    }
 }
 @Composable
 private fun SaveControlsButton(busy:Boolean,onClick:()->Unit) { Button(onClick=onClick,enabled=!busy,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text(stringResource(R.string.controls_save_settings))} }
