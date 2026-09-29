@@ -262,6 +262,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         catch (_: Exception) { reportError(tr("Impossible de chiffrer le jeton sur cet appareil.", "Cannot encrypt the token on this device.")) }
     }
 
+    private suspend fun usedProjectLabels(projectId:Long):Set<String> {
+        val labels=linkedSetOf<String>()
+        for(batch in db.batchDao().getBatches(projectId).first()) {
+            for(sample in db.sampleDao().getSamplesForBatchSync(projectId,batch.batchNumber)) {
+                val record=db.annotationDao().getAnnotationSync(sample.sampleId) ?: continue
+                val a=runCatching { moshi.adapter(SampleAnnotations::class.java).fromJson(record.dataJson) }.getOrNull() ?: continue
+                labels+=a.points.map{it.label}
+                labels+=a.boxes.map{it.label}
+                labels+=a.masks.map{it.label}
+                labels+=a.tags.map{it.label}
+                labels+=a.counts.map{it.label}
+            }
+        }
+        return labels.filter{it.isNotBlank()}.toSet()
+    }
+
+    private suspend fun requireClassVocabularySafe(projectId:Long,newLabels:List<String>) {
+        val keys=newLabels.map(ModelClassCompatibility::classKey).toSet()
+        val removed=usedProjectLabels(projectId).filter { ModelClassCompatibility.classKey(it) !in keys }
+        check(removed.isEmpty()) {
+            tr("Impossible de retirer des classes déjà utilisées : ${removed.take(8).joinToString()}. Ajoutez ou conservez ces classes, ou créez un nouveau projet.",
+                "Cannot remove classes already used by annotations: ${removed.take(8).joinToString()}. Keep/add these classes or create a new project.")
+        }
+    }
+
     fun saveSetup(name: String, sourceRepo: String, destRepo: String, sourceConfig: String, sourceSplit: String,
                   imageColumn: String, classesCsv: String, diskBudgetMb: Long, tasks: Set<StudioTask>, startBatch: Boolean = false,
                   autoPreannotate: Boolean? = null, sourceModeOverride: String? = null) = operation {
@@ -273,7 +298,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val source = if (local && sourceRepo.isBlank()) "" else StudioWorkflow.normalizeRepo(sourceRepo) ?: error(tr("Dataset source invalide. Utilisez namespace/dataset ou une URL HF de dataset.", "Invalid source dataset. Use namespace/dataset or an HF dataset URL."))
         val destination = if (destRepo.isBlank()) "" else StudioWorkflow.normalizeRepo(destRepo, true) ?: error(tr("Destination invalide : utilisateur/dataset attendu.", "Invalid destination: expected user/dataset."))
         check(destination.isBlank() || source != destination) { tr("Source et destination doivent être différentes.", "Source and destination must be different.") }
-        check(!ProjectVocabulary.requiredFor(tasks) || ProjectVocabulary.parse(classesCsv).isNotEmpty()) { tr("Définissez au moins une classe.", "Define at least one class.") }
+        val parsedClasses=ProjectVocabulary.parse(classesCsv)
+        check(!ProjectVocabulary.requiredFor(tasks) || parsedClasses.isNotEmpty()) { tr("Définissez au moins une classe.", "Define at least one class.") }
+        requireClassVocabularySafe(old.id,parsedClasses)
         val p = old
         check(db.batchDao().getBatches(p.id).first().none{it.status in setOf("PREPARED","PUBLISHING","PUBLISHED","CONFLICT","PURGING")}) { tr("Terminez le transfert interrompu avant de modifier le projet", "Complete the interrupted transfer before changing the project") }
         val hasBatches = db.batchDao().getLatestBatchSync(_activeProjectId.value) != null
@@ -308,7 +335,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
         val updated = p.copy(name = name.trim().ifBlank { tr("Mon atelier", "My studio") }, hfSourceRepo = source, hfDestRepo = destination,
             sourceConfig = cleanConfig, sourceSplit = cleanSplit,
-            imageColumn = imageColumn.trim().ifBlank { "image" }, classesCsv = ProjectVocabulary.format(ProjectVocabulary.parse(classesCsv)),
+            imageColumn = imageColumn.trim().ifBlank { "image" }, classesCsv = ProjectVocabulary.format(parsedClasses),
             diskBudgetMb = diskBudgetMb.coerceIn(128L, 65536L), activeTasksCsv = StudioWorkflow.tasksCsv(tasks),
             settingsJson = ProjectSettings.write(nextSettings), updatedAt = System.currentTimeMillis())
         if (autoPreannotate == true) ModelClassCompatibility.requireAssistance(modelConfig(updated), updated.activeTasksCsv, updated.classesCsv)
@@ -361,6 +388,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val labels = ProjectVocabulary.parse(value)
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@operation
         require(!ProjectVocabulary.requiredFor(StudioWorkflow.parseTasks(p.activeTasksCsv)) || labels.isNotEmpty()) { tr("Ajoutez au moins une classe.", "Add at least one class.") }
+        requireClassVocabularySafe(p.id,labels)
         check(db.batchDao().getBatches(p.id).first().none { it.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT", "PURGING") }) {
             tr("Terminez le transfert en cours avant de modifier les classes.", "Complete the pending transfer before changing classes.")
         }
