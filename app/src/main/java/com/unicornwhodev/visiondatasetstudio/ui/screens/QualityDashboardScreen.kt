@@ -121,7 +121,16 @@ fun MetricColumn(label: String, value: String, color: Color) {
 fun AuditLogItem(log: AuditLogEntity) {
     var expanded by remember(log) { mutableStateOf(false) }
     val format = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-    val title = when (log.action) { "VALIDATE" -> tr("Image validée", "Image approved"); "REJECT" -> tr("Image rejetée", "Image rejected"); "DEFER" -> tr("Image à revoir", "Image deferred for review"); "PUBLISHED_AND_PURGED" -> tr("Publication terminée", "Publication completed"); else -> log.action }
+    val title = when (log.action) {
+        "VALIDATE" -> tr("Image traitée manuellement", "Image manually reviewed")
+        "REJECT" -> tr("Image rejetée", "Image rejected")
+        "DEFER" -> tr("Image à revoir", "Image deferred for review")
+        "DISCOVER_BATCH" -> tr("Lot découvert", "Batch discovered")
+        "SKIP_SOURCE_ROWS" -> tr("Lignes source ignorées", "Source rows skipped")
+        "MODEL_PREANNOTATION" -> tr("Suggestions IA générées", "AI suggestions generated")
+        "PUBLISHED_AND_PURGED" -> tr("Publication terminée", "Publication completed")
+        else -> log.action.replace('_',' ').lowercase().replaceFirstChar { it.uppercase() }
+    }
     Column(Modifier.fillMaxWidth().clickable { expanded = !expanded }.animateContentSize()) {
         Row(Modifier.padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Icon(when (log.action) { "VALIDATE" -> Icons.Default.CheckCircleOutline; "REJECT" -> Icons.Default.Block; "DEFER" -> Icons.Default.Schedule; else -> Icons.Default.History },
