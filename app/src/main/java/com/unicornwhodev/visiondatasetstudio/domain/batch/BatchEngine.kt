@@ -117,11 +117,8 @@ class BatchEngine(
                     selected+=part.entries
                     // Advance in upstream coordinates, including only rejected rows that occur
                     // before the last valid candidate actually inspected by the claim coordinator.
-                    val advance=if(part.consumed>0) {
-                        val last=page.entries.getOrNull(part.consumed-1)
-                        ((last?.ordinal ?: (startOffset+page.consumed-1))-startOffset+1).toInt().coerceIn(1,page.consumed)
-                    } else page.consumed
-                    skipped+=part.skipped+(advance-part.consumed).coerceAtLeast(0)
+                    val advance=SourceWindowProgress.advance(startOffset,page,part.consumed)
+                    skipped+=part.skipped+SourceWindowProgress.rejectedInPrefix(advance,part.consumed)
                     consumed+=advance
                 }
                 ClaimSelection(selected,consumed,skipped)
@@ -140,10 +137,8 @@ class BatchEngine(
                     }
                     val taken=page.entries.take(wanted)
                     selected+=taken
-                    val advance=if(taken.size>=wanted) {
-                        ((taken.last().ordinal-startOffset)+1).toInt().coerceIn(1,page.consumed)
-                    } else page.consumed
-                    skipped+=(advance-taken.size).coerceAtLeast(0)
+                    val advance=if(taken.size>=wanted) SourceWindowProgress.advance(startOffset,page,taken.size) else page.consumed
+                    skipped+=SourceWindowProgress.rejectedInPrefix(advance,taken.size)
                     consumed+=advance
                 }
                 ClaimSelection(selected,consumed,skipped)
@@ -698,6 +693,17 @@ data class BatchDiscoveryResult(
     val error: String? = null,
     val endOfSource: Boolean = false
 )
+
+object SourceWindowProgress {
+    fun advance(startOffset:Long,page:com.unicornwhodev.visiondatasetstudio.data.source.SourcePageResult,validInspected:Int):Int {
+        require(validInspected in 0..page.entries.size)
+        if(page.consumed==0)return 0
+        if(validInspected==0)return page.consumed
+        val ordinal=page.entries[validInspected-1].ordinal
+        return ((ordinal-startOffset)+1).toInt().coerceIn(1,page.consumed)
+    }
+    fun rejectedInPrefix(advance:Int,validInspected:Int):Int=(advance-validInspected).coerceAtLeast(0)
+}
 
 data class BatchPublishResult(
     val success: Boolean,
