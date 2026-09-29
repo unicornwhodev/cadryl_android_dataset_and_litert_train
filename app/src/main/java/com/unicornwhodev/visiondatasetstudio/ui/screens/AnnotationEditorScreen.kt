@@ -57,6 +57,7 @@ import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelAction
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelCapabilities
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig
 import com.unicornwhodev.visiondatasetstudio.domain.inference.MaskCodec
+import com.unicornwhodev.visiondatasetstudio.domain.validation.HumanAnnotationReview
 import com.unicornwhodev.visiondatasetstudio.ui.*
 import java.io.File
 import java.util.UUID
@@ -150,8 +151,10 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
     val maskAllowed = StudioTask.SEGMENTATION in tasks
     val boxAllowed = StudioTask.DETECTION in tasks || StudioTask.GROUNDING in tasks
     val pointAllowed = StudioTask.POINTING in tasks || StudioTask.POINTING_MULTI in tasks || StudioTask.GROUNDING in tasks
-    val proposalCount=a.unreviewedCount
-    val hasProposals=proposalCount>0
+    val aiProposalCount=HumanAnnotationReview.unreviewedModelCount(a)
+    val importedDraftCount=HumanAnnotationReview.unreviewedDraftCount(a)
+    val reviewCount=aiProposalCount+importedDraftCount
+    val hasUnreviewed=reviewCount>0
     val hasModel = !project?.modelPath.isNullOrBlank() || project?.modelConfigJson?.contains("local_http") == true
     val modelAction=remember(project?.modelConfigJson,project?.activeTasksCsv) {
         project?.modelConfigJson?.let { json -> runCatching { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(json) }.getOrNull() }
@@ -233,7 +236,7 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_reject_reason)) }, enabled = !locked, onClick = { rejectDialog = true; more = false })
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_retry_save)) }, onClick = { viewModel.retrySave(); more = false })
-                        DropdownMenuItem(text = { Text(tr("Marquer les propositions comme relues", "Mark suggestions as reviewed")) }, enabled = hasProposals && !locked, onClick = { acceptDialog = true; more = false })
+                        DropdownMenuItem(text = { Text(tr("Marquer les éléments à relire comme relus", "Mark review items as reviewed")) }, enabled = hasUnreviewed && !locked, onClick = { acceptDialog = true; more = false })
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_customize_tools)) }, onClick = { viewModel.navigateTo(Screen.Preferences); more = false })
                     }
                 }
@@ -292,8 +295,8 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                                 if (StudioTask.POINTING in tasks && next.points.size > 1 && next.points.size > a.points.size) viewModel.reportError(tr("Mode Point unique : déplacez le point existant ou activez Points multiples.", "Single-point mode: move the existing point or enable Multiple points.")) else update(next)
                             }, brushFraction=if(tool==EditorTool.ERASE)eraserSize else brushSize,showLabels = prefs.showCanvasLabels, promptPoint = samPoint, onPromptSelected = { samPoint = it })
                     }
-                    if(hasProposals || !workflow?.instructions.isNullOrBlank()) Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically) {
-                        if(hasProposals) TextButton(onClick={
+                    if(hasUnreviewed || !workflow?.instructions.isNullOrBlank()) Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically) {
+                        if(hasUnreviewed) TextButton(onClick={
                             tab=when {
                                 a.tags.any{!it.isHumanVerified} && EditorTab.TAGS in tabs->EditorTab.TAGS
                                 a.captions.any{!it.isHumanVerified} && EditorTab.CAPTION in tabs->EditorTab.CAPTION
@@ -303,8 +306,13 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                                 else->tabs.first()
                             };propertiesOpen=true
                         },modifier=Modifier.testTag("annotation_proposals")) {
-                            Icon(Icons.Default.AutoAwesome,null,Modifier.size(16.dp));Spacer(Modifier.width(6.dp))
-                            Text(tr("$proposalCount proposition(s) à relire", "$proposalCount proposal(s) to review"),style=MaterialTheme.typography.labelMedium)
+                            Icon(if(aiProposalCount>0) Icons.Default.AutoAwesome else Icons.Default.Description,null,Modifier.size(16.dp));Spacer(Modifier.width(6.dp))
+                            Text(when {
+                                aiProposalCount>0 && importedDraftCount>0 -> tr("$aiProposalCount suggestion(s) IA · $importedDraftCount brouillon(s) importé(s)",
+                                    "$aiProposalCount AI suggestion(s) · $importedDraftCount imported draft(s)")
+                                aiProposalCount>0 -> tr("$aiProposalCount suggestion(s) IA à relire", "$aiProposalCount AI suggestion(s) to review")
+                                else -> tr("$importedDraftCount brouillon(s) importé(s) à relire", "$importedDraftCount imported draft(s) to review")
+                            },style=MaterialTheme.typography.labelMedium)
                         }
                         Spacer(Modifier.weight(1f))
                         if(!workflow?.instructions.isNullOrBlank()) IconButton(onClick={showWorkflowInstructions=true}) { Icon(Icons.Default.Assignment,tr("Consignes du workflow", "Workflow instructions"),Modifier.size(18.dp)) }
@@ -339,10 +347,10 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
         }
     }, confirmButton = { Button(onClick = { rejectDialog = false; viewModel.rejectCurrent(reason) }, enabled = reason.isNotBlank()) { Text(stringResource(R.string.editor_confirm_rejection)) } }, dismissButton = { TextButton(onClick = { rejectDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
     if (acceptDialog) AlertDialog(onDismissRequest = { acceptDialog = false },
-        title = { Text(tr("Marquer toutes les propositions comme relues ?", "Mark all suggestions as reviewed?")) },
-        text = { Text(tr("Les propositions restantes deviennent des décisions humaines relues, mais l’image reste « à valider ». Utilisez ensuite Valider l’image pour finaliser le cas.",
-            "Remaining suggestions become human-reviewed decisions, but the image still needs approval. Then use Approve image to finalize the sample.")) },
-        confirmButton = { Button(onClick = { acceptDialog = false; viewModel.acceptCurrentProposals() }) { Text(tr("Marquer comme relues", "Mark as reviewed")) } },
+        title = { Text(tr("Marquer tous les éléments comme relus ?", "Mark all review items as reviewed?")) },
+        text = { Text(tr("Les suggestions IA et brouillons importés restants deviennent des décisions humaines relues, mais l’image reste « à valider ». Utilisez ensuite Valider l’image pour finaliser le cas.",
+            "Remaining AI suggestions and imported drafts become human-reviewed decisions, but the image still needs approval. Then use Approve image to finalize the sample.")) },
+        confirmButton = { Button(onClick = { acceptDialog = false; viewModel.acceptCurrentProposals() }) { Text(tr("Marquer comme relus", "Mark as reviewed")) } },
         dismissButton = { TextButton(onClick = { acceptDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
 }
 
@@ -634,7 +642,8 @@ private fun InstanceLinkEditor(a:SampleAnnotations,targetId:String,onUpdate:(Sam
 }
 
 private fun reviewStatusLabel(verified:Boolean,provenance:String)=when {
-    !verified -> tr("Proposition IA · à relire", "AI suggestion · needs review")
+    !verified && HumanAnnotationReview.isModelAssistedSource(provenance) -> tr("Suggestion IA · à relire", "AI suggestion · needs review")
+    !verified -> tr("Brouillon importé · à relire", "Imported draft · needs review")
     provenance.startsWith("human_correction") -> tr("Corrigé manuellement", "Manually corrected")
     provenance.startsWith("human_validated") -> tr("Validé manuellement", "Manually validated")
     else -> tr("Traité manuellement", "Manually handled")
