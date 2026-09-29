@@ -1,0 +1,61 @@
+{
+  "outcome": "real_documentsui_revocation_passed",
+  "case": "30c8aa002004",
+  "tests": {
+    "prepare": {
+      "declared": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "aborted": false,
+      "complete": true,
+      "tests": [
+        {
+          "class": "com.unicornwhodev.visiondatasetstudio.ExternalFaultQualificationTest",
+          "numtests": "1",
+          "test": "prepareAndRequestRealDocument",
+          "code": 0
+        }
+      ]
+    },
+    "copy": {
+      "declared": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "aborted": false,
+      "complete": true,
+      "tests": [
+        {
+          "class": "com.unicornwhodev.visiondatasetstudio.ExternalFaultQualificationTest",
+          "numtests": "1",
+          "test": "verifyCopyAndOptionallyRevokeGrant",
+          "code": 0
+        }
+      ]
+    },
+    "refused": {
+      "declared": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "aborted": false,
+      "complete": true,
+      "tests": [
+        {
+          "class": "com.unicornwhodev.visiondatasetstudio.ExternalFaultQualificationTest",
+          "numtests": "1",
+          "test": "unavailableBackupRefusesPurgeAndPreservesHumanData",
+          "code": 0
+        }
+      ]
+    }
+  },
+  "started_at": "2026-09-29T23:37:08.350693+00:00",
+  "physical_device": true,
+  "abi": "arm64-v8a",
+  "page_size": 4096,
+  "main_sha256": "1c52432a07c45f045f174ec66b615fccc9d111c51d9211dcb964aaf25fdac95b",
+  "test_sha256": "aee47f287080e0466ff75a1e38959a73c9b379cbcd77aa360a4805ce36cf6d54",
+  "finished_at": "2026-09-29T23:37:18.694593+00:00"
+}

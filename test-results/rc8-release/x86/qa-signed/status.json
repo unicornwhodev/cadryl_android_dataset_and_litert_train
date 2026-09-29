@@ -1,0 +1,23 @@
+{
+  "outcome": "qa_signed_release_apks",
+  "build_receipt_sha256": "838e2883810df09d5d00484d594b0b36a2c35ac77c7dcff4c6386c3ef24bfada",
+  "source_manifest_sha256": "c130b39e9c905187962c1cc5579917ac2516755de189b6071a21bdbbacd20a4e",
+  "artifacts": {
+    "app": {
+      "file": "app.apk",
+      "sha256": "538d0b29e08bd17afd04fcfdfe31ff4c9c24d819057323e90c5ed56567fde7f8",
+      "bytes": 118079954,
+      "source_sha256": "1dc5214e593699a8df6d9e28a6d1f34de4f4fa3337303b84e88f01a41a461685"
+    },
+    "tests": {
+      "file": "tests.apk",
+      "sha256": "d2aa8eaf00ecf56090f24203fb6925f657cfe24aaabeb88b9946419c3d64f787",
+      "bytes": 2504569,
+      "source_sha256": "3894182a30eac0489cd2c2c77d5313d0e03951a635f4cf08bbb5c2968f5733e9"
+    }
+  },
+  "distribution_key": false,
+  "main_build_type": "minified-release",
+  "production_qualified": false,
+  "certificate_sha256": "16e1c6980c16c5cad26fab306cdfe16bbfe8e1cf039b59f691bb1bebfe558d84"
+}

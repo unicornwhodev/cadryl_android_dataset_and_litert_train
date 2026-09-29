@@ -17,10 +17,16 @@ class QaDocumentActivity : Activity() {
         require(marker.parentFile!!.isDirectory && !marker.exists())
         if (state == null) {
             @Suppress("DEPRECATION")
-            startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/zip"
-                putExtra(Intent.EXTRA_TITLE, "vds-qa-$case.zip")
+            val corpusFolder = intent.getBooleanExtra("publicCorpusFolder", false)
+            startActivityForResult(Intent(if (corpusFolder) Intent.ACTION_OPEN_DOCUMENT_TREE else Intent.ACTION_CREATE_DOCUMENT).apply {
+                if (corpusFolder) {
+                    putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, android.net.Uri.parse(
+                        "content://com.android.externalstorage.documents/document/primary%3ADownload%2FCadryl_RC8_CC0_1000"))
+                } else {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "application/zip"
+                    putExtra(Intent.EXTRA_TITLE, "vds-qa-$case.zip")
+                }
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
                     Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
             }, 1)

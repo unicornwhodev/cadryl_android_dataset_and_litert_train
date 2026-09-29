@@ -151,6 +151,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val failedSaves = mutableSetOf<String>()
     private var queuedSaves = 0
     private var batchObserver: Job? = null
+    private val initializationJob: Job
     private val moshi = com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi
 
     init {
@@ -181,7 +182,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
-        viewModelScope.launch {
+        initializationJob = viewModelScope.launch {
             if (db.projectDao().getProjectSync(_activeProjectId.value) == null) db.projectDao().saveProject(ProjectEntity(
                 id = _activeProjectId.value, name = tr("Mon atelier", "My studio"), hfSourceRepo = "", hfDestRepo = "", classesCsv = "object", activeTasksCsv = "DETECTION"
             ))
@@ -216,7 +217,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (_isBusy.value || _editorBusy.value) return
         _isBusy.value = true
         operationJob = viewModelScope.launch {
-            try { flushEdits(); block() }
+            // Project creation/selection must not race the initial batch restoration.
+            // Otherwise an old project's batch number can be applied to the new project.
+            try { initializationJob.join(); flushEdits(); block() }
             catch (e: CancellationException) { reportError(tr("Opération interrompue. Les corrections et les copies non vérifiées sont conservées.", "Operation interrupted. Corrections and unverified copies are preserved.")); throw e }
             catch (e: Exception) { reportError(e.message ?: tr("L’opération a échoué. Aucune validation n’a été inventée.", "The operation failed. No validation was fabricated.")) }
             finally { _isBusy.value = false }
@@ -232,7 +235,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (_editorBusy.value || _isBusy.value) return
         _editorBusy.value = true
         viewModelScope.launch {
-            try { flushEdits(); block() }
+            try { initializationJob.join(); flushEdits(); block() }
             catch (e: CancellationException) { throw e }
             catch (e: Exception) { _editorIssues.value = listOf(e.message ?: tr("Action impossible", "Action unavailable")) }
             finally { _editorBusy.value = false }

@@ -1,0 +1,6 @@
+{
+  "source_images": 1000,
+  "all_original_sha256_preserved": true,
+  "after_corpus_saf_and_release_tests": true,
+  "manifest_sha256": "aa9766b3617a886ccece4fbac107e26a7ddf4feff6d0de50b920337b7d5167fe"
+}

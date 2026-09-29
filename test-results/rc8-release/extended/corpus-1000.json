@@ -1,0 +1,49 @@
+{
+  "outcome": "public_cc0_1000_native_import_passed",
+  "started_at": "2026-09-29T23:26:18.124876+00:00",
+  "case": "30c8aa003003",
+  "physical_device": true,
+  "accuracy_evaluated": false,
+  "abi": "arm64-v8a",
+  "page_size": 4096,
+  "main_sha256": "1c52432a07c45f045f174ec66b615fccc9d111c51d9211dcb964aaf25fdac95b",
+  "test_sha256": "aee47f287080e0466ff75a1e38959a73c9b379cbcd77aa360a4805ce36cf6d54",
+  "manifest_sha256": "aa9766b3617a886ccece4fbac107e26a7ddf4feff6d0de50b920337b7d5167fe",
+  "source": {
+    "dataset": "KoalaAI/StockImages-CC0",
+    "revision": "206f3575579f1187548c6f47042ae9174c0a51fc",
+    "license": "cc0-1.0"
+  },
+  "tests": {
+    "declared": 1,
+    "passed": 1,
+    "skipped": 0,
+    "failed": 0,
+    "aborted": false,
+    "complete": true,
+    "tests": [
+      {
+        "class": "com.unicornwhodev.visiondatasetstudio.HfModelRuntimeTest",
+        "numtests": "1",
+        "test": "realPublicCorpus1000SurvivesRoomReopen",
+        "code": 0
+      }
+    ]
+  },
+  "measurement": {
+    "success": true,
+    "input_images": 1000,
+    "consumed_source_rows": 1000,
+    "batches": 10,
+    "duplicate_pixels": 0,
+    "copied_images": 1000,
+    "source": "KoalaAI/StockImages-CC0",
+    "revision": "206f3575579f1187548c6f47042ae9174c0a51fc",
+    "license": "cc0-1.0",
+    "genuine_documentsui_grant": true,
+    "room_reopened_cursor": 1000,
+    "milliseconds": 600370,
+    "accuracy_evaluated": false
+  },
+  "finished_at": "2026-09-29T23:36:43.281313+00:00"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "file": "arm/build/release-mapping.txt",
+    "bytes": 63256090,
+    "sha256": "a2d7855dc60101749f601889a480f8e363d67a59257af4e8d130f022cbba7c23"
+  },
+  {
+    "file": "arm/build/releaseAndroidTest-mapping.txt",
+    "bytes": 3028106,
+    "sha256": "7ebb2ecfae57d7ad7eb6c61cb477551906446b13cdeeea108779e584f4169482"
+  },
+  {
+    "file": "x86/build/release-mapping.txt",
+    "bytes": 63256090,
+    "sha256": "a2d7855dc60101749f601889a480f8e363d67a59257af4e8d130f022cbba7c23"
+  },
+  {
+    "file": "x86/build/releaseAndroidTest-mapping.txt",
+    "bytes": 3028106,
+    "sha256": "7ebb2ecfae57d7ad7eb6c61cb477551906446b13cdeeea108779e584f4169482"
+  }
+]

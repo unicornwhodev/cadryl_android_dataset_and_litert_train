@@ -4,48 +4,13 @@
 
 Ce rapport distingue le candidat actuel des campagnes précédentes. Pour chaque résultat, les reçus gardent le build, les APK et l’appareil concernés.
 
-## Candidat actuel : 4.2.0-rc7
+## Préversion actuelle : 4.2.0-rc8
 
-27 septembre 2026. Les véritables APK Release minifiées portent la clé durable et le code de version 12. La campagne couvre le guide en trois étapes, la compatibilité des classes, les dimensions LiteRT et la récupération d’un paquet figé. Les annotations humaines et le parent HF sont préservés.
+30 septembre 2026 : 106 JVM, 93 Python, lint 0 erreur/148 avertissements, 101 fichiers KSP. Suites Android 53/53 en Debug/AVD 16 Ko et Release/AVD 16 Ko, Honor et Oppo ARM64/4 Ko. UI indépendante 4/4 sur Oppo et AVD.
 
-| Vérification | Résultat |
-|---|---|
-| Tests JVM / Python | 84/84 / 87/87, aucun échec ni test ignoré |
-| Lint Android | 0 erreur, 124 avertissements |
-| Release signée ARM64 | 45/45 métier et 5/5 UI sur émulateur API 36, pages 16 Ko, ARM traduit |
-| Release signée x86_64 | 45/45 métier et 5/5 UI sur le même émulateur |
-| Alignement natif | 4/4 bibliothèques par APK, audit strict ELF et ZIP réussi |
-| Original et copie entraînée | Original intact, Save/Restore et poursuite de l’apprentissage vérifiés |
+Les recettes supplémentaires réussissent : publication HF privée autorisée, conflit et réponse perdue ; révocation SAF réelle sur Oppo et perte de volume sur AVD ; import natif de 1 000 photos CC0 sur Oppo ; 11 094 inférences en dix minutes sur Honor. Ces essais ont chacun leur APK, dispositif et portée. [Rapport détaillé](docs/RC8_QUALIFICATION_2026_09.md) · [Preuves publiques](test-results/rc8-release/README.md).
 
-[Note rc7](docs/RC7_RELEASE.md) · [Preuves](test-results/rc7-release/README.md) · [Synthèse](test-results/rc7-release/summary.json).
-
-Le premier passage conserve 43/45 tests : deux repères de navigation dépendaient des noms renommés par R8. Les identifiants sont désormais explicites. Le pilote UI a aussi été adapté au doublon « Atelier » des nouvelles barres et signé avec sa clé de test existante pour conserver l’installation. Les échecs initiaux sont conservés ; les deux passages finaux complets utilisent les APK identifiées dans la synthèse.
-
-La trace statique R8 reste partielle sur des références de framework et de test ; ses différences d’API applicatives ont été relues. Les règles sont vérifiées par les compilations et les exécutions Release réelles. Aucun crash ART n’a été observé dans les passages finaux. L’ARM est traduit par `libndk_translation` : téléphone, ARM physique 16 Ko, qualité des modèles et publication HF restent des validations distinctes.
-
-## Évolution locale du 26 septembre : configuration guidée, classes et exports
-
-La configuration suit trois étapes : images, objectif, vérification. La compatibilité des classes est affichée et contrôlée avant préannotation ; un choix par recherche évite de ressaisir les noms. Les dimensions LiteRT sont contrôlées avant enregistrement et un paquet HF en attente peut être récupéré en archive locale vérifiée. [Détail des changements et constat sur téléphone](docs/UX_CONFIGURATION_2026_09.md).
-
-| Vérification de cette évolution | Résultat |
-|---|---|
-| Build Android réel | APK Debug et APK de tests produits, signatures et empreintes vérifiées |
-| Compose / Room / Moshi / LiteRT | Compilation réussie, 101 fichiers KSP générés et schémas Room conservés dans le reçu |
-| Tests JVM | 84/84, aucun échec ni test ignoré |
-| Outils Python | 87/87 |
-| Lint | 0 erreur, 124 avertissements |
-| Android API 36, x86_64, pages 16 Ko | 45/45, aucun échec ni test ignoré ; aucun crash ART détecté |
-| Revue visuelle finale | Accueil, images, objectif, choix des classes et vérification inspectés en français sur l’émulateur |
-
-Preuves finales locales : build `dist/android/runs/20260926T214726Z-b4932f8a1ea3`, campagne `dist/ux-guided-20260926/device-core-02`, synthèse `dist/ux-guided-20260926/summary.json`. Les empreintes des APK et l’ensemble des sources compilées ont été revérifiés après les tests. Les captures natives se trouvent dans `dist/ux-guided-20260926/screenshots-fr-final` ; elles montrent uniquement un projet et un modèle synthétiques de test. L’identifiant HF de démonstration n’a été ni inspecté, ni téléchargé, ni enregistré lors de la revue visuelle.
-
-Les tests supplémentaires couvrent les classes fixes et libres, les indices réservés, les sorties spatiales distinctes de la classification, les noms avec ponctuation, le filtrage des seules propositions automatiques et le refus avant décodage sans altérer les annotations humaines. Un test Compose parcourt le guide : classe incompatible, recherche et sélection de la classe exacte, puis enregistrement en mode manuel sans compte HF. Les modèles conservent leurs indices de classes.
-
-Le premier passage, antérieur au guide, reste dans `dist/ux-20260926` (78 JVM, 43 Android). Sa revue native des dimensions, exports et destinations reste une preuve de ce passage, distincte des captures finales.
-
-Les essais préliminaires restent conservés : cache Robolectric inaccessible, DNS de l’émulateur indisponible, sélecteur UI ambigu puis course avec l’ouverture du clavier. Une tentative pendant laquelle un test a changé a été refusée par le contrôle de liaison aux sources. Les passages finaux n’utilisent pas ces tentatives comme preuves de succès.
-
-La Release présente sur le téléphone reste inchangée. Cette campagne Debug sur émulateur ne qualifie pas une mise à jour Release sur téléphone, la précision des modèles sur un corpus réel ou une publication HF réelle. Les résultats rc6 ci-dessous restent distincts.
+P0 est réussi. P1 reste partiel : aucun téléphone ARM en pages de 16 Ko n’est disponible ; la qualité des modèles, le parcours Viewer réel complet/partiel, les essais en arrière-plan, la CI et les notices natives restent ouverts. Aucun émulateur n’est présenté comme un téléphone ARM 16 Ko.
 
 ## Version précédente : 4.2.0-rc6
 
@@ -82,4 +47,4 @@ Les rapports datés peuvent utiliser l’ancien nom de l’app. Leurs reçus et 
 
 ## Ce qu’il manque encore
 
-Recette physique du candidat sur Honor et ARM 16 Ko, essais plus longs, catalogue sous le nouveau runtime, mesures de qualité et CI distante. La cause du crash ART historique reste non confirmée. [Limites](KNOWN_LIMITATIONS.md) · [Recette Android](docs/ANDROID_QUALIFICATION.md) · [Tester la Release](docs/RELEASE_TESTING.md).
+ARM physique 16 Ko, essais plus longs, modèles FireViewer et image réelle, sources HF complète/partielle, échanges HF autorisés, mesures de qualité et CI distante. La Release rc8 sur Honor et sa continuité sont exécutées ; la cause profonde des crashes ART reste non confirmée. [Limites](KNOWN_LIMITATIONS.md) · [Recette Android](docs/ANDROID_QUALIFICATION.md) · [Tester la Release](docs/RELEASE_TESTING.md).

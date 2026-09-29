@@ -23,7 +23,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
     parser.add_argument('--scenario', required=True, choices=['enospc', 'download', 'purge', 'hf-live', 'hf-lost-response', 'hf-conflict'])
-    parser.add_argument('--case', default=uuid.uuid4().hex[:12])
+    parser.add_argument('--case', default=uuid.uuid4().hex[:12], help='For hf-conflict, reuse the completed hf-lost-response case.')
     parser.add_argument('--repo')
     parser.add_argument('--allow-hf-writes', action='store_true')
     parser.add_argument('--reuse-qa-repo', action='store_true', help='Reuse only the repository newly created for this authorized QA session.')
@@ -178,6 +178,10 @@ def main():
             finish(method, timeout=240)
             wait_marker(root + '/reconciled.json')
         else:
+            prepared = command('shell', 'run-as', APP_ID, 'cat',
+                               f'files/qa-evidence/hf-faults/{args.case}/reconciled.json', check=False)
+            if not prepared or json.loads(prepared).get('no_duplicate_commit') is not True:
+                raise RuntimeError('Run hf-lost-response first, then reuse its completed --case for hf-conflict.')
             method = 'staleParentIsRejectedByRealHub'
             start('HfFaultPublicationTest', method)
             finish(method)

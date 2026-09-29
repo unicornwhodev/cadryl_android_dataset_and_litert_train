@@ -45,6 +45,45 @@ class HfTransferV4Test {
         assertEquals(listOf("original_image"),result.rows.single().truncatedCells)
     }
 
+    @Test fun missingViewerRowsIsAnErrorRatherThanEndOfSource()=exercise { server,api ->
+        for(body in listOf("{}", "null", "{\"rows\":null}")) {
+            server.enqueue(MockResponse().setBody(body))
+            val result=api.fetchViewerRows("example/dataset","default","train",0,1)
+            assertFalse("Invalid payload accepted: $body",result.success)
+            assertTrue(result.rows.isEmpty())
+        }
+    }
+
+    @Test fun explicitEmptyViewerRowsRemainAValidEndOfSource()=exercise { server,api ->
+        server.enqueue(MockResponse().setBody("{\"rows\":[]}"))
+        val result=api.fetchViewerRows("example/dataset","default","train",0,1)
+        assertTrue(result.success);assertTrue(result.rows.isEmpty())
+    }
+
+    @Test fun oversizedViewerPageCannotAdvanceBeyondTheRequestedWindow()=exercise { server,api ->
+        server.enqueue(MockResponse().setBody("""{"rows":[{"row_idx":0,"row":{}},{"row_idx":1,"row":{}}]}"""))
+        val result=api.fetchViewerRows("example/dataset","default","train",0,1)
+        assertFalse(result.success);assertTrue(result.rows.isEmpty())
+    }
+
+    @Test fun invalidViewerRowIdentitiesAreRejected()=exercise { server,api ->
+        for(body in listOf(
+            """{"rows":[{"row_idx":-1,"row":{}}]}""",
+            """{"rows":[{"row_idx":7,"row":{}},{"row_idx":7,"row":{}}]}"""
+        )) {
+            server.enqueue(MockResponse().setBody(body))
+            val result=api.fetchViewerRows("example/dataset","default","train",0,2)
+            assertFalse(result.success);assertTrue(result.rows.isEmpty())
+        }
+    }
+
+    @Test fun filteredViewerOrderUsesOriginalRowIdentities()=exercise { server,api ->
+        server.enqueue(MockResponse().setBody("""{"rows":[{"row_idx":42,"row":{}},{"row_idx":3,"row":{}}]}"""))
+        val result=api.fetchViewerRows("example/dataset","default","train",0,2,"score > 0","score DESC")
+        assertTrue(result.success);assertEquals(listOf(42L,3L),result.rows.map{it.rowIdx})
+        assertTrue(server.takeRequest().path!!.startsWith("/filter?"))
+    }
+
     @Test fun disconnectedDownloadResumesHashedPrefix()=exercise { server,api ->
         val bytes=ByteArray(256*1024){(it%251).toByte()};val file=File(temp.root,"image.bin")
         server.enqueue(MockResponse().setBody(Buffer().write(bytes)).addHeader("ETag","\"v1\"").setSocketPolicy(SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY))

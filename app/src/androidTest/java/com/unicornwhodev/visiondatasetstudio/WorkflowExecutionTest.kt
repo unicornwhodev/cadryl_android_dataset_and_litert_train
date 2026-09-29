@@ -19,10 +19,12 @@ class WorkflowExecutionTest {
         suspend fun act(block:MainViewModel.()->Unit) {
             withContext(Dispatchers.Main) { vm.block() }
             withTimeout(30_000) { while(vm.isBusy.value)delay(30) }
+            check(vm.operationProgress.value?.isError!=true){vm.operationProgress.value.toString()}
         }
         try {
             act { createProject("QA workflow ${System.nanoTime()}") }
             val id=vm.activeProjectId.value
+            assertEquals("New projects must keep their first batch after startup restoration",1,vm.activeBatchNumber.value)
             vm.db.batchDao().insertOrReplace(BatchEntity(projectId=id,batchNumber=1,status="IN_PROGRESS",totalCases=1))
             val image=vm.storageManager.getImageFile("workflow-$id","png").apply { writeBytes(byteArrayOf(1,2,3)) }
             val sample=SampleEntity("workflow-$id",id,1,"one",0,sourceFileUrl=null,localImagePath=image.path,

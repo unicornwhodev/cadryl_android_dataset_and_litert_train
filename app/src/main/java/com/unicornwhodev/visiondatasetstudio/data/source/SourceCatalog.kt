@@ -53,10 +53,25 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
     private val annotationAdapter=moshi.adapter(SampleAnnotations::class.java).failOnUnknown()
     override suspend fun page(project:ProjectEntity,offset:Long,count:Int):SourcePageResult {
         val settings=ProjectSettings.read(project)
-        require(count in 1..1000)
+        require(count in 1..1000 && offset>=0)
         if(settings.sourceMode!="HF_VIEWER") {
             check(settings.sourceIndexReady) { tr("Importez/indexez la source avant de préparer un lot", "Import/index the source before preparing a batch") }
             val result=mutableListOf<SourceEntryEntity>()
+            var chars=0L
+            while(result.size<count) {
+                val rows=db.sourceEntryDao().page(project.id,offset+result.size,minOf(16,count-result.size))
+                if(rows.isEmpty())break
+                for(row in rows) {
+                    val cost=row.assetId.length.toLong()+row.imageRef.length+(row.annotationJson?.length ?: 0)
+                    require(cost<=4L*1024*1024) { tr("Métadonnées d’un cas trop volumineuses", "Sample metadata too large") }
+                    if(result.isNotEmpty() && chars+cost>4L*1024*1024)return SourcePageResult(result,result.size)
+                    result+=row;chars+=cost
+                }
+                if(rows.size<16)break
+            }
+            return SourcePageResult(result,result.size)
+        }
+        val result=mutableListOf<SourceEntryEntity>()
         val rejectionReasons=linkedMapOf<String,Int>()
         val exhaustiveViewer=settings.filterExpression.isBlank() && settings.orderBy.isBlank() && settings.viewerExpectedRows!=null
         val expectedRows=settings.viewerExpectedRows
@@ -101,6 +116,10 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
                 }
                 val id=SourceIdentity.string(row.rowData[project.idColumn]) ?: "${project.sourceConfig}:${project.sourceSplit}:${row.rowIdx}"
                 val annotations=if(settings.importAnnotations) {
+                    if("annotations" in row.truncatedCells) {
+                        reject(tr("cellule annotations tronquée", "truncated annotations cell"))
+                        continue
+                    }
                     try {
                         row.rowData["annotations"]?.let{annotationJson(it)}
                     } catch(_:Exception) {

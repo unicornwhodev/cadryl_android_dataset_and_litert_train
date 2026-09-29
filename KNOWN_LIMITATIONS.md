@@ -2,19 +2,19 @@
 
 [Le projet](README.md) · [English](docs/en/KNOWN_LIMITATIONS.md)
 
-Cadryl **4.2.0-rc7** reste une préversion. Voici les limites utiles à connaître avant de lui confier du travail. Les détails de chaque campagne sont dans le [rapport de tests](TEST_REPORT.md).
+Cadryl **4.2.0-rc8** est une préversion. Le [rapport du 30 septembre](docs/RC8_QUALIFICATION_2026_09.md) lie chaque contrôle aux APK et appareils réellement testés.
 
 ## Appareils et stabilité
 
-Les deux Release signées passent sur l’émulateur Android 16 en pages de 16 Ko. L’audit strict de LiteRT, Flex, Graphics Path et DataStore est vert. **Le candidat actuel n’a pas encore sa recette complète sur téléphone**, et aucun appareil ARM 16 Ko physique n’a été testé. L’ARM64 traduit par l’émulateur ne remplace pas cette vérification.
+Les 53 tests Release passent sur Oppo ARM64/API 33/4 Ko, Honor ARM64/API 36/4 Ko et AVD x86/API 36/16 Ko. Quatre parcours UI indépendants passent sur Oppo et AVD. **L’ARM physique 16 Ko reste ouvert** : les deux téléphones connectés utilisent des pages de 4 Ko. L’alignement natif et l’émulateur ne remplacent pas ce contrôle.
 
-Le Honor disponible fonctionne en 4 Ko. Les essais précédents sur ce téléphone sont conservés, mais une coupure ADB a interrompu la dernière campagne sur un runtime intermédiaire. Ils ne valident pas automatiquement rc7.
+Dix minutes d’inférence CPU RepViT M1 sur photo réelle passent sur le Honor avec l’APK publiée : 11 094 inférences, médiane 53,50 ms/P95 54,14 ms, PSS échantillonné 80 321–158 855 KiB. Cela ne qualifie pas d’autres modèles, la précision ou l’endurance en arrière-plan. Les restrictions constructeur, redémarrages et longues sessions d’entraînement restent à tester. La recette des 1 000 photos a nécessité une remise au premier plan sur Oppo.
 
-L’ancien crash ART n’a pas de cause confirmée. Le nouvel environnement n’a pas reproduit l’incident ; les lanceurs refusent une campagne qui contient un crash ART, y compris système. Les entraînements longs et le comportement après redémarrage ou restrictions constructeur demandent encore des essais. Les douze minutes déjà observées sur Honor concernent un candidat antérieur.
+Les anciennes traces de crashes ART/API 35 sont conservées sans cause profonde confirmée. Aucun crash ART n’est relevé avant/après les suites finales API 36. Les tests interrompus ne deviennent pas des succès.
 
 ## Modèles et qualité
 
-Les résultats du catalogue sont partiels et doivent être repris avec le nouveau runtime. La campagne publique Charlbi du 22 septembre compte **13 variantes réussies sur 25**, dont huit entraînables, un délai dépassé et onze non exécutées. Ce sont des essais d’exécution, pas une mesure de précision.
+Les résultats du catalogue sont partiels et doivent être repris avec le candidat actuel. Les six variantes FireViewer restent à tester sur image réelle avec rc8. La campagne publique Charlbi du 22 septembre compte **13 variantes réussies sur 25**, dont huit entraînables, un délai dépassé et onze non exécutées. Ce sont des essais d’exécution, pas une mesure de précision.
 
 Les conversions entraînables fournies ajustent des têtes ou adaptations de sortie avec un encodeur figé. Le test synthétique des couches internes est une autre preuve. Il manque encore des mesures sur un corpus indépendant : précision, erreurs, oubli après entraînement, RAM et latence sur ARM.
 
@@ -26,12 +26,14 @@ La vérification des classes utilise le contrat actif et son vocabulaire déclar
 
 rc7 améliore les diagnostics HTTP, les réglages et la récupération locale d’un paquet HF bloqué. Cette version ne résout pas un refus 403 dû aux permissions du compte, du jeton ou du dépôt. Les anciennes erreurs de dimensions signalées sur téléphone n’ont pas été reproduites avec les reçus récents disponibles. [Constat et portée](docs/UX_CONFIGURATION_2026_09.md).
 
-Les protections contre les interruptions existent et plusieurs pannes SAF, stockage, HF et purge ont été injectées lors des campagnes précédentes. Tous les fournisseurs de stockage, gros transferts multipart et cas de coupure ne sont pas couverts. Le serveur d’agent local réel et certaines intégrations cloud restent aussi à qualifier.
+rc8 passe les échanges HF réels dans un nouveau dépôt privé explicitement autorisé : publication/readback, conflit de parent et réconciliation après réponse perdue. Ces essais utilisent Debug/AVD avec les mêmes fichiers métier que le candidat final ; ils ne prouvent pas une publication depuis Release sur téléphone. La révocation SAF réelle passe sur Oppo en Debug, et la perte du volume amovible dédié passe sur AVD. Le quota, la coupure réseau et la purge interrompue de la campagne antérieure gardent leur portée.
+
+L’ingestion native de 1 000 photos publiques CC0 passe sur Oppo, conformément au seuil réduit par le propriétaire. La qualité des modèles et le parcours Viewer HF réel complet/partiel restent ouverts. Tous les fournisseurs de stockage, gros transferts multipart, serveurs d’agent et intégrations cloud ne sont pas couverts.
 
 Le registre anti-doublons couvre les fichiers ou pixels identiques dans un même projet. Il ne garantit pas la détection de toutes les images recadrées ou recompressées. **Un export dataset n’est pas une sauvegarde complète du projet.** Les migrations Room gardent l’identité de l’app ; elles ne récupèrent pas les données d’une autre application ni d’une installation désinstallée.
 
 ## Distribution
 
-rc7 utilise la clé durable. Les anciennes rc4/rc5 Debug portent d’autres certificats et ne peuvent pas être mises à jour directement. Garde leurs données. La clé actuelle et sa copie ont été vérifiées sur deux disques du même PC ; une sauvegarde hors machine reste à faire.
+rc8 utilise la clé durable. Les anciennes rc4/rc5 Debug portent d’autres certificats et ne peuvent pas être mises à jour directement. Garde leurs données. La clé actuelle et sa copie ont été vérifiées sur deux disques du même PC ; une sauvegarde hors machine reste à faire.
 
 La CI distante est préparée mais n’a pas été exécutée. L’inventaire des 109 dépendances est disponible ; la revue des notices natives transitives reste ouverte. [Signature](docs/SIGNING.md) · [Licences](LICENSING_STATUS.md) · [Priorités](docs/ROADMAP.md).

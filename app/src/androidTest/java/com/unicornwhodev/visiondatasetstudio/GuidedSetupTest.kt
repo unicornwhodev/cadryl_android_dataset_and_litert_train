@@ -53,7 +53,7 @@ class GuidedSetupTest {
             rule.onNodeWithTag("model_class_dog").performScrollTo().performClick()
             rule.onNodeWithTag("project_class_chat").performScrollTo().performClick()
             rule.onNodeWithTag("setup_next").performClick()
-            rule.onNodeWithText(tr("1 classe prise en charge","1 class supported")).performScrollTo().assertIsDisplayed()
+            rule.onAllNodesWithText(tr("1 classe prise en charge","1 class supported")).onFirst().assertIsDisplayed()
             rule.onNodeWithTag("setup_assistance").performScrollTo().assertIsOff().assertIsNotEnabled() // Contract exists, but no weights installed.
             rule.onNodeWithTag("setup_next").performClick()
             rule.onNodeWithTag("setup_prepare").performScrollTo().performClick() // Save only: no download or external write.

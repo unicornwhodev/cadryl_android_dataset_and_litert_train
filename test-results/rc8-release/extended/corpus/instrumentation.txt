@@ -1,0 +1,24 @@
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.HfModelRuntimeTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.unicornwhodev.visiondatasetstudio.HfModelRuntimeTest:
+INSTRUMENTATION_STATUS: test=realPublicCorpus1000SurvivesRoomReopen
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.HfModelRuntimeTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realPublicCorpus1000SurvivesRoomReopen
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: public_corpus_evidence={"success":true,"input_images":1000,"consumed_source_rows":1000,"batches":10,"duplicate_pixels":0,"copied_images":1000,"source":"KoalaAI\/StockImages-CC0","revision":"206f3575579f1187548c6f47042ae9174c0a51fc","license":"cc0-1.0","genuine_documentsui_grant":true,"room_reopened_cursor":1000,"milliseconds":600370,"accuracy_evaluated":false}
+INSTRUMENTATION_RESULT: stream=
+
+Time: 608,963
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1

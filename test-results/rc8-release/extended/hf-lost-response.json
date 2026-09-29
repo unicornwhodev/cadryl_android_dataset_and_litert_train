@@ -1,0 +1,40 @@
+{
+  "scenario": "hf-lost-response",
+  "case": "30c8aa001003",
+  "outcome": "passed",
+  "emulator_only": true,
+  "tests": {
+    "prepareAndPublishAwaitingRealProcessKill": {
+      "declared": 1,
+      "passed": 0,
+      "skipped": 0,
+      "failed": 0,
+      "aborted": true,
+      "complete": false,
+      "tests": []
+    },
+    "reconcileLostResponseWithoutDuplicateCommit": {
+      "declared": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "aborted": false,
+      "complete": true,
+      "tests": [
+        {
+          "class": "com.unicornwhodev.visiondatasetstudio.HfFaultPublicationTest",
+          "numtests": "1",
+          "test": "reconcileLostResponseWithoutDuplicateCommit",
+          "code": 0
+        }
+      ]
+    }
+  },
+  "page_size": 16384,
+  "real_process_kill_after_commit_acceptance": true,
+  "cleanup_errors": [],
+  "private_repository_identifier_redacted": true,
+  "original_private_receipt_sha256": "e12448b0b01a240079d985de42affbea276b0e00b0e57bd486bbf9852604c580",
+  "main_sha256": "0d506d075075c63520d56d02344e6d18e7746420300ed48e9f27baa79f2a05ae",
+  "test_sha256": "8359933a64d4e683eafb7af3ffa5f6333937b8f14a32b48a9ae41a1b156617dc"
+}

@@ -8,11 +8,11 @@ Import your images, review the model’s suggestions, make your corrections and 
 
 An independent project by **Unicorn Who Dev**, previously called *Vision Dataset Studio*.
 
-[Get rc7](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7) · [Your first batch](docs/en/GETTING_STARTED.md) · [Documentation](docs/en/README.md) · [Français](README.md)
+[Get rc8](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc8) · [Your first batch](docs/en/GETTING_STARTED.md) · [Documentation](docs/en/README.md) · [Français](README.md)
 
-## New in rc7
+## New in rc8
 
-Three-step setup, searchable model classes, compatibility checks before suggestions, input dimensions checked against the LiteRT file and local recovery of a pending HF export. [Release details](docs/RC7_RELEASE.md).
+Safer source paging, restored batch state, a four-step guide and preserved model contracts. Real private HF/SAF fault tests, 1,000 public CC0 images on Oppo and ten minutes of inference on Honor. [Release details](docs/RC8_RELEASE.md).
 
 ## What you can do
 
@@ -39,9 +39,9 @@ The documented public model sources are [Charlbi’s conversions](https://huggin
 
 ## Project status
 
-**4.2.0-rc7 is a prerelease.** Both signed Release APKs pass 45 core tests and five UI scenarios on the Android 16 emulator with 16 KB pages. Strict native alignment checks also pass. ARM64 runs through translation there; a physical ARM 16 KB phone is still needed.
+**4.2.0-rc8 is a prerelease.** Real Android builds, 106 JVM tests, 93 Python tests and KSP schemas. All 53 Android tests pass on native x86/API 36/16 KB and on physical Honor and Oppo ARM64/4 KB. Four independent UI scenarios pass on Oppo and the emulator. Private authorized HF publication/faults, real SAF failures, 1,000 CC0 photos and ten-minute physical inference have separate receipts. [Executed scopes](docs/RC8_QUALIFICATION_2026_09.md).
 
-Next up: the final candidate on a phone, longer sessions, model quality, remote CI and the remaining native licence notices. The historical ART crash has no confirmed root cause. [Test results](docs/en/VALIDATION.md) · [Known limits](docs/en/KNOWN_LIMITATIONS.md) · [Roadmap](docs/en/ROADMAP.md).
+Physical ARM/16 KB, FireViewer accuracy, real complete/partial Viewer flow, background endurance, remote CI and native transitive notices remain open. [Test results](docs/en/VALIDATION.md) · [Known limits](docs/en/KNOWN_LIMITATIONS.md).
 
 ## Work on the app
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.unicornwhodev.visiondatasetstudio.HumanAnnotationReviewTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-29T23:06:16.400Z" hostname="UNICORN-PC" time="0.007">
+  <properties/>
+  <testcase name="importedReviewIsHumanButNotModelAssisted" classname="com.unicornwhodev.visiondatasetstudio.HumanAnnotationReviewTest" time="0.001"/>
+  <testcase name="pendingStatusSeparatesImportedDraftsFromAiSuggestions" classname="com.unicornwhodev.visiondatasetstudio.HumanAnnotationReviewTest" time="0.001"/>
+  <testcase name="finalValidationTurnsRemainingSuggestionsIntoHumanDecisions" classname="com.unicornwhodev.visiondatasetstudio.HumanAnnotationReviewTest" time="0.001"/>
+  <testcase name="correctedModelProposalBecomesHumanCorrection" classname="com.unicornwhodev.visiondatasetstudio.HumanAnnotationReviewTest" time="0.001"/>
+  <testcase name="correctedModelSourceRemainsRecoverableForAdaptiveTraining" classname="com.unicornwhodev.visiondatasetstudio.HumanAnnotationReviewTest" time="0.0"/>
+  <testcase name="manualAdditionIsImmediatelyIdentifiedAsHuman" classname="com.unicornwhodev.visiondatasetstudio.HumanAnnotationReviewTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

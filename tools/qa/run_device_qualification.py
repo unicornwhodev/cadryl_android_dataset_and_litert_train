@@ -60,6 +60,10 @@ def home_ui_visible(xml: str) -> bool:
     return 'Studio' in labels or (bool(labels & {'Modèle', 'Model'}) and bool(labels & {'Outils', 'Tools'}))
 
 
+def keyguard_showing(policy: str) -> bool:
+    return bool(re.search(r'^\s*(?:showing|mIsShowing)=true\s*$', policy, re.M))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', default=os.environ.get('ANDROID_SERIAL'))

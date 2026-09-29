@@ -15,11 +15,11 @@ class StudioComposeV4Test {
         rule.onNodeWithTag("controls_shortcut").performClick()
         rule.onAllNodesWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Mes projets", "My projects")).onFirst().assertIsDisplayed()
         rule.onNodeWithTag("nav_Models").performClick()
+        rule.onNodeWithText("SSD MobileNet V1").performScrollTo().assertIsDisplayed()
         rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Réglages", "Settings")).performClick()
         rule.onNodeWithTag("nav_Models").assertIsSelected()
         rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Contrat JSON, mesures et outils avancés", "JSON contract, benchmarks & advanced tools")).performScrollTo().performClick()
-        rule.onNodeWithText(rule.activity.getString(R.string.controls_public_catalog)).assertExists()
-        rule.onNodeWithText("SSD MobileNet V1").assertExists()
+        rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Réglages avancés du modèle", "Advanced model settings")).assertIsDisplayed()
     }
     @Test fun exportDestinationStaysInExportWorkspace() {
         rule.waitUntil(10000) { rule.onAllNodesWithTag("nav_Publication").fetchSemanticsNodes().isNotEmpty() }

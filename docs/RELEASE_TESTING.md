@@ -30,14 +30,18 @@ $env:VDS_ALLOW_TEST_INSTALL='1'
 python -X utf8 tools/qa/run_release_business_qualification.py `
   --serial '<adb-serial>' --apk '<app.apk>' --sha256 '<sha256-app>' `
   --test-apk '<tests.apk>' --test-sha256 '<sha256-tests>' `
-  --expected-page-size 4096 --output 'test-results/release-core-nouvelle-tentative'
+  --expected-page-size 4096 --expected-tests 53 `
+  --output 'test-results/release-core-nouvelle-tentative'
 ```
 
 Pour l'émulateur x86_64 16 Ko, construire avec `--abi x86_64` et vérifier
 `--expected-page-size 16384`. La signature doit correspondre à son installation
 existante. Ne pas désinstaller pour contourner un conflit de certificat.
 
-Le lanceur exige **45 succès, aucun échec ni test ignoré** pour rc7. Il conserve les sorties
+La RC8 stabilisée du 29 septembre compte **53 tests de base**, dont huit scénarios
+de pagination et de rejet des sources. Sélectionner `--expected-tests 53` pour
+exiger ce compte exact, sans échec ni test ignoré. Le défaut historique de 45
+reste utilisable avec les anciennes APK rc7. Le lanceur conserve les sorties
 partielles et un reçu d'échec si le processus plante. Le périmètre est la suite
 métier commune : les tests opt-in de publication HF, modèles convertis, pannes
 externes et conservation après migration gardent leurs campagnes distinctes.
@@ -48,6 +52,11 @@ Sur Honor, `--keep-app-visible --prevent-test-process-freezing` documentent les
 conditions nécessaires aux essais sans UI. Elles n'établissent aucune preuve
 d'entraînement en arrière-plan. Le pilote indépendant `release-qa` utilise ses
 propres options, `--qa-foreground-service --prevent-test-process-freezing`.
+
+Déverrouiller le téléphone avant la suite et le garder déverrouillé pendant les
+tests UI. Le lanceur refuse un écran de verrouillage visible avant installation.
+L'exemption de gel concerne les deux processus de recette, application et
+fournisseur de test ; le lanceur arrête les deux paquets à la fin pour terminer cette exemption. Le pilote hôte UI reconnaît les menus anglais et français, arrête la recette si Cadryl quitte le premier plan et ne conserve que les éléments UI de Cadryl.
 
 ## Environnement ART
 

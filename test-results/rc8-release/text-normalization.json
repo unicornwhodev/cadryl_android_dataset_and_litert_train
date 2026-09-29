@@ -1,0 +1,50 @@
+[
+  {
+    "path": "extended/saf/copied.json",
+    "original_sha256": "1cdca4d6d81e2e93c730b4004491e7b7c14aae8c4012aa712ed47e047635f23b",
+    "public_sha256": "6b8c9193d1b55e2ac31d2c760338b089bb2bb90fcbc2da4981a7f78b93a00f6b",
+    "change": "line-endings-only"
+  },
+  {
+    "path": "extended/saf/document.json",
+    "original_sha256": "7dc66602590042c3e07f2af6c0803bd720efa04d771e779bc7a46f6e72c5c45d",
+    "public_sha256": "d73e507465e5172f8656af68fac01e233446abf1cba4ca6110313684166ea08e",
+    "change": "line-endings-only"
+  },
+  {
+    "path": "extended/saf/refused.json",
+    "original_sha256": "106c3e08c50a04680899063de9fe2562b02e78aa34cfc8b87983265fccafda88",
+    "public_sha256": "06efe833a89d8b19ab4c8449b38dc4fbb6181a5517560e82fe14344d479883f7",
+    "change": "line-endings-only"
+  },
+  {
+    "path": "extended/volume/copied.json",
+    "original_sha256": "a6a9098f3c7cba49ac9333127c88eb6a7b37754440781b3767c3c4b412d1e4b8",
+    "public_sha256": "fc0dc39c56fc70f558399fa727bee0322df40ca2b142815a45b90e4d690d941d",
+    "change": "line-endings-only"
+  },
+  {
+    "path": "extended/volume/document.json",
+    "original_sha256": "4af49fc341c2bc877dc7f7bcbb1bfd4dea9f92b63764a8b163a2b4645be3b0b6",
+    "public_sha256": "0f14e505f938685d02bc4c4e529d15f814d01c242178346fde03700107e3efee",
+    "change": "line-endings-only"
+  },
+  {
+    "path": "extended/volume/refused.json",
+    "original_sha256": "106c3e08c50a04680899063de9fe2562b02e78aa34cfc8b87983265fccafda88",
+    "public_sha256": "06efe833a89d8b19ab4c8449b38dc4fbb6181a5517560e82fe14344d479883f7",
+    "change": "line-endings-only"
+  },
+  {
+    "path": "extended/volume/volumes-before.txt",
+    "original_sha256": "1bf2ec328ae12945c7a02de6447ae5a53be410075a8c2bb19402be5b21c58665",
+    "public_sha256": "9a6cbfc9e6b37df2edd9dcc20f1121343a5dd71014b36b316d8eee3bc6cf2599",
+    "change": "line-endings-only"
+  },
+  {
+    "path": "extended/volume/volumes-unmounted.txt",
+    "original_sha256": "a73c01b9fae1722242c6b87222c3e888d2ccd3988cf12ae3ea76a9fd6b0624a0",
+    "public_sha256": "25b59757f4af774f9dcad90f8f5334d7811d93b184dff02a454e0a2b1c036aea",
+    "change": "line-endings-only"
+  }
+]

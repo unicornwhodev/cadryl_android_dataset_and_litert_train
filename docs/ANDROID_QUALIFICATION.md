@@ -4,7 +4,7 @@
 
 Cette page décrit les essais à faire et leurs critères de réussite. Les résultats exécutés sont dans le rapport, avec les builds et appareils concernés. Utilise un appareil dédié et des données de test autorisées.
 
-rc7 passe ses suites Release et l’audit strict sur émulateur API 36/16 Ko. La recette du candidat final sur Honor et sur ARM 16 Ko physique reste ouverte. Les anciennes campagnes [P1](P1_QUALIFICATION_2026_09.md), [Honor](RELEASE_CLOSURE_2026_09.md) et [arrière-plan](RELEASE_HARDENING_2026_09.md) conservent leur propre portée. La CI est préparée mais n’a pas été exécutée. Aucune écriture HF n’est déclenchée automatiquement par ce guide.
+La [qualification rc8 des 29–30 septembre](RC8_QUALIFICATION_2026_09.md) passe P0 et 53/53 tests Android en Debug puis sur le runtime Release minifié sur AVD API 36/16 Ko. La Release signée avec la clé durable passe également 53/53 sur Honor ARM64/API 36/4 Ko le 30 septembre, quatre parcours UI indépendants et la relecture du cas QA de conservation après les essais. Les recettes HF privée, SAF réelle, corpus 1 000 images et inférence dix minutes passent dans leurs périmètres documentés. L’ARM physique 16 Ko et les autres portes P1 restent ouverts. Les anciennes campagnes [P1](P1_QUALIFICATION_2026_09.md), [Honor](RELEASE_CLOSURE_2026_09.md) et [arrière-plan](RELEASE_HARDENING_2026_09.md) conservent leur propre portée. La CI est préparée mais n’a pas été exécutée. Aucune écriture HF n’est déclenchée automatiquement par ce guide.
 
 ## P0 : assembler, résoudre et installer
 
@@ -36,7 +36,7 @@ Préparer les fixtures via `tools/qa/prepare_core_fixtures.py` dans un venv cont
 | Coupure stockage | Retirer volume ou provoquer quota/ENOSPC pendant copie/export | Pas d’ancien export remplacé par un tronqué ; pas de faux reçu ; archive privée conservée |
 | Purge interrompue | Tuer à plusieurs étapes, dont images supprimées mais état final non écrit | PURGING reprenable avec reçu ; puis PURGED ; pas de suppression hors cache |
 | Tous rejetés | Rejeter chaque cas, confirmer clôture puis purge | Aucun cas positif fictif nécessaire ; historique des motifs conservé |
-| Gros corpus | Dossier/manifeste autorisé ≥10 000 images, plusieurs lots et redémarrages | Pas de fuite d’index ni dérive de curseur, budget respecté, originaux intactes |
+| Gros corpus | Dossier/manifeste autorisé ; seuil RC8 réduit explicitement à 1 000 images le 30 septembre, plusieurs lots et réouverture | Pas de fuite d’index ni dérive de curseur, budget respecté, originaux intactes |
 | Mémoire | Capturer `dumpsys meminfo`, reprendre plusieurs lots, comparer avant/après purge | Mesures appareil documentées, pas de croissance non expliquée ; aucun seuil prétendument universel |
 | Modèle | Télécharger catalogue ; inspecter ; essai réel puis benchmark 10/30 répétitions | Tenseurs/labels correspondants ; retouches protégées ; mesures et artefacts JSON sauvegardés |
 | HTTP loopback | Serveur local séparé, réponses invalides/redirections/timeout | Refus non-loopback, aucun token HF et aucune validation automatique |

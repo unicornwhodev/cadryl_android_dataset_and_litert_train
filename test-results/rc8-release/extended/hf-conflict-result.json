@@ -1,0 +1,5 @@
+{
+  "stale_parent_rejected": true,
+  "no_silent_rebase": true,
+  "local_candidate_retained": true
+}

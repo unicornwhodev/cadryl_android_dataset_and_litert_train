@@ -14,7 +14,7 @@ from pathlib import Path
 import re
 import subprocess
 import time
-from run_device_qualification import APP_ID, EXCLUDED, parse_instrumentation
+from run_device_qualification import APP_ID, EXCLUDED, keyguard_showing, parse_instrumentation
 from art_environment import art_crashes
 
 
@@ -30,7 +30,10 @@ def main():
     parser.add_argument('--keep-app-visible', action='store_true', help='Foreground QA on OEM devices; never background qualification.')
     parser.add_argument('--prevent-test-process-freezing', action='store_true')
     parser.add_argument('--timeout', type=int, default=900)
+    parser.add_argument('--expected-tests', type=int, default=45, help='Exact core test count for the selected Release/test pair.')
     args = parser.parse_args()
+    if args.expected_tests < 45:
+        parser.error('At least the existing 45 core tests are required.')
     if os.environ.get('VDS_ALLOW_TEST_INSTALL') != '1':
         parser.error('Select an authorized QA device and VDS_ALLOW_TEST_INSTALL=1.')
     args.output.mkdir(parents=True, exist_ok=False)
@@ -40,6 +43,7 @@ def main():
                  test_sha256=args.test_sha256, uses_existing_synthetic_fixtures=True,
                  app_kept_visible=args.keep_app_visible,
                  test_process_freezing_prevented=args.prevent_test_process_freezing,
+                 expected_tests=args.expected_tests,
                  excluded_classes=list(EXCLUDED))
 
     def save():
@@ -66,6 +70,8 @@ def main():
             raise RuntimeError('ART already crashed in this boot; retain the evidence and use a healthy QA environment.')
         if state['page_size'] != int(args.expected_page_size):
             raise RuntimeError('Unexpected page size')
+        if keyguard_showing(run('keyguard-before.txt', 'shell', 'dumpsys', 'window', 'policy')):
+            raise RuntimeError('Unlock the QA device before running the UI tests; its lock screen is visible.')
         for label, apk in (('main', args.apk), ('test', args.test_apk)):
             if not re.search(r'^Success\s*$', run('install-' + label + '.txt', 'install', '--no-streaming', '-r', str(apk)), re.M):
                 raise RuntimeError('APK update not confirmed')
@@ -85,11 +91,12 @@ def main():
                     if args.prevent_test_process_freezing:
                         # pidof returns 1 during the brief interval before the
                         # instrumentation process exists. That is not an ADB failure.
-                        probe = subprocess.run([*adb, 'shell', 'pidof', APP_ID], capture_output=True, timeout=10)
+                        probe = subprocess.run([*adb, 'shell', 'pidof', APP_ID, APP_ID + '.test'], capture_output=True, timeout=10)
                         if probe.returncode not in (0, 1):
                             raise RuntimeError('Could not inspect the test process')
-                        pid = probe.stdout.decode().strip()
-                        if pid.isdigit() and pid not in seen:
+                        for pid in probe.stdout.decode().split():
+                            if not pid.isdigit() or pid in seen:
+                                continue
                             if 'Unfreezing process' not in run('unfreeze-' + pid + '.txt', 'shell', 'am', 'unfreeze', '--sticky', pid):
                                 raise RuntimeError('Could not confirm the test-process exemption')
                             seen.add(pid)
@@ -109,13 +116,13 @@ def main():
                     run('stop-after-interruption.txt', 'shell', 'am', 'force-stop', APP_ID)
                     process.kill()
         state['tests'] = parse_instrumentation(log_path.read_text(encoding='utf-8', errors='replace'))
-        if not state['tests']['complete'] or state['tests']['passed'] != 45:
-            raise RuntimeError('The expected 45 core tests did not all pass')
+        if not state['tests']['complete'] or state['tests']['passed'] != args.expected_tests:
+            raise RuntimeError(f'The expected {args.expected_tests} core tests did not all pass')
         state['art_crashes_after'] = art_crashes(run('crash-after.txt', 'logcat', '-d', '-b', 'crash'))
         if state['art_crashes_after']:
             raise RuntimeError('ART crashed during qualification; passing app tests cannot qualify this environment.')
         state['outcome'] = 'release_core_suite_passed'
-        print('Actual minified Release core: 45/45 passed', flush=True)
+        print(f'Actual minified Release core: {args.expected_tests}/{args.expected_tests} passed', flush=True)
     except Exception as error:
         state.update(outcome='failed', error=str(error))
         raise
@@ -123,6 +130,7 @@ def main():
         try:
             if args.prevent_test_process_freezing:
                 run('end-test-process-exemption.txt', 'shell', 'am', 'force-stop', APP_ID)
+                run('end-provider-exemption.txt', 'shell', 'am', 'force-stop', APP_ID + '.test')
             run('crash-buffer.txt', 'logcat', '-d', '-b', 'crash')
         except Exception as error:
             state['final_capture_error'] = str(error)

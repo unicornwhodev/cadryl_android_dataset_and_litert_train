@@ -1,0 +1,342 @@
+{
+  "outcome": "signed_qualification_apks",
+  "application_id": "com.unicornwhodev.visiondatasetstudio",
+  "build": {
+    "schema": 1,
+    "run_id": "20260929T234518Z-93b5db7407ed",
+    "application_id": "com.unicornwhodev.visiondatasetstudio",
+    "started_at": "2026-09-29T23:45:18.489504+00:00",
+    "phase": "complete",
+    "outcome": "build_checks_passed",
+    "apk_built": true,
+    "test_apk_built": true,
+    "artifacts": {
+      "app": {
+        "file": "vision-dataset-studio-uwd-debug.apk",
+        "sha256": "2b028be1655c3b090ca7c426aba22f55392054f51027abbc2667f3f06b759496",
+        "bytes": 416612953
+      },
+      "tests": {
+        "file": "vision-dataset-studio-uwd-test.apk",
+        "sha256": "f5d91d1b1c8008ae82beab6132762c925c55761e7646096fa511640438348875",
+        "bytes": 3296474
+      }
+    },
+    "all_build_checks_passed": true,
+    "installed": false,
+    "instrumented_tests_executed": false,
+    "production_qualified": false,
+    "debug_only": true,
+    "github_sha": null,
+    "github_run_id": null,
+    "flex_runtime": {
+      "scope": "Flex ELF alignment only",
+      "libraries": {
+        "arm64-v8a": {
+          "sha256": "4702626f330cc07f361c3cc384df4772de7e84bdc7daea0bf3f61b283233bc47",
+          "bytes": 90547344,
+          "segments": [
+            {
+              "type": "LOAD",
+              "offset": 0,
+              "address": 0,
+              "memory_size": 87462288,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 87474176,
+              "address": 87474176,
+              "memory_size": 3031568,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 90505744,
+              "address": 90522128,
+              "memory_size": 80064,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "GNU_RELRO",
+              "offset": 87474176,
+              "address": 87474176,
+              "memory_size": 3047424,
+              "alignment": 1,
+              "aligned_16k": true
+            }
+          ]
+        },
+        "x86_64": {
+          "sha256": "f1eb0a955ccb6d5b26563abebcffc607f5a2f670665b0a38cb1b1dcfb296777b",
+          "bytes": 105173608,
+          "segments": [
+            {
+              "type": "LOAD",
+              "offset": 0,
+              "address": 0,
+              "memory_size": 102198640,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 102203392,
+              "address": 102203392,
+              "memory_size": 2928600,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 105132000,
+              "address": 105148384,
+              "memory_size": 76832,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "GNU_RELRO",
+              "offset": 102203392,
+              "address": 102203392,
+              "memory_size": 2932736,
+              "alignment": 1,
+              "aligned_16k": true
+            }
+          ]
+        }
+      },
+      "runtime_tested": false
+    },
+    "graphics_runtime": {
+      "artifact_sha256": "a8ddf03d4761acd62f10cea9b89de6b535b898e86d78cc3c5dc438c15de7ed15",
+      "libraries": {
+        "arm64-v8a": {
+          "sha256": "323615d67f483b3f3b6875dc8921ca8a1698a596fa36ceea9b5a847deefa2117",
+          "segments": [
+            {
+              "type": "LOAD",
+              "offset": 0,
+              "address": 0,
+              "memory_size": 4020,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 4020,
+              "address": 20404,
+              "memory_size": 4044,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 8064,
+              "address": 40832,
+              "memory_size": 912,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 8976,
+              "address": 58128,
+              "memory_size": 16,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "GNU_RELRO",
+              "offset": 8064,
+              "address": 40832,
+              "memory_size": 8320,
+              "alignment": 1,
+              "aligned_16k": true
+            }
+          ]
+        },
+        "x86_64": {
+          "sha256": "7b0a8d127854f71b882298343d133f31cd5eb22c876e81a6cabff95340230196",
+          "segments": [
+            {
+              "type": "LOAD",
+              "offset": 0,
+              "address": 0,
+              "memory_size": 4332,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 4336,
+              "address": 20720,
+              "memory_size": 4256,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 8592,
+              "address": 41360,
+              "memory_size": 936,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 9528,
+              "address": 58680,
+              "memory_size": 16,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "GNU_RELRO",
+              "offset": 8592,
+              "address": 41360,
+              "memory_size": 7792,
+              "alignment": 1,
+              "aligned_16k": true
+            }
+          ]
+        }
+      },
+      "runtime_tested": false
+    },
+    "litert_runtime": {
+      "artifact_sha256": "c1644503243c3c78092f949e2fb3cd47eafaf252bb87e18535eb29da916810ae",
+      "source_commit": "145c7523ff08d5e57ab5c582141775eea47da9c7",
+      "libraries": {
+        "arm64-v8a": {
+          "sha256": "01b2d4eeb74e19c06586ce880032efb24958bd5b55fe4f8549c2366065c99954",
+          "segments": [
+            {
+              "type": "LOAD",
+              "offset": 0,
+              "address": 0,
+              "memory_size": 4838256,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 4849664,
+              "address": 4849664,
+              "memory_size": 43376,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 4893040,
+              "address": 4909424,
+              "memory_size": 219568,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "GNU_RELRO",
+              "offset": 4849664,
+              "address": 4849664,
+              "memory_size": 49152,
+              "alignment": 1,
+              "aligned_16k": true
+            }
+          ]
+        },
+        "x86_64": {
+          "sha256": "84b06e5aa3a3e3de82dc138abc85a195ef815e537e10f36202f537254723c1c0",
+          "segments": [
+            {
+              "type": "LOAD",
+              "offset": 0,
+              "address": 0,
+              "memory_size": 6542016,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 6553600,
+              "address": 6553600,
+              "memory_size": 40480,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "LOAD",
+              "offset": 6594080,
+              "address": 6610464,
+              "memory_size": 81152,
+              "alignment": 16384,
+              "aligned_16k": true
+            },
+            {
+              "type": "GNU_RELRO",
+              "offset": 6553600,
+              "address": 6553600,
+              "memory_size": 49152,
+              "alignment": 1,
+              "aligned_16k": true
+            }
+          ]
+        },
+        "armeabi-v7a": {
+          "sha256": "a401f014cc5fc21ebb3e4bb123532037f580cc8c92c5da2069b1fde355fcccee",
+          "segments": null
+        },
+        "x86": {
+          "sha256": "990256dc126f28e9dc7d02b03653965711dc24766eec4882a613c2b1e98bd81d",
+          "segments": null
+        }
+      },
+      "runtime_tested": false
+    },
+    "commands": {
+      "java-version": 0,
+      "gradle-version": 0,
+      "assemble": 0,
+      "app-signature": 0,
+      "app-identity": 0,
+      "checks": 0,
+      "assemble-test": 0,
+      "tests-signature": 0,
+      "tests-identity": 0
+    },
+    "gradle_user_home": "D:\\Dev\\project\\vision-dataset-studio\\dist\\gradle-home",
+    "fresh_apk_packaging": true,
+    "jvm_tests": {
+      "tests": 106,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lint": {
+      "Error": 0,
+      "Warning": 148
+    },
+    "ksp_generated_files": 101,
+    "exit_code": 0,
+    "finished_at": "2026-09-29T23:45:28.263616+00:00"
+  },
+  "certificate_sha256": "51ef3e4abf953c62c8427deaecf4349aefffc2270c593229315722457f126895",
+  "artifacts": {
+    "app": {
+      "file": "vision-dataset-studio-uwd-debug.apk",
+      "sha256": "1c52432a07c45f045f174ec66b615fccc9d111c51d9211dcb964aaf25fdac95b",
+      "bytes": 416637998,
+      "source_sha256": "2b028be1655c3b090ca7c426aba22f55392054f51027abbc2667f3f06b759496"
+    },
+    "tests": {
+      "file": "vision-dataset-studio-uwd-test.apk",
+      "sha256": "aee47f287080e0466ff75a1e38959a73c9b379cbcd77aa360a4805ce36cf6d54",
+      "bytes": 3310858,
+      "source_sha256": "f5d91d1b1c8008ae82beab6132762c925c55761e7646096fa511640438348875"
+    }
+  },
+  "debug_build": true
+}

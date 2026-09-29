@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-09-29T23:06:15.622Z" hostname="UNICORN-PC" time="0.776">
+  <properties/>
+  <testcase name="fullResponseRestartsInsteadOfAppending" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.398"/>
+  <testcase name="missingViewerRowsIsAnErrorRatherThanEndOfSource" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.028"/>
+  <testcase name="realHubPlainTextLfsAcknowledgementAllowsCommit" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.039"/>
+  <testcase name="emptyLfsAcknowledgementAllowsCommit" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.021"/>
+  <testcase name="explicitEmptyViewerRowsRemainAValidEndOfSource" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.01"/>
+  <testcase name="commitConflictPreservesPinnedParent" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.02"/>
+  <testcase name="wrongRangeNeverOverwritesFinalFile" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.024"/>
+  <testcase name="overSizeResponseRejected" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.009"/>
+  <testcase name="oversizedViewerPageCannotAdvanceBeyondTheRequestedWindow" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.015"/>
+  <testcase name="occupiedPathIsNeverOverwritten" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.046"/>
+  <testcase name="filteredViewerOrderUsesOriginalRowIdentities" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.01"/>
+  <testcase name="invalidViewerRowIdentitiesAreRejected" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.014"/>
+  <testcase name="failedLfsAcknowledgementForbidsCommit" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.017"/>
+  <testcase name="partialViewerResponseKeepsUsableRows" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.021"/>
+  <testcase name="disconnectedDownloadResumesHashedPrefix" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.054"/>
+  <testcase name="forbiddenDownloadHasActionableDiagnosticAndPreservesExistingFile" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.015"/>
+  <testcase name="remoteReceiptVerifiesWithoutLocalPayload" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.017"/>
+  <testcase name="lostCommitReplyIsNotAutomaticallyReplayed" classname="com.unicornwhodev.visiondatasetstudio.HfTransferV4Test" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

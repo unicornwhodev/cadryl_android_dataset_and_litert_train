@@ -40,9 +40,19 @@ def main():
     def tree():
         raw = run('exec-out', 'uiautomator', 'dump', '/dev/tty')
         raw = raw[raw.index('<?xml'):raw.index('</hierarchy>') + len('</hierarchy>')]
+        root = ET.fromstring(raw)
+        # A personal phone can switch apps during QA. Never retain another
+        # application's content in the qualification artifacts.
+        for parent in list(root.iter()):
+            for child in list(parent):
+                if child.tag == 'node' and child.get('package') != APP_ID:
+                    parent.remove(child)
         state['sequence'] += 1
-        (args.output / f'ui-{state["sequence"]:03}.xml').write_text(raw, encoding='utf-8')
-        return ET.fromstring(raw)
+        (args.output / f'ui-{state["sequence"]:03}.xml').write_text(
+            ET.tostring(root, encoding='unicode'), encoding='utf-8')
+        if not any(n.get('package') == APP_ID for n in root.iter('node')):
+            raise AssertionError('Cadryl left the foreground; UI qualification interrupted')
+        return root
 
     def owned(root):
         return [n for n in root.iter('node') if n.get('package') == APP_ID]
@@ -78,14 +88,32 @@ def main():
         run('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
 
     def click(pattern, attribute='text', scroll=False):
-        _, node = find(pattern, attribute, scroll)
+        root, node = find(pattern, attribute, scroll)
+        coordinates = [int(v) for v in re.findall(r'\d+', node.get('bounds', ''))]
+        if len(coordinates) != 4 or coordinates[2] <= coordinates[0] or coordinates[3] <= coordinates[1]:
+            # Some OEM accessibility trees expose a visible navigation label
+            # with zero bounds. Use its visible clickable parent in this same
+            # fresh tree; never infer a coordinate from a previous screen.
+            parents = {child: parent for parent in root.iter() for child in parent}
+            parent = parents.get(node)
+            while parent is not None:
+                values = [int(v) for v in re.findall(r'\d+', parent.get('bounds', ''))]
+                if (parent.get('package') == APP_ID and parent.get('clickable') == 'true'
+                        and len(values) == 4 and values[2] > values[0] and values[3] > values[1]):
+                    node = parent
+                    state['visible_parent_taps'] = state.get('visible_parent_taps', 0) + 1
+                    break
+                parent = parents.get(parent)
         tap(node)
 
     def restart():
         run('shell', 'input', 'keyevent', 'KEYCODE_HOME')
         run('shell', 'am', 'force-stop', APP_ID)
         run('shell', 'am', 'start', '-W', '-n', APP_ID + '/.MainActivity')
-        find('Atelier|Studio')
+        # The RC8 first-run home screen can expose "Studio" twice (the active
+        # workspace tab and the bottom navigation item). Assert the unique
+        # page heading instead of relying on either navigation label.
+        find(r'De vos images à votre dataset|From your images to your dataset|Votre source est prête|Your source is ready')
 
     def passed(name):
         state['passed'].append(name)
@@ -93,7 +121,8 @@ def main():
         print(name + ': passed', flush=True)
 
     def guidance():
-        click('Réglages|Settings', 'content-desc')
+        click('More options|Plus d[’\']options', 'content-desc')
+        click('Réglages|Settings')
         root, label = find('Afficher les conseils|Show guidance', scroll=True)
         parents = {child: parent for parent in root.iter() for child in parent}
         node = label
@@ -116,7 +145,7 @@ def main():
         state['abi'] = run('shell', 'getprop', 'ro.product.cpu.abi').strip()
         state['page_size'] = int(run('shell', 'getconf', 'PAGE_SIZE').strip())
         restart()
-        find('Outils|Tools', scroll=True)
+        find('Votre parcours|Your workflow')
         passed('home_renders')
         click('Modèles|Models')
         click('Importer|Import')
@@ -151,11 +180,13 @@ def main():
         before = toggle.get('checked')
         state['guidance_before'] = before
         tap(toggle)
+        time.sleep(1)
         restart()
         changed = guidance()
         if changed.get('checked') == before:
             raise AssertionError('Guidance preference did not persist')
         tap(changed)
+        time.sleep(1)
         restart()
         if guidance().get('checked') != before:
             raise AssertionError('Original guidance preference not restored')

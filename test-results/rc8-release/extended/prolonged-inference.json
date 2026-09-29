@@ -1,0 +1,405 @@
+{
+  "outcome": "prolonged_native_cpu_inference_passed",
+  "main_sha256": "f4f87ce602b71de297b3fd91d4dbfcb0707744b51c06c743e4878e6793b441e1",
+  "test_sha256": "fb2c5880d30c3203ba888eb349df6d81fc1d6b1f4bb53fe8772b3fdaf8636d45",
+  "case": "f7ab0bac4512",
+  "started_at": "2026-09-29T23:01:08.633901+00:00",
+  "production_qualified": false,
+  "background_qualified": false,
+  "instrumentation": true,
+  "app_kept_visible": true,
+  "freezing_exemption": false,
+  "abi": "arm64-v8a",
+  "page_size": 4096,
+  "android_api": "36",
+  "art_crashes_before": [],
+  "public_fixture_manifest": {
+    "model_id": "repvit_m1",
+    "revision": "36026262693de56b2cf45a6337a405297bfcfff6",
+    "model_repo": "Charlbi/Lite_rt_prepared_for_android_dataset_builder",
+    "photo_source": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/coco_sample.png",
+    "files": {
+      "artifact_manifest.json": {
+        "bytes": 769,
+        "sha256": "8d4e3f22c6675a5b6e0d0e0f841fbf0dc4a2fbd8fd0e6427e7e0be0b88bbcbc8"
+      },
+      "config.json": {
+        "bytes": 640,
+        "sha256": "dd51f1dda78893418f737a47fb2755e2a4a76783ea31aac7ce195e6dd54d7fe9"
+      },
+      "model.tflite": {
+        "bytes": 22160064,
+        "sha256": "4849906123f080d356a02733324fae7059a56531fdd9fee70065bcf7f3ef77bc"
+      },
+      "photo.png": {
+        "bytes": 694498,
+        "sha256": "cf6f3c4befa148732c7453e0de5afab00f682427435fead2d88b07a9615cdac2"
+      },
+      "runtime_contract.json": {
+        "bytes": 3187,
+        "sha256": "20a5bcfb76ef1f36169a83392891f0e12fc117551eada5cd5318e1b1c99f5157"
+      }
+    }
+  },
+  "tests": {
+    "declared": 1,
+    "passed": 1,
+    "skipped": 0,
+    "failed": 0,
+    "aborted": false,
+    "complete": true,
+    "tests": [
+      {
+        "class": "com.unicornwhodev.visiondatasetstudio.HfModelRuntimeTest",
+        "numtests": "1",
+        "test": "prolongedRealPhotoCpuInference",
+        "code": 0
+      }
+    ]
+  },
+  "measurement": {
+    "success": true,
+    "model_id": "repvit_m1",
+    "revision": "36026262693de56b2cf45a6337a405297bfcfff6",
+    "inputs": {
+      "artifact_manifest.json": {
+        "bytes": 769,
+        "sha256": "8d4e3f22c6675a5b6e0d0e0f841fbf0dc4a2fbd8fd0e6427e7e0be0b88bbcbc8"
+      },
+      "config.json": {
+        "bytes": 640,
+        "sha256": "dd51f1dda78893418f737a47fb2755e2a4a76783ea31aac7ce195e6dd54d7fe9"
+      },
+      "model.tflite": {
+        "bytes": 22160064,
+        "sha256": "4849906123f080d356a02733324fae7059a56531fdd9fee70065bcf7f3ef77bc"
+      },
+      "photo.png": {
+        "bytes": 694498,
+        "sha256": "cf6f3c4befa148732c7453e0de5afab00f682427435fead2d88b07a9615cdac2"
+      },
+      "runtime_contract.json": {
+        "bytes": 3187,
+        "sha256": "20a5bcfb76ef1f36169a83392891f0e12fc117551eada5cd5318e1b1c99f5157"
+      }
+    },
+    "runtime": "Android LiteRT CPU",
+    "threads": 2,
+    "abi": "arm64-v8a",
+    "android_api": 36,
+    "duration_ms": 600113,
+    "warmup_inferences": 5,
+    "measured_inferences": 11094,
+    "latency_ms": {
+      "p50": 53.504843,
+      "p95": 54.141823
+    },
+    "memory_samples": [
+      {
+        "elapsed_ms": 55,
+        "pss_kib": 80321,
+        "native_heap_bytes": 43611072
+      },
+      {
+        "elapsed_ms": 10060,
+        "pss_kib": 155474,
+        "native_heap_bytes": 50988336
+      },
+      {
+        "elapsed_ms": 20105,
+        "pss_kib": 158855,
+        "native_heap_bytes": 51816448
+      },
+      {
+        "elapsed_ms": 30123,
+        "pss_kib": 152067,
+        "native_heap_bytes": 50144208
+      },
+      {
+        "elapsed_ms": 40127,
+        "pss_kib": 157203,
+        "native_heap_bytes": 51267840
+      },
+      {
+        "elapsed_ms": 50150,
+        "pss_kib": 153835,
+        "native_heap_bytes": 50415488
+      },
+      {
+        "elapsed_ms": 60202,
+        "pss_kib": 157935,
+        "native_heap_bytes": 51539776
+      },
+      {
+        "elapsed_ms": 70240,
+        "pss_kib": 157724,
+        "native_heap_bytes": 51710496
+      },
+      {
+        "elapsed_ms": 80244,
+        "pss_kib": 154036,
+        "native_heap_bytes": 50598256
+      },
+      {
+        "elapsed_ms": 90273,
+        "pss_kib": 158696,
+        "native_heap_bytes": 51721968
+      },
+      {
+        "elapsed_ms": 100308,
+        "pss_kib": 154076,
+        "native_heap_bytes": 50600592
+      },
+      {
+        "elapsed_ms": 110350,
+        "pss_kib": 152044,
+        "native_heap_bytes": 50037968
+      },
+      {
+        "elapsed_ms": 120388,
+        "pss_kib": 156440,
+        "native_heap_bytes": 51161584
+      },
+      {
+        "elapsed_ms": 130420,
+        "pss_kib": 152824,
+        "native_heap_bytes": 50301472
+      },
+      {
+        "elapsed_ms": 140444,
+        "pss_kib": 156660,
+        "native_heap_bytes": 51424672
+      },
+      {
+        "elapsed_ms": 150482,
+        "pss_kib": 154136,
+        "native_heap_bytes": 50594064
+      },
+      {
+        "elapsed_ms": 160502,
+        "pss_kib": 158752,
+        "native_heap_bytes": 51717904
+      },
+      {
+        "elapsed_ms": 170519,
+        "pss_kib": 154392,
+        "native_heap_bytes": 50865312
+      },
+      {
+        "elapsed_ms": 180533,
+        "pss_kib": 152084,
+        "native_heap_bytes": 50033456
+      },
+      {
+        "elapsed_ms": 190558,
+        "pss_kib": 156448,
+        "native_heap_bytes": 51156192
+      },
+      {
+        "elapsed_ms": 200578,
+        "pss_kib": 152868,
+        "native_heap_bytes": 50303792
+      },
+      {
+        "elapsed_ms": 210601,
+        "pss_kib": 156688,
+        "native_heap_bytes": 51427120
+      },
+      {
+        "elapsed_ms": 220621,
+        "pss_kib": 154160,
+        "native_heap_bytes": 50595296
+      },
+      {
+        "elapsed_ms": 230642,
+        "pss_kib": 158772,
+        "native_heap_bytes": 51718848
+      },
+      {
+        "elapsed_ms": 240653,
+        "pss_kib": 154436,
+        "native_heap_bytes": 50866528
+      },
+      {
+        "elapsed_ms": 250664,
+        "pss_kib": 152148,
+        "native_heap_bytes": 49992304
+      },
+      {
+        "elapsed_ms": 260681,
+        "pss_kib": 156516,
+        "native_heap_bytes": 51115568
+      },
+      {
+        "elapsed_ms": 270700,
+        "pss_kib": 152932,
+        "native_heap_bytes": 50262656
+      },
+      {
+        "elapsed_ms": 280738,
+        "pss_kib": 154509,
+        "native_heap_bytes": 50823776
+      },
+      {
+        "elapsed_ms": 290748,
+        "pss_kib": 157973,
+        "native_heap_bytes": 51666128
+      },
+      {
+        "elapsed_ms": 300796,
+        "pss_kib": 155441,
+        "native_heap_bytes": 50834272
+      },
+      {
+        "elapsed_ms": 310810,
+        "pss_kib": 150901,
+        "native_heap_bytes": 49972240
+      },
+      {
+        "elapsed_ms": 320851,
+        "pss_kib": 155781,
+        "native_heap_bytes": 51095568
+      },
+      {
+        "elapsed_ms": 330893,
+        "pss_kib": 153249,
+        "native_heap_bytes": 50263712
+      },
+      {
+        "elapsed_ms": 340930,
+        "pss_kib": 157601,
+        "native_heap_bytes": 51386640
+      },
+      {
+        "elapsed_ms": 350975,
+        "pss_kib": 153509,
+        "native_heap_bytes": 50533728
+      },
+      {
+        "elapsed_ms": 361001,
+        "pss_kib": 157853,
+        "native_heap_bytes": 51657184
+      },
+      {
+        "elapsed_ms": 371047,
+        "pss_kib": 155229,
+        "native_heap_bytes": 50817056
+      },
+      {
+        "elapsed_ms": 381087,
+        "pss_kib": 150869,
+        "native_heap_bytes": 49964144
+      },
+      {
+        "elapsed_ms": 391130,
+        "pss_kib": 155733,
+        "native_heap_bytes": 51087472
+      },
+      {
+        "elapsed_ms": 401153,
+        "pss_kib": 153197,
+        "native_heap_bytes": 50255488
+      },
+      {
+        "elapsed_ms": 411184,
+        "pss_kib": 157557,
+        "native_heap_bytes": 51378784
+      },
+      {
+        "elapsed_ms": 421224,
+        "pss_kib": 153449,
+        "native_heap_bytes": 50526096
+      },
+      {
+        "elapsed_ms": 431240,
+        "pss_kib": 157793,
+        "native_heap_bytes": 51649424
+      },
+      {
+        "elapsed_ms": 441263,
+        "pss_kib": 155253,
+        "native_heap_bytes": 50817440
+      },
+      {
+        "elapsed_ms": 451293,
+        "pss_kib": 150905,
+        "native_heap_bytes": 49965312
+      },
+      {
+        "elapsed_ms": 461326,
+        "pss_kib": 155777,
+        "native_heap_bytes": 51088640
+      },
+      {
+        "elapsed_ms": 471372,
+        "pss_kib": 153245,
+        "native_heap_bytes": 50256784
+      },
+      {
+        "elapsed_ms": 481396,
+        "pss_kib": 157577,
+        "native_heap_bytes": 51380048
+      },
+      {
+        "elapsed_ms": 491431,
+        "pss_kib": 153213,
+        "native_heap_bytes": 50527488
+      },
+      {
+        "elapsed_ms": 501460,
+        "pss_kib": 157833,
+        "native_heap_bytes": 51650656
+      },
+      {
+        "elapsed_ms": 511512,
+        "pss_kib": 155309,
+        "native_heap_bytes": 50818864
+      },
+      {
+        "elapsed_ms": 521549,
+        "pss_kib": 151729,
+        "native_heap_bytes": 49966304
+      },
+      {
+        "elapsed_ms": 531592,
+        "pss_kib": 155573,
+        "native_heap_bytes": 51089696
+      },
+      {
+        "elapsed_ms": 541636,
+        "pss_kib": 153033,
+        "native_heap_bytes": 50257712
+      },
+      {
+        "elapsed_ms": 551664,
+        "pss_kib": 157645,
+        "native_heap_bytes": 51381232
+      },
+      {
+        "elapsed_ms": 561711,
+        "pss_kib": 153341,
+        "native_heap_bytes": 50528448
+      },
+      {
+        "elapsed_ms": 571758,
+        "pss_kib": 157941,
+        "native_heap_bytes": 51651712
+      },
+      {
+        "elapsed_ms": 581781,
+        "pss_kib": 155385,
+        "native_heap_bytes": 50819728
+      },
+      {
+        "elapsed_ms": 591791,
+        "pss_kib": 151801,
+        "native_heap_bytes": 49966944
+      }
+    ],
+    "inputs_preserved": true,
+    "accuracy_evaluated": false,
+    "representative_corpus": false
+  },
+  "art_crashes_after": [],
+  "finished_at": "2026-09-29T23:11:15.250227+00:00"
+}

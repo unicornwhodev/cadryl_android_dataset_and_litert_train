@@ -1,0 +1,10 @@
+[
+  {
+    "abi": "arm",
+    "same_app_and_test_bytes": true
+  },
+  {
+    "abi": "x86",
+    "same_app_and_test_bytes": true
+  }
+]

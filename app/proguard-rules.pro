@@ -11,6 +11,14 @@
     public <methods>;
     protected <methods>;
 }
+# AndroidTest calls these exact members across the APK boundary. Preserve their
+# names so the minified Release build remains testable without mapping a second API.
+-keepclassmembers class com.unicornwhodev.visiondatasetstudio.ui.MainViewModel {
+    public void saveProjectClasses(java.lang.String);
+}
+-keepclassmembers class com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings {
+    public java.lang.String getSourceMode();
+}
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
 #

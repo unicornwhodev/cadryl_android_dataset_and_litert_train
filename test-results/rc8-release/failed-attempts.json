@@ -1,0 +1,26 @@
+[
+  {
+    "attempt": "public-corpus-1000-avd-rc8-20260930-retry",
+    "outcome": "failed",
+    "error": "The 1,000-image native corpus test did not pass.",
+    "private_receipt_sha256": "dd9748b1e00d95feb5e40d392f76570ccbb96462c17b652b0a69a6e032183605"
+  },
+  {
+    "attempt": "real-volume-avd-rc8-20260930-final",
+    "outcome": "failed",
+    "error": "QA volume must be mounted.",
+    "private_receipt_sha256": "0110aec69630a0e990c6c378570c983d5d0c31b093a33e7e16d06ed376f89a89"
+  },
+  {
+    "attempt": "real-fault-hf-conflict-30c8aa001002",
+    "outcome": "failed",
+    "error": "Instrumentation did not pass: staleParentIsRejectedByRealHub",
+    "private_receipt_sha256": "7f3361593e83112b8c3f68ba3c8532a188cca9747ae6f146ee0d8324108e96f1"
+  },
+  {
+    "attempt": "release-ui-host-oppo-rc8-20260930-publish",
+    "outcome": "failed",
+    "error": "Control has no visible bounds",
+    "private_receipt_sha256": "e1d3f75e2989c8f83cf48018c048275060e66d82a466807c9745f395d033f977"
+  }
+]

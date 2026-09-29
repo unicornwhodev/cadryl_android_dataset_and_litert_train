@@ -1,0 +1,63 @@
+{
+  "outcome": "real_volume_loss_passed",
+  "case": "30c8aa002003",
+  "tests": {
+    "prepare": {
+      "declared": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "aborted": false,
+      "complete": true,
+      "tests": [
+        {
+          "class": "com.unicornwhodev.visiondatasetstudio.ExternalFaultQualificationTest",
+          "numtests": "1",
+          "test": "prepareAndRequestRealDocument",
+          "code": 0
+        }
+      ]
+    },
+    "copy": {
+      "declared": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "aborted": false,
+      "complete": true,
+      "tests": [
+        {
+          "class": "com.unicornwhodev.visiondatasetstudio.ExternalFaultQualificationTest",
+          "numtests": "1",
+          "test": "verifyCopyAndOptionallyRevokeGrant",
+          "code": 0
+        }
+      ]
+    },
+    "refused": {
+      "declared": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "aborted": false,
+      "complete": true,
+      "tests": [
+        {
+          "class": "com.unicornwhodev.visiondatasetstudio.ExternalFaultQualificationTest",
+          "numtests": "1",
+          "test": "unavailableBackupRefusesPurgeAndPreservesHumanData",
+          "code": 0
+        }
+      ]
+    }
+  },
+  "started_at": "2026-09-29T23:34:28.739347+00:00",
+  "physical_device": false,
+  "abi": "x86_64",
+  "page_size": 16384,
+  "main_sha256": "2b028be1655c3b090ca7c426aba22f55392054f51027abbc2667f3f06b759496",
+  "test_sha256": "f5d91d1b1c8008ae82beab6132762c925c55761e7646096fa511640438348875",
+  "qa_volume": "public:7,425",
+  "volume_restored": true,
+  "finished_at": "2026-09-29T23:34:45.806097+00:00"
+}

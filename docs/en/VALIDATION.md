@@ -2,7 +2,15 @@
 
 [Project home](../../README.en.md) · [Français](../../TEST_REPORT.md)
 
-## Current candidate: 4.2.0-rc7
+## Current prerelease: 4.2.0-rc8
+
+30 September 2026: 106 JVM/93 Python; lint 0 errors/148 warnings; 101 KSP files. Core 53/53 on physical Honor/Oppo ARM64/4 KB and native x86/API 36/16 KB. Independent UI 4/4 on Oppo and the emulator. Real private authorized HF publication/conflict/lost-response, SAF revocation and volume loss, 1,000 CC0 photos and ten-minute physical inference passed within their recorded scopes.
+
+[Exact artifacts and scope](../RC8_QUALIFICATION_2026_09.md) · [Public receipts](../../test-results/rc8-release/README.md) · [Machine-readable status](../../QUALIFICATION_STATUS.json).
+
+Physical ARM 16 KB remains unavailable: both phones use 4 KB. Model accuracy, real complete/partial Viewer import, background endurance, CI and native transitive notices remain open.
+
+## Previous prerelease: 4.2.0-rc7
 
 27 September 2026. Tests use the actual minified, durable-signed Release APKs, version code 12.
 
@@ -29,4 +37,4 @@ ARM64 uses `libndk_translation` on an x86_64 host. **This is not phone acceptanc
 
 ## Still pending
 
-The candidate on a phone and physical ARM 16 KB, longer sessions, model quality, remote CI and native transitive notices. The historical ART crash has no confirmed cause. [Known limits](KNOWN_LIMITATIONS.md) · [Release testing](../RELEASE_TESTING.md).
+Physical ARM 16 KB, multi-model/background endurance, model quality, real complete/partial Viewer import, remote CI and native transitive notices. The historical ART crash has no confirmed cause. [Known limits](KNOWN_LIMITATIONS.md) · [Release testing](../RELEASE_TESTING.md).

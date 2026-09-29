@@ -1,0 +1,199 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        58c6b24 com.unicornwhodev.visiondatasetstudio/.MainActivity filter 746c68d
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      androidx.profileinstaller.action.SAVE_PROFILE:
+        f0c8e8e com.unicornwhodev.visiondatasetstudio/androidx.profileinstaller.ProfileInstallReceiver filter eeb3a45
+          Action: "androidx.profileinstaller.action.SAVE_PROFILE"
+      androidx.profileinstaller.action.INSTALL_PROFILE:
+        f0c8e8e com.unicornwhodev.visiondatasetstudio/androidx.profileinstaller.ProfileInstallReceiver filter b9c26af
+          Action: "androidx.profileinstaller.action.INSTALL_PROFILE"
+      androidx.profileinstaller.action.SKIP_FILE:
+        f0c8e8e com.unicornwhodev.visiondatasetstudio/androidx.profileinstaller.ProfileInstallReceiver filter f9ffabc
+          Action: "androidx.profileinstaller.action.SKIP_FILE"
+      androidx.profileinstaller.action.BENCHMARK_OPERATION:
+        f0c8e8e com.unicornwhodev.visiondatasetstudio/androidx.profileinstaller.ProfileInstallReceiver filter c47059a
+          Action: "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+      android.intent.action.BOOT_COMPLETED:
+        7afb042 com.unicornwhodev.visiondatasetstudio/androidx.work.impl.background.systemalarm.RescheduleReceiver filter 28e5853
+          Action: "android.intent.action.BOOT_COMPLETED"
+      androidx.work.diagnostics.REQUEST_DIAGNOSTICS:
+        8b71590 com.unicornwhodev.visiondatasetstudio/androidx.work.impl.diagnostics.DiagnosticsReceiver filter be63e89
+          Action: "androidx.work.diagnostics.REQUEST_DIAGNOSTICS"
+
+Domain verification status:
+
+Permissions:
+  Permission [com.unicornwhodev.visiondatasetstudio.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (9cd1a92):
+    sourcePackage=com.unicornwhodev.visiondatasetstudio
+    uid=10353 gids=[] type=0 prot=signature
+    perm=PermissionInfo{958fc63 com.unicornwhodev.visiondatasetstudio.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}
+
+Registered ContentProviders:
+  com.unicornwhodev.visiondatasetstudio/androidx.startup.InitializationProvider:
+    Provider{f5bd060 com.unicornwhodev.visiondatasetstudio/androidx.startup.InitializationProvider}
+  com.unicornwhodev.visiondatasetstudio/androidx.core.content.FileProvider:
+    Provider{dd52919 com.unicornwhodev.visiondatasetstudio/androidx.core.content.FileProvider}
+
+ContentProvider Authorities:
+  [com.unicornwhodev.visiondatasetstudio.androidx-startup]:
+    Provider{f5bd060 com.unicornwhodev.visiondatasetstudio/androidx.startup.InitializationProvider}
+      applicationInfo=ApplicationInfo{89e4dde com.unicornwhodev.visiondatasetstudio}
+  [com.unicornwhodev.visiondatasetstudio.fileprovider]:
+    Provider{dd52919 com.unicornwhodev.visiondatasetstudio/androidx.core.content.FileProvider}
+      applicationInfo=ApplicationInfo{ed4fbbf com.unicornwhodev.visiondatasetstudio}
+
+Key Set Manager:
+  [com.unicornwhodev.visiondatasetstudio]
+      Signing KeySets: 621
+
+Packages:
+  Package [com.unicornwhodev.visiondatasetstudio] (a1d928c):
+    userId=10353
+    pkg=Package{5863dd5 com.unicornwhodev.visiondatasetstudio}
+    codePath=/data/app/~~x1SeQncdMdUXUIJuk3sg5Q==/com.unicornwhodev.visiondatasetstudio-Y_U6swQ6a0vi_gAMjI0kLQ==
+    resourcePath=/data/app/~~x1SeQncdMdUXUIJuk3sg5Q==/com.unicornwhodev.visiondatasetstudio-Y_U6swQ6a0vi_gAMjI0kLQ==
+    legacyNativeLibraryDir=/data/app/~~x1SeQncdMdUXUIJuk3sg5Q==/com.unicornwhodev.visiondatasetstudio-Y_U6swQ6a0vi_gAMjI0kLQ==/lib
+    extractNativeLibs=false
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=13 minSdk=28 targetSdk=36
+    minExtensionVersions=[]
+    versionName=4.2.0-rc8
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=3
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    dataDir=/data/user/0/com.unicornwhodev.visiondatasetstudio
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2026-09-30 01:39:00
+    lastUpdateTime=2026-09-30 01:39:00
+    installerPackageName=pc
+    packageSource=0
+    signatures=PackageSignatures{2e50856 version:3, signatures:[f7fdf997], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    declared permissions:
+      com.unicornwhodev.visiondatasetstudio.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature, INSTALLED
+    requested permissions:
+      android.permission.INTERNET
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.FOREGROUND_SERVICE
+      android.permission.FOREGROUND_SERVICE_DATA_SYNC
+      android.permission.POST_NOTIFICATIONS
+      android.permission.WAKE_LOCK
+      android.permission.RECEIVE_BOOT_COMPLETED
+      com.unicornwhodev.visiondatasetstudio.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    install permissions:
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      com.unicornwhodev.visiondatasetstudio.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true
+      android.permission.WAKE_LOCK: granted=true
+    User 0: ceDataInode=1370024 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 ofs=0 pdm=false instant=false virtual=false
+      installReason=0
+      firstInstallTime=2026-09-30 01:26:29
+      uninstallReason=0
+      overlay paths:
+        /data/resource-cache/com.android.systemui-neutral-RYtx.frro
+        /data/resource-cache/com.android.systemui-accent-ijPJ.frro
+      lastDisabledCaller: pc
+      gids=[3003]
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+      enabledComponents:
+        androidx.work.impl.background.systemjob.SystemJobService
+    User 10: ceDataInode=0 installed=true hidden=false suspended=false distractionFlags=0 stopped=true notLaunched=true enabled=0 ofs=0 pdm=false instant=false virtual=false
+      installReason=0
+      firstInstallTime=2026-09-30 01:26:29
+      uninstallReason=0
+      lastDisabledCaller: pc
+      gids=[3003]
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=false
+
+Queries:
+  system apps queryable: false
+  queries via forceQueryable:
+  queries via package name:
+    com.unicornwhodev.visiondatasetstudio:
+      com.unicornwhodev.visiondatasetstudio.test
+    com.unicornwhodev.visiondatasetstudio.test:
+      com.unicornwhodev.visiondatasetstudio
+  queries via component:
+    com.freecash.app2:
+      com.unicornwhodev.visiondatasetstudio
+    com.wondergames.warpath.gp:
+      com.unicornwhodev.visiondatasetstudio
+    com.meta.luffa:
+      com.unicornwhodev.visiondatasetstudio
+    com.google.android.play.games:
+      com.unicornwhodev.visiondatasetstudio
+    com.lydia:
+      com.unicornwhodev.visiondatasetstudio
+    com.android.settings.intelligence:
+      com.unicornwhodev.visiondatasetstudio
+    com.android.systemui:
+      com.unicornwhodev.visiondatasetstudio
+    com.oppo.quicksearchbox:
+      com.unicornwhodev.visiondatasetstudio
+    com.heytap.music:
+      com.unicornwhodev.visiondatasetstudio
+    com.coloros.onekeylockscreen:
+      com.unicornwhodev.visiondatasetstudio
+    com.oplus.games:
+      com.unicornwhodev.visiondatasetstudio
+    com.innplaylabs.animalkingdomraid:
+      com.unicornwhodev.visiondatasetstudio
+    air.com.buffalo_studios.newflashbingo:
+      com.unicornwhodev.visiondatasetstudio
+    ai.perplexity.app.android:
+      com.unicornwhodev.visiondatasetstudio
+    com.whatsapp:
+      com.unicornwhodev.visiondatasetstudio
+    com.moonshot.kimichat:
+      com.unicornwhodev.visiondatasetstudio
+    com.ea.gp.fifamobile:
+      com.unicornwhodev.visiondatasetstudio
+    com.zynga.livepoker:
+      com.unicornwhodev.visiondatasetstudio
+    eu.qonto.qonto:
+      com.unicornwhodev.visiondatasetstudio
+  queryable via interaction:
+    User 0:
+      com.unicornwhodev.visiondatasetstudio:
+        com.android.externalstorage
+    User 10:
+  queryable via uses-library:
+
+Dexopt state:
+  [com.unicornwhodev.visiondatasetstudio]
+    path: /data/app/~~x1SeQncdMdUXUIJuk3sg5Q==/com.unicornwhodev.visiondatasetstudio-Y_U6swQ6a0vi_gAMjI0kLQ==/base.apk
+      arm64: [status=verify] [reason=install]
+  BgDexopt state:
+    enabled:true
+    mDexOptThread:null
+    mDexOptCancellingThread:null
+    mFinishedPostBootUpdate:false
+    mLastExecutionStatus:0
+    mLastExecutionStartTimeMs:0
+    mLastExecutionDurationIncludingSleepMs:0
+    mLastExecutionStartUptimeMs:0
+    mLastExecutionDurationMs:0
+    now:21242838
+    mLastCancelledPackages:
+    mFailedPackageNamesPrimary:
+    mFailedPackageNamesSecondary:
+
+Compiler stats:
+  [com.unicornwhodev.visiondatasetstudio]
+     base.apk - 423

@@ -1,0 +1,10 @@
+INSTRUMENTATION_STATUS: class=com.unicornwhodev.visiondatasetstudio.HfFaultPublicationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.unicornwhodev.visiondatasetstudio.HfFaultPublicationTest:
+INSTRUMENTATION_STATUS: test=prepareAndPublishAwaitingRealProcessKill
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_RESULT: shortMsg=Process crashed.
+INSTRUMENTATION_CODE: 0

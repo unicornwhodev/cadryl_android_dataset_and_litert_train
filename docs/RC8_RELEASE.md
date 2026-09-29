@@ -1,6 +1,6 @@
-# Cadryl 4.2.0-rc8 — source/model stabilization candidate
+# Cadryl 4.2.0-rc8 â€” source/model stabilization candidate
 
-RC8 is a corrective candidate built from rc7. It does **not** claim release qualification until the Android build, JVM tests and instrumented device suite have passed.
+RC8 is a corrective candidate built from rc7. The additional 29 September stabilization passes 106 JVM tests, 93 Python tests and all 53 Android tests in Debug and in the minified Release runtime on the API 36/16 KB QA AVD. On 30 September, the updated durable-signed Release passes all 53 core tests and four independent UI scenarios on physical Honor ARM64/API 36/4 KB. The retained QA annotation, image, cursor and original model are rechecked after these tests. The core suite keeps the app visible and temporarily exempts the two test processes from freezing; independent UI uses neither instrumentation nor an exemption. The earlier Honor 45/45 result belongs to a previous APK. Full release qualification remains open; see the [executed qualification and remaining gates](RC8_QUALIFICATION_2026_09.md).
 
 ## Corrected in this candidate
 
@@ -27,13 +27,13 @@ RC8 is a corrective candidate built from rc7. It does **not** claim release qual
 - Automatic preannotation now accepts configured local HTTP endpoints instead of silently requiring a LiteRT file path.
 
 ### Interface and review workflow
-- Guided setup is now four focused steps: **Images → Annotations → AI model → Review**. Model selection no longer competes with task/class configuration on the same step.
+- Guided setup is now four focused steps: **Images â†’ Annotations â†’ AI model â†’ Review**. Model selection no longer competes with task/class configuration on the same step.
 - Home exposes two primary configuration destinations only: **Project setup** and **Models & presets**. The old direct task preset selector was removed from Home.
 - The model screen is the single user-facing location for HF catalogs, installed models, configuration presets and manual import. Advanced controls no longer duplicate those selectors.
 - The model catalog shows source, approximate LiteRT download size and per-source discovery failures.
 - Correcting a model proposal changes it into a human correction (`human_correction`) while retaining model baseline coordinates for audit/adaptive correction.
 - Final human validation changes every surviving annotation into a human-reviewed decision (`human_validated` unless already human/corrected).
-- Batch, Home and editor surfaces distinguish **AI suggestion**, **manually handled · needs approval**, **manually corrected** and **manually reviewed** states across spatial and non-spatial annotations.
+- Batch, Home and editor surfaces distinguish **AI suggestion**, **manually handled Â· needs approval**, **manually corrected** and **manually reviewed** states across spatial and non-spatial annotations.
 
 ### FireViewer and model catalogs
 - `fireviewer/litert-models` and `Charlbi/Lite_rt_prepared_for_android_dataset_builder` are built-in dynamic HF catalog sources; an additional user-defined HF source remains supported.
@@ -50,19 +50,19 @@ RC8 is a corrective candidate built from rc7. It does **not** claim release qual
 - Human annotations are not filtered by model vocabulary.
 - Source rejection advances provenance only for rows actually scanned.
 
-## Qualification still required
-Before publishing rc8:
+## Extended qualification and remaining gates
+Build/JVM/Python and the Honor Release core suite passed on 29 September. The full checklist below remains the release boundary; completed and incomplete scopes are recorded in [the RC8 campaign](RC8_QUALIFICATION_2026_09.md). The RC8 prerelease records completed and open scopes explicitly; the remaining complete-production criteria are:
 1. run JVM/Python tests;
 2. assemble Debug and minified Release APKs;
 3. run the Android core and UI suites;
 4. exercise both a complete HF Viewer source and a `partial=true` source, verifying the default refusal and explicit partial opt-in;
 5. run the four-step setup UI test and inspect the compact Home/Models navigation on phone width;
-6. verify correction → human provenance and final validation across boxes, points, masks, tags, captions, VQA, grounding and counts;
+6. verify correction â†’ human provenance and final validation across boxes, points, masks, tags, captions, VQA, grounding and counts;
 7. import a raw detector, configure its adapter/classes, switch to another profile and back, then confirm the configured contract persists;
 8. discover/install the FireViewer catalog and run real-image inference for each supported FireViewer variant that fits the test device;
 9. run inference on a real image for each generic adapter/preset family affected by the change.
 
-This document describes the candidate implementation, not a completed release qualification.
+The 30 September extension passes real authorized private HF publication/conflict/lost-response, real SAF revocation on Oppo, emulator volume loss, 1,000 pinned CC0 images and ten-minute RepViT M1 inference on Honor. Full production qualification remains open, especially physical ARM 16 KB, real complete/partial Viewer import, FireViewer accuracy and background endurance. See the public RC8 receipts.
 
 ## Known boundary
 

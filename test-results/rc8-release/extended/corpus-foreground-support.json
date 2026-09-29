@@ -1,0 +1,7 @@
+{
+  "main_sha256": "1c52432a07c45f045f174ec66b615fccc9d111c51d9211dcb964aaf25fdac95b",
+  "case": "30c8aa003003",
+  "manual_host_foreground_at_utc": "2026-09-29T23:33:03",
+  "background_qualified": false,
+  "elapsed_time_includes_background_stall": true
+}

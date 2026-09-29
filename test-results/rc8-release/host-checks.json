@@ -1,0 +1,17 @@
+{
+  "jvm": {
+    "passed": 106,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 148
+  },
+  "python": {
+    "passed": 93,
+    "failed": 0
+  },
+  "ksp_generated_files": 101
+}

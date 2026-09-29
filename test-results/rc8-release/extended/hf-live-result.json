@@ -1,0 +1,10 @@
+{
+  "private_qa_repository": true,
+  "synthetic_images": 1,
+  "concurrent_workers": 2,
+  "reservation_winners": 1,
+  "android_publication_and_readback": true,
+  "repeat_did_not_republish": true,
+  "cleanup_after_remote_verification": true,
+  "dedup_history_retained": true
+}

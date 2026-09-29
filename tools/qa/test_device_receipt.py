@@ -1,6 +1,6 @@
 """A zero adb exit code or JUnit OK with skipped tests is not qualification."""
 import unittest
-from run_device_qualification import APP_ID, home_ui_visible, parse_instrumentation
+from run_device_qualification import APP_ID, home_ui_visible, keyguard_showing, parse_instrumentation
 
 
 def result(codes, summary='OK (2 tests)'):
@@ -10,6 +10,14 @@ def result(codes, summary='OK (2 tests)'):
 
 
 class DeviceReceiptTests(unittest.TestCase):
+    def test_visible_keyguard_blocks_ui_qualification(self):
+        for policy in ('  showing=true\n', '    mIsShowing=true\n'):
+            self.assertTrue(keyguard_showing(policy))
+
+    def test_hidden_keyguard_and_unrelated_flags_do_not_block(self):
+        self.assertFalse(keyguard_showing('  showing=false\n  mIsShowing=false\n'))
+        self.assertFalse(keyguard_showing('mShowingDream=true\nshowing=trueish\n'))
+
     def test_compact_french_home_does_not_require_studio_label(self):
         self.assertTrue(home_ui_visible(f'<hierarchy><node package="{APP_ID}" text="Modèle"/><node package="{APP_ID}" text="Outils"/></hierarchy>'))
 

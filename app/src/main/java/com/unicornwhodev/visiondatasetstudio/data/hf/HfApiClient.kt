@@ -193,20 +193,28 @@ class HfApiClient(
                 val body = response.body?.let(::boundedJson) ?: ""
                 val adapter = moshi.adapter(ViewerRowsResponse::class.java)
                 val parsed = adapter.fromJson(body)
-                val rows = parsed?.rows?.map { rowWrapper ->
+                val wrappers = parsed?.rows
+                    ?: error(tr("Réponse Viewer HF sans liste de lignes; fin de source non confirmée.", "HF Viewer response has no row list; end of source is not confirmed."))
+                check(wrappers.size <= length) {
+                    tr("Réponse Viewer HF plus longue que la page demandée.", "HF Viewer response exceeds the requested page size.")
+                }
+                check(wrappers.all { it.row_idx >= 0 } && wrappers.map { it.row_idx }.distinct().size == wrappers.size) {
+                    tr("Identifiants de lignes Viewer HF invalides ou dupliqués.", "HF Viewer row identities are invalid or duplicated.")
+                }
+                val rows = wrappers.map { rowWrapper ->
                     ViewerRowData(
                         rowIdx = rowWrapper.row_idx,
                         rowData = rowWrapper.row,
                         truncatedCells = rowWrapper.truncated_cells ?: emptyList()
                     )
-                } ?: emptyList()
-                val columns = parsed?.features?.map { it.name } ?: emptyList()
+                }
+                val columns = parsed.features?.map { it.name } ?: emptyList()
                 HfRowsResult(
                     success = true,
                     columns = columns,
                     rows = rows,
-                    numRowsPerDataset = parsed?.num_rows_per_page ?: length,
-                    partial = parsed?.partial == true
+                    numRowsPerDataset = parsed.num_rows_per_page ?: length,
+                    partial = parsed.partial
                 )
             }
         } catch (e: CancellationException) { throw e } catch (e: Exception) {

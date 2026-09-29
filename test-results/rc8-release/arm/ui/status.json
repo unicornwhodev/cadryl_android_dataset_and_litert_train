@@ -1,0 +1,22 @@
+{
+  "suite": "host_adb_ui_fresh_xml",
+  "outcome": "host_release_ui_passed",
+  "passed": [
+    "home_renders",
+    "model_import_export_quality_navigation",
+    "created_project_survives_process_restart",
+    "display_preference_persists_and_is_restored"
+  ],
+  "started_at": "2026-09-29T23:42:04.857639+00:00",
+  "main_sha256": "f4f87ce602b71de297b3fd91d4dbfcb0707744b51c06c743e4878e6793b441e1",
+  "instrumentation": false,
+  "qa_foreground_service": false,
+  "freezing_exemption": false,
+  "production_qualified": false,
+  "sequence": 27,
+  "abi": "arm64-v8a",
+  "page_size": 4096,
+  "visible_parent_taps": 3,
+  "guidance_before": "true",
+  "finished_at": "2026-09-29T23:43:22.256796+00:00"
+}

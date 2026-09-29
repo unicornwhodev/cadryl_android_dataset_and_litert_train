@@ -1,0 +1,13 @@
+{
+  "dataset": "KoalaAI/StockImages-CC0",
+  "revision": "206f3575579f1187548c6f47042ae9174c0a51fc",
+  "license": "cc0-1.0",
+  "rejected_undecodable": 2,
+  "card_sha256": "2d2a4c33ff7c58dcc2bd6f29810fcf07270dcb829c8bf1c27e49f00ab688675d",
+  "source_parquet_sha256": "8d0ab6f1c1da83682e752c00b96db0f9c00db9f3364622e776a65a54e49dad1a",
+  "selected_images": 1000,
+  "manifest_sha256": "aa9766b3617a886ccece4fbac107e26a7ddf4feff6d0de50b920337b7d5167fe",
+  "bytes": 205731482,
+  "owner_approved_threshold": 1000,
+  "representative_model_accuracy": false
+}

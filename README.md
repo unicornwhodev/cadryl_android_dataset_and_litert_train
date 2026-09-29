@@ -8,11 +8,11 @@ Tu importes tes images, tu vérifies ce que propose le modèle, tu corriges et t
 
 Un projet indépendant de **Unicorn Who Dev**, auparavant nommé *Vision Dataset Studio*.
 
-[Télécharger rc7](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7) · [Faire son premier lot](docs/GETTING_STARTED.md) · [Documentation](docs/README.md) · [English](README.en.md)
+[Dernière préversion : rc8](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc8) · [Qualification rc8](docs/RC8_QUALIFICATION_2026_09.md) · [Faire son premier lot](docs/GETTING_STARTED.md) · [Documentation](docs/README.md) · [English](README.en.md)
 
-## Nouveautés rc7
+## Nouveautés rc8
 
-Configuration en trois étapes, recherche des classes du modèle, compatibilité vérifiée avant les propositions, dimensions contrôlées contre le fichier LiteRT et récupération locale d’un export HF bloqué. [Détails de la version](docs/RC7_RELEASE.md).
+Pagination des sources sécurisée, restauration du lot stabilisée, guide en quatre étapes et contrats de modèles conservés. Recette HF/SAF réelle, 1 000 photos libres sur Oppo et dix minutes d’inférence sur Honor. [Détails de la version](docs/RC8_RELEASE.md).
 
 ## Ce qu’on peut faire
 
@@ -39,9 +39,9 @@ Pour les modèles, deux catalogues publics sont documentés : [les conversions C
 
 ## Où en est le projet ?
 
-**4.2.0-rc7 est une préversion.** Les deux APK Release signées passent chacune les 45 tests métier et les 5 scénarios UI sur l’émulateur Android 16 en pages de 16 Ko. L’audit strict des bibliothèques natives passe aussi. Les tests ARM64 y utilisent une traduction : la recette sur un vrai téléphone ARM 16 Ko reste à faire.
+**4.2.0-rc8 est une préversion.** Build réel, 106 tests JVM, 93 tests Python et schémas KSP. Les 53 tests Android passent en Debug et Release sur AVD API 36/16 Ko, et en Release sur Honor et Oppo ARM64/4 Ko. Quatre parcours UI indépendants passent sur Oppo et AVD. Les échanges HF privés autorisés, les fautes SAF, les 1 000 photos CC0 et les dix minutes d’inférence ont leurs preuves distinctes. [Résultats et APK exactes](docs/RC8_QUALIFICATION_2026_09.md).
 
-Les prochaines étapes sont la recette du nouveau candidat sur téléphone, les essais longs, la qualité des modèles, la CI et la fin de la revue des notices natives. Le crash ART historique n’a pas de cause confirmée. [État des tests](TEST_REPORT.md) · [Limites connues](KNOWN_LIMITATIONS.md) · [Feuille de route](docs/ROADMAP.md).
+L’ARM physique 16 Ko, la qualité des modèles FireViewer, les sources Viewer réelles complète/partielle, l’endurance en arrière-plan, la CI et la revue des notices natives restent ouverts. [État des tests](TEST_REPORT.md) · [Limites connues](KNOWN_LIMITATIONS.md) · [Feuille de route](docs/ROADMAP.md).
 
 ## Mettre les mains dans le code
 

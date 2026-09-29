@@ -1265,6 +1265,7 @@
   public java.lang.String getPrefix();
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.domain.inference.CommunityModelCatalog {
+  public java.util.List getFireviewerEntries();
   public java.util.List getEntries();
   public com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig suggestedConfig(com.unicornwhodev.visiondatasetstudio.domain.inference.CommunityModelCatalog$Availability,java.io.File);
   com.unicornwhodev.visiondatasetstudio.domain.inference.CommunityModelCatalog INSTANCE;
@@ -2538,4 +2539,73 @@
 -keep,allowaccessmodification class org.tensorflow.lite.Interpreter {
   public <init>(java.io.File);
   public java.lang.String[] getSignatureKeys();
+}
+
+
+# RC8 source pagination tests: exact additional references from the reviewed trace.
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.ui.MainViewModel {
+  public kotlinx.coroutines.flow.StateFlow getActiveBatchNumber();
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings {
+  public <init>(int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,int,int,int,int,int,boolean,boolean,boolean,long,java.lang.String,java.lang.String,boolean,boolean,boolean,boolean,boolean,boolean,boolean,boolean,java.lang.String,int,boolean,java.lang.Long,int,int,kotlin.jvm.internal.DefaultConstructorMarker);
+  public static com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings copy$default(com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,boolean,java.lang.String,java.lang.String,int,int,int,int,int,boolean,boolean,boolean,long,java.lang.String,java.lang.String,boolean,boolean,boolean,boolean,boolean,boolean,boolean,boolean,java.lang.String,int,boolean,java.lang.Long,int,int,java.lang.Object);
+  public java.lang.String getSourceMode();
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.data.model.SourceEntryEntity {
+  public java.lang.String getAnnotationJson();
+  public long getOrdinal();
+  public java.lang.Long getSourceRowIndex();
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.data.source.SourceCatalog {
+  public <init>(android.content.Context,com.unicornwhodev.visiondatasetstudio.data.db.AppDatabase,com.unicornwhodev.visiondatasetstudio.data.hf.HfApiClient);
+  public java.lang.Object page(com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity,long,int,kotlin.coroutines.Continuation);
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.data.source.SourcePageResult {
+  public int getConsumed();
+  public java.util.List getDiagnostics();
+  public java.util.List getEntries();
+  public int getRejected();
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.domain.batch.BatchDiscoveryResult {
+  public java.lang.String getError();
+  public int getTotalDiscovered();
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.ui.MainViewModel {
+  public void saveProjectClasses(java.lang.String);
+}
+-keep,allowaccessmodification class kotlin.collections.LongIterator {
+  public long nextLong();
+}
+-keep,allowaccessmodification interface kotlin.jvm.functions.Function4 {
+  public java.lang.Object invoke(java.lang.Object,java.lang.Object,java.lang.Object,java.lang.Object);
+}
+-keep,allowaccessmodification class okhttp3.HttpUrl {
+  public java.lang.String queryParameter(java.lang.String);
+}
+-keep,allowaccessmodification class okhttp3.MediaType {
+  okhttp3.MediaType$Companion Companion;
+}
+-keep,allowaccessmodification class okhttp3.MediaType$Companion {
+  public okhttp3.MediaType get(java.lang.String);
+}
+-keep,allowaccessmodification class okhttp3.OkHttpClient$Builder {
+  public okhttp3.OkHttpClient$Builder addInterceptor(okhttp3.Interceptor);
+}
+-keep,allowaccessmodification enum okhttp3.Protocol {
+  okhttp3.Protocol HTTP_1_1;
+}
+-keep,allowaccessmodification class okhttp3.Response$Builder {
+  public <init>();
+  public okhttp3.Response$Builder body(okhttp3.ResponseBody);
+  public okhttp3.Response build();
+  public okhttp3.Response$Builder code(int);
+  public okhttp3.Response$Builder message(java.lang.String);
+  public okhttp3.Response$Builder protocol(okhttp3.Protocol);
+  public okhttp3.Response$Builder request(okhttp3.Request);
+}
+-keep,allowaccessmodification class okhttp3.ResponseBody {
+  okhttp3.ResponseBody$Companion Companion;
+}
+-keep,allowaccessmodification class okhttp3.ResponseBody$Companion {
+  public okhttp3.ResponseBody create(java.lang.String,okhttp3.MediaType);
 }

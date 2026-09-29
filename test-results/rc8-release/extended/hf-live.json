@@ -1,0 +1,30 @@
+{
+  "scenario": "hf-live",
+  "case": "30c8aa001001",
+  "outcome": "passed",
+  "emulator_only": true,
+  "tests": {
+    "privateQaPublicationConcurrentReservationsAndReadback": {
+      "declared": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0,
+      "aborted": false,
+      "complete": true,
+      "tests": [
+        {
+          "class": "com.unicornwhodev.visiondatasetstudio.HfLivePublicationTest",
+          "numtests": "1",
+          "test": "privateQaPublicationConcurrentReservationsAndReadback",
+          "code": 0
+        }
+      ]
+    }
+  },
+  "page_size": 16384,
+  "cleanup_errors": [],
+  "private_repository_identifier_redacted": true,
+  "original_private_receipt_sha256": "c872cf6a6db98cd777a0cd58e762092efba1a3dd043843a6d5879442ddc27ab8",
+  "main_sha256": "0d506d075075c63520d56d02344e6d18e7746420300ed48e9f27baa79f2a05ae",
+  "test_sha256": "8359933a64d4e683eafb7af3ffa5f6333937b8f14a32b48a9ae41a1b156617dc"
+}
