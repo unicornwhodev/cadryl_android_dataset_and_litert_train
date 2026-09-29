@@ -9,6 +9,7 @@ import com.unicornwhodev.visiondatasetstudio.data.source.ViewerCoverage
 import com.unicornwhodev.visiondatasetstudio.data.model.*
 import com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings
 import com.unicornwhodev.visiondatasetstudio.domain.export.ExportReadiness
+import com.unicornwhodev.visiondatasetstudio.domain.batch.SourceWindowProgress
 import com.unicornwhodev.visiondatasetstudio.domain.inference.*
 import org.junit.Assert.*
 import org.junit.Test
@@ -46,6 +47,18 @@ class ConfigurationGuidanceTest {
     @Test fun partialViewerIsExplicitOptIn() {
         assertFalse(ProcessingSettings().allowPartialViewer)
         assertTrue(ProcessingSettings(allowPartialViewer=true).validate().allowPartialViewer)
+    }
+
+    @Test fun sourceWindowAdvanceStopsAtLastInspectedValidRow() {
+        val page=SourcePageResult(listOf(
+            SourceEntryEntity(1,101,"a","https://example.org/a.jpg"),
+            SourceEntryEntity(1,103,"b","https://example.org/b.jpg")
+        ),consumed=5,rejected=3)
+        assertEquals(2,SourceWindowProgress.advance(100,page,1))
+        assertEquals(4,SourceWindowProgress.advance(100,page,2))
+        assertEquals(5,SourceWindowProgress.advance(100,page,0))
+        assertEquals(1,SourceWindowProgress.rejectedInPrefix(2,1))
+        assertEquals(2,SourceWindowProgress.rejectedInPrefix(4,2))
     }
 
     @Test fun sourcePageCanAdvancePastRejectedRowsWithoutFabricatingEntries() {
