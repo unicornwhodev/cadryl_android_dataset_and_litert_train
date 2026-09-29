@@ -108,6 +108,25 @@ object HumanAnnotationReview {
         else -> "human_validated:${origin(source)}"
     }
 
+    private fun unreviewedSources(value:SampleAnnotations):List<String> =
+        value.points.filter{!it.isHumanVerified}.map{it.sourceProvenance} +
+        value.boxes.filter{!it.isHumanVerified}.map{it.sourceProvenance} +
+        value.masks.filter{!it.isHumanVerified}.map{it.sourceProvenance} +
+        value.tags.filter{!it.isHumanVerified}.map{it.sourceProvenance} +
+        value.captions.filter{!it.isHumanVerified}.map{it.sourceProvenance} +
+        value.groundings.filter{!it.isHumanVerified}.map{it.sourceProvenance} +
+        value.vqaList.filter{!it.isHumanVerified}.map{it.sourceProvenance} +
+        value.counts.filter{!it.isHumanVerified}.map{it.sourceProvenance}
+
+    fun unreviewedModelCount(value:SampleAnnotations):Int=unreviewedSources(value).count(::isModelAssistedSource)
+    fun unreviewedDraftCount(value:SampleAnnotations):Int=(unreviewedSources(value).size-unreviewedModelCount(value)).coerceAtLeast(0)
+
+    fun pendingStatus(value:SampleAnnotations):String=when {
+        value.unreviewedCount==0 -> AnnotationStatus.IN_PROGRESS.name
+        unreviewedModelCount(value)>0 -> AnnotationStatus.PROPOSALS_AVAILABLE.name
+        else -> AnnotationStatus.DRAFTS_AVAILABLE.name
+    }
+
     fun wasModelAssisted(value:SampleAnnotations):Boolean =
         value.points.any{isModelAssistedSource(it.sourceProvenance)} ||
         value.boxes.any{isModelAssistedSource(it.sourceProvenance)} ||
