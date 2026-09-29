@@ -84,6 +84,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val communityModels = _communityModels.asStateFlow()
     private val _modelCatalogWarnings = MutableStateFlow<List<String>>(emptyList())
     val modelCatalogWarnings = _modelCatalogWarnings.asStateFlow()
+    private val _modelCatalogLoading = MutableStateFlow(false)
+    val modelCatalogLoading = _modelCatalogLoading.asStateFlow()
     private val _modelDiagnostics = MutableStateFlow("")
     val modelDiagnostics = _modelDiagnostics.asStateFlow()
     private val _modelInputSpec = MutableStateFlow<ModelInputSpec?>(null)
@@ -193,7 +195,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         checkTokenStatus()
-        viewModelScope.launch { runCatching { _communityModels.value=discoverModelCatalogs() } }
+        viewModelScope.launch {
+            _modelCatalogLoading.value=true
+            try { runCatching { _communityModels.value=discoverModelCatalogs() } }
+            finally { _modelCatalogLoading.value=false }
+        }
     }
 
     fun updatePreferences(value: StudioPreferences) = preferenceStore.update(value)
@@ -909,11 +915,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshCommunityModelCatalog()=operation {
-        _operationProgress.value=OperationProgress(tr("Lecture des catalogues LiteRT…", "Reading LiteRT catalogs…"),0,1)
-        _communityModels.value=discoverModelCatalogs()
-        val sourceCount=_communityModels.value.map{it.sourceRepo}.distinct().size
-        _operationProgress.value=OperationProgress(tr("Catalogue actualisé : ${_communityModels.value.count{it.available}} conversion(s) sur $sourceCount source(s).",
-            "Catalog refreshed: ${_communityModels.value.count{it.available}} conversion(s) across $sourceCount source(s)."),1,1)
+        _modelCatalogLoading.value=true
+        try {
+            _operationProgress.value=OperationProgress(tr("Lecture des catalogues LiteRT…", "Reading LiteRT catalogs…"),0,1)
+            _communityModels.value=discoverModelCatalogs()
+            val sourceCount=_communityModels.value.map{it.sourceRepo}.distinct().size
+            _operationProgress.value=OperationProgress(tr("Catalogue actualisé : ${_communityModels.value.count{it.available}} conversion(s) sur $sourceCount source(s).",
+                "Catalog refreshed: ${_communityModels.value.count{it.available}} conversion(s) across $sourceCount source(s)."),1,1)
+        } finally { _modelCatalogLoading.value=false }
     }
     fun downloadCommunityModel(id:String, sourceRepo:String?=null, repoSha:String?=null)=operation {
         fun matches(item:CommunityModelCatalog.Availability)=item.entry.id==id &&
