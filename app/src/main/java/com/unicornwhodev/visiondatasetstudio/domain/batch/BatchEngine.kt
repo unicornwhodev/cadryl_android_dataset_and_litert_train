@@ -286,6 +286,12 @@ class BatchEngine(
             val project=db.projectDao().getProjectSync(projectId) ?: error(tr("Projet absent", "Project not found"))
             val discovered=discoverViewerBatch(project,batchNumber,count-size,append=existing!=null)
             check(discovered.success){discovered.error ?: tr("Import interrompu", "Import interrupted")}
+            if(discovered.totalDiscovered==0 && !discovered.endOfSource) {
+                if(existing==null) error(tr("Aucune image exploitable dans la fenêtre de source parcourue. Le curseur a avancé; relancez l’import pour poursuivre ou vérifiez la colonne image.",
+                    "No usable image in the scanned source window. The cursor advanced; retry to continue or check the image column."))
+                acquireBatchImages(projectId,batchNumber,onProgress)
+                return@withLock false
+            }
             if(discovered.endOfSource) {
                 exhausted=true
                 check(existing!=null){tr("Fin de la source : aucune nouvelle image", "End of source: no new images")}
