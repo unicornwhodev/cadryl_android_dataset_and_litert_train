@@ -8,25 +8,13 @@ Tu importes tes images, tu vérifies ce que propose le modèle, tu corriges et t
 
 Un projet indépendant de **Unicorn Who Dev**, auparavant nommé *Vision Dataset Studio*.
 
-[Dernière préversion : rc8](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc8) · [Qualification rc8](docs/RC8_QUALIFICATION_2026_09.md) · [Faire son premier lot](docs/GETTING_STARTED.md) · [Documentation](docs/README.md) · [English](README.en.md)
+[Release 0.0.1](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v0.0.1) · [Premier lot](docs/GETTING_STARTED.md) · [Documentation](docs/README.md) · [English](README.en.md)
 
-## Nouveautés rc8
+## Version publique 0.0.1
 
-Pagination des sources sécurisée, restauration du lot stabilisée, guide en quatre étapes et contrats de modèles conservés. Recette HF/SAF réelle, 1 000 photos libres sur Oppo et dix minutes d’inférence sur Honor. [Détails de la version](docs/RC8_RELEASE.md).
+Studio simplifié, didacticiel interactif au premier lancement, imports et exports sécurisés, icônes Cadryl et notices hors ligne. Modèles et apprentissage restent disponibles. La case finale du didacticiel désactive ses prochains lancements ; les réglages permettent de le relancer.
 
-## Préparation suivante
-
-Imports transactionnels, archives relues avant remplacement, documents légaux
-hors ligne FR/EN et didacticiel interactif au premier lancement. À la fin,
-la case « Ne plus afficher au démarrage » désactive les prochains affichages ;
-les réglages permettent de relancer le guide.
-
-Ce dépôt contient uniquement l’édition publique Apache-2.0, compilable sans
-publicité, abonnement ou backend Cadryl. Les composants commerciaux ont été
-retirés. Imports, annotations, modèles, entraînement et exports sont conservés.
-[Plan de qualification](docs/FINAL_RC_0_1_PLAN.md) ·
-[Didacticiel](docs/FIRST_LAUNCH_TUTORIAL.md) ·
-[Sources Apache-2.0 et nettoyage](docs/SOURCE_CLEANLINESS.md).
+Les sources Apache-2.0 se compilent sans publicité, abonnement ni backend Cadryl. [Contenu de la version](docs/RELEASE_001.md) · [Preuves exactes](docs/RELEASE_001_EVIDENCE.json) · [Nettoyage des données personnelles](docs/PRIVACY_REDACTION_2026_09.md).
 
 ## Ce qu’on peut faire
 
@@ -47,23 +35,21 @@ Capture réelle sur émulateur. La bannière en haut de page est une illustratio
 
 Il faut **Android 9 ou plus et un téléphone ARM64**. Télécharge `vision-dataset-studio.apk` dans la release, puis commence avec quelques images dont tu peux disposer. Le nom technique du fichier et l’identifiant Android restent les mêmes pour garder la continuité du projet.
 
-**Tu as déjà rc4 ou rc5 ?** Ces anciennes APK Debug utilisent d’autres clés. rc7 ne peut pas les mettre à jour directement : garde l’installation et ses données. [Installation et signature](docs/GETTING_STARTED.md#installer-cadryl).
+**Tu as déjà rc4 ou rc5 ?** Ces anciennes APK Debug utilisent d’autres clés. 0.0.1 ne peut pas les mettre à jour directement : garde l’installation et ses données. [Installation et signature](docs/GETTING_STARTED.md#installer-cadryl).
 
 Pour les modèles, deux catalogues publics sont documentés : [les conversions Charlbi](https://huggingface.co/Charlbi/Lite_rt_prepared_for_android_dataset_builder) et [les modèles FireViewer](https://huggingface.co/fireviewer/litert-models). Lis les résultats de chaque variante avant de la choisir. Un modèle qui se charge n’est pas forcément précis sur tes images.
 
-## Où en est le projet ?
+## Validation
 
-**4.2.0-rc8 est une préversion.** Build réel, 106 tests JVM, 93 tests Python et schémas KSP. Les 53 tests Android passent en Debug et Release sur AVD API 36/16 Ko, et en Release sur Honor et Oppo ARM64/4 Ko. Quatre parcours UI indépendants passent sur Oppo et AVD. Les échanges HF privés autorisés, les fautes SAF, les 1 000 photos CC0 et les dix minutes d’inférence ont leurs preuves distinctes. [Résultats et APK exactes](docs/RC8_QUALIFICATION_2026_09.md).
-
-L’ARM physique 16 Ko, la qualité des modèles FireViewer, les sources Viewer réelles complète/partielle, l’endurance en arrière-plan, la revue des notices natives restent ouverts. [État des tests](TEST_REPORT.md) · [Limites connues](KNOWN_LIMITATIONS.md) · [Feuille de route](docs/ROADMAP.md).
+Builds Android réels, contrôles JVM/lint/KSP, suites Android et parcours UI indépendants sur téléphone ont leurs reçus distincts. [Résultats actuels](TEST_REPORT.md). Les campagnes RC8 de services externes, corpus et endurance conservent leur portée historique. [Limites connues](KNOWN_LIMITATIONS.md).
 
 ## Mettre les mains dans le code
 
 L’app utilise **Kotlin, Compose, Room et LiteRT**. Le [guide de développement](docs/DEVELOPMENT_RESUME.md) explique les dépendances natives, le build Windows/Linux et les tests. L’[architecture](docs/ARCHITECTURE.md) donne les repères pour trouver le bon endroit dans le code.
 
 La [reprise de l’interface](docs/UI_REWORK_2026_09.md) simplifie le studio après rc8.
-Ses [preuves de préparation](docs/FINAL01_EVIDENCE.json) sont distinctes des APK publiquées ;
-la validation humaine de la future interface finale reste ouverte.
+Les [preuves 0.0.1](docs/RELEASE_001_EVIDENCE.json) décrivent les APK livrées ;
+la validation humaine finale de l’interface reste distincte.
 
 Un bug, une idée ou une amélioration ? [Ouvre une issue](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/issues) avec la version, l’appareil et les étapes pour reproduire. Les contributions sont les bienvenues ; les règles utiles tiennent dans [CONTRIBUTING.md](CONTRIBUTING.md).
 

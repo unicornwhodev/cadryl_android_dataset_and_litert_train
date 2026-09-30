@@ -8,6 +8,11 @@ La [qualification rc8 des 29–30 septembre](RC8_QUALIFICATION_2026_09.md) passe
 
 ## P0 : assembler, résoudre et installer
 
+Les sources actuelles ajoutent le didacticiel et les correctifs de l’audit final.
+Leurs builds et essais sont consignés dans le [nouvel audit](FINAL_AUDIT_2026_09.md).
+Les comptes de la RC8 ci-dessus restent ceux des APK publiquées. La suite préparée
+compte maintenant 62 tests ; elle inclut les icônes réelles de la variante choisie.
+
 JDK 21, Gradle 9.3.1, SDK 36 et bibliothèques déclarées dans le projet. Préparer [Flex](FLEX_16K.md), [Graphics Path](GRAPHICS_PATH_16K.md) et [LiteRT](LITERT_16K_STATUS.md), puis exécuter `python -X utf8 tools/build_android.py` sous Windows ou `bash tools/build_android.sh` sous Linux. Corriger les erreurs réelles sans supprimer des tests, rétrograder silencieusement les formats ou ajouter un fallback destructif.
 
 Récupérer APK Debug, SHA, logs assemble/test/lint et APK instrumentée. Vérifier la signature avec `apksigner verify --verbose`, installer sur appareil dédié. Une APK assemblée n’est pas encore qualifiée. Ne pas désinstaller une installation porteuse de données en cas de signature différente.

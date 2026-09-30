@@ -30,7 +30,7 @@ $env:VDS_ALLOW_TEST_INSTALL='1'
 python -X utf8 tools/qa/run_release_business_qualification.py `
   --serial '<adb-serial>' --apk '<app.apk>' --sha256 '<sha256-app>' `
   --test-apk '<tests.apk>' --test-sha256 '<sha256-tests>' `
-  --expected-page-size 4096 --expected-tests 53 `
+  --expected-page-size 4096 --expected-tests 62 `
   --output 'test-results/release-core-nouvelle-tentative'
 ```
 
@@ -38,7 +38,9 @@ Pour l'émulateur x86_64 16 Ko, construire avec `--abi x86_64` et vérifier
 `--expected-page-size 16384`. La signature doit correspondre à son installation
 existante. Ne pas désinstaller pour contourner un conflit de certificat.
 
-La RC8 stabilisée du 29 septembre compte **53 tests de base**, dont huit scénarios
+Les sources après l’audit du 30 septembre comptent **62 tests de base**, dont
+le décodage et rendu réels des icônes à cinq densités. Utiliser `--expected-tests 62`
+pour ce couple APK. La RC8 publiée du 29 septembre compte **53 tests de base**, dont huit scénarios
 de pagination et de rejet des sources. Sélectionner `--expected-tests 53` pour
 exiger ce compte exact, sans échec ni test ignoré. Le défaut historique de 45
 reste utilisable avec les anciennes APK rc7. Le lanceur conserve les sorties

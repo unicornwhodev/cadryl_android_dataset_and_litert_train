@@ -20,7 +20,7 @@ Prérequis : Linux ou WSL, Python 3, et **NDK r25b déjà installé**. Sur le po
 de qualification :
 
 ```powershell
-wsl -d VDS-Flex-Build -- python3 /mnt/d/Dev/project/vision-dataset-studio/tools/build_graphics_path.py --ndk /opt/vds-flex/android-ndk-r25b
+wsl -d VDS-Flex-Build -- python3 /mnt/<drive>/<checkout>/tools/build_graphics_path.py --ndk /opt/vds-flex/android-ndk-r25b
 python -X utf8 tools/build_android.py
 ```
 

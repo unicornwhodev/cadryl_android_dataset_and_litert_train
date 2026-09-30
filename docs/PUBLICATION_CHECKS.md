@@ -22,6 +22,17 @@ Le [reçu du 27 septembre](RC7_PUBLICATION_RECEIPT.json) confirme les dix assets
 
 GitHub a renommé le dépôt en `unicornwhodev/cadryl_android_dataset_and_litert_train`. Le reçu utilise son adresse actuelle ; les anciennes adresses redirigent vers ce dépôt. Le package GHCR existant garde son nom et sa visibilité privée.
 
+## Publication rc8 et nouvel audit
+
+Le [reçu rc8](RC8_PUBLICATION_RECEIPT.json) porte sur neuf assets GitHub et
+neuf couches OCI. Le 30 septembre, le [nouvel audit](FINAL_AUDIT_2026_09.md)
+a retéléchargé ces fichiers et couches, vérifié leurs SHA-256, le commit du tag,
+les CRC et les chemins de 17 archives, dont les APK/AAR/JAR imbriqués.
+Le package GHCR conserve sa visibilité privée ; GitHub fournit les téléchargements
+publics. L’audit a aussi trouvé des icônes WebP défectueuses et une notice IJG
+manquante dans les sources plus récentes. Les corrections ne modifient pas les
+artefacts historiques et ne constituent pas une clôture des portes restantes.
+
 ## Après l’envoi
 
 Les noms, tailles et SHA-256 des assets GitHub doivent correspondre aux fichiers locaux. Le tag doit pointer sur le commit de compilation. Les couches du package GHCR sont téléchargées de nouveau et comparées octet par octet par SHA-256.

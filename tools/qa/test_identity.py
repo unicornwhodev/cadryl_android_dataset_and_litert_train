@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Static source identity guards. Not Android compilation or manifest-merger validation."""
 from pathlib import Path
-import re, subprocess, tomllib, unittest, xml.etree.ElementTree as ET
+import json, re, subprocess, tomllib, unittest, xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[2]
 PACKAGE='com.unicornwhodev.visiondatasetstudio'
 NS='{http://schemas.android.com/apk/res/android}'
@@ -31,6 +31,15 @@ class IdentityTests(unittest.TestCase):
         provider=providers[0]
         self.assertEqual('${applicationId}.fileprovider',provider.get(NS+'authorities'))
         self.assertEqual('false',provider.get(NS+'exported'))
+    def test_launcher_uses_only_native_cadryl_adaptive_icons(self):
+        resources=ROOT/'app/src/main/res'
+        self.assertEqual([],list(resources.glob('mipmap-*/*.webp')))
+        for name in ('ic_launcher','ic_launcher_round'):
+            icon=ET.parse(resources/'mipmap-anydpi-v26'/(name+'.xml')).getroot()
+            self.assertEqual('adaptive-icon',icon.tag)
+            self.assertEqual('@drawable/ic_launcher_foreground',icon.find('foreground').get(NS+'drawable'))
+        self.assertFalse((ROOT/'tools/prepare_release.py').exists())
+        self.assertFalse((ROOT/'tools/package_qualification.py').exists())
     def test_instrumented_provider_identity(self):
         tree=ET.parse(ROOT/'app/src/androidTest/AndroidManifest.xml')
         provider=tree.find('.//provider')
@@ -39,7 +48,10 @@ class IdentityTests(unittest.TestCase):
         text=next((ROOT/'app/src/androidTest').rglob('SafV4Test.kt')).read_text(encoding='utf-8')
         self.assertIn('context.packageName}.documents/',text)
     def test_version_and_database_versions_distinct(self):
-        self.assertIn('versionName = "4.2.0-rc8"',(ROOT/'app/build.gradle.kts').read_text(encoding='utf-8'))
+        state=json.loads((ROOT/'QUALIFICATION_STATUS.json').read_text(encoding='utf-8'))
+        build=(ROOT/'app/build.gradle.kts').read_text(encoding='utf-8')
+        self.assertIn(f'versionName = "{state["version"]}"',build)
+        self.assertIn(f'versionCode = {state["version_code"]}',build)
         db=next((ROOT/'app/src/main').rglob('AppDatabase.kt')).read_text(encoding='utf-8')
         self.assertIn('version = 4',db)
         self.assertNotIn('fallbackToDestructiveMigration',db)

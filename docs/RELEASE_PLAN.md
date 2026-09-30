@@ -1,30 +1,11 @@
-# Livrer Cadryl
+# Livrer Cadryl 0.0.1
 
-[Documentation](README.md) · [English](en/RELEASE_PLAN.md)
+[Version et contenu](RELEASE_001.md) · [Preuves](RELEASE_001_EVIDENCE.json).
 
-La livraison actuelle est **4.2.0-rc7**, une prérelease signée avec la clé durable, [publiée et vérifiée](RC7_PUBLICATION_RECEIPT.json). Les fichiers gardent leurs noms techniques `vision-dataset-studio` pour conserver les liens et les scripts existants. [Contenu et résultats rc7](RC7_RELEASE.md).
+La release publique utilise versionCode 14 et la signature durable. Le packageur `tools/package_public_release.py` exige les sources Git exactes, les nouvelles paires APK Debug/Release, les tests Android, les parcours UI indépendants et la conservation de la base installée. Les preuves brutes contenant des chemins personnels restent privées.
 
-## Ce qui est distribué
+L’APK ARM64 signée, le ZIP de qualification anonymisé, les trois archives Maven et leurs empreintes sont disponibles dans la release GitHub. Le package OCI conserve les mêmes fichiers pour les utilisateurs autorisés ; il ne s’agit pas d’un conteneur exécutable.
 
-- `vision-dataset-studio.apk` : app Release ARM64, Android 9+, sans poids de modèle.
-- `vision-dataset-studio-4.2.0-rc7-qualification.zip` : APK ARM64/x86_64 et de tests, pilote UI, documentation, notices et preuves sélectionnées.
-- Trois archives Maven pour Flex `2.16.1-vds16k1`, Graphics Path `1.0.1-vds16k1` et LiteRT `2.2.0-vds16k2`.
-- `PACKAGE.json`, `PUBLICATION_CHECKS.json` et `SHA256SUMS` : provenance et intégrité.
+Les scripts de RC historiques conservent leurs contrats propres. Ne pas réutiliser une ancienne preuve pour qualifier une nouvelle APK. Aucun workflow GitHub Actions. Après upload, retélécharger et comparer chaque fichier. Les anciennes archives expurgées ont une notice de retrait et de nouvelles empreintes.
 
-Les fichiers sont publiés dans la [release GitHub](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7). Le [package GHCR](https://github.com/users/unicornwhodev/packages/container/package/vision-dataset-studio-qualification) garde sa visibilité privée. Il contient des artefacts, pas un conteneur exécutable.
-
-## Avant de publier
-
-Construire les deux paires Release, les signer avec la même clé durable et tester les octets signés. Conserver les résultats partiels ou en échec. Sélectionner ensuite les preuves publiques, sans secret, poids ni corpus utilisateur. Le [guide de tests Release](RELEASE_TESTING.md) détaille les commandes.
-
-Après revue et commit des sources, `tools/package_native_release.py` vérifie un arbre propre, les sources compilées contre Git, les APK contre les reçus de signature et les tests, puis l’audit natif. Il refuse de remplacer un dossier de livraison existant. Ses paramètres `--arm-build`, `--arm-signed`, `--x86-build`, `--x86-signed`, `--evidence`, `--qa-apk` et `--version` doivent désigner les tentatives effectivement testées.
-
-Les archives sont relues avant upload. La publication utilise un nouveau tag ; un tag ou une release existante n’est pas écrasé. Après upload, comparer les assets GitHub aux tailles et SHA locaux, puis relire les couches OCI téléchargées. [Contrôles de publication](PUBLICATION_CHECKS.md).
-
-## Mises à jour
-
-Conserver l’identifiant Android et la [clé durable](SIGNING.md), puis augmenter `versionCode`. Les anciennes rc4/rc5 Debug ont d’autres signatures : leur incompatibilité reste signalée dans les téléchargements. Aucune désinstallation automatique ne doit servir de migration.
-
-La CI préparée n’a pas été exécutée pour cette livraison. Les limites matérielles, la cause ART historique et la revue des notices restent visibles dans la note de release. rc7 n’est pas présentée comme une version stable.
-
-La publication précédente est conservée dans le [reçu rc6](RC6_PUBLICATION_RECEIPT.json).
+La publication suit la décision du propriétaire du 30 septembre ; les limites mesurées et les essais non exécutés restent documentés.

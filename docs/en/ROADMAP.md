@@ -4,10 +4,11 @@
 
 The priority is a reliable phone workflow. New features should follow feedback on that foundation.
 
-## Finish candidate acceptance
+## After the 0.0.1 release
 
-- Run the final runtime and both Release suites on Honor, then check a signed update with data preserved.
-- Test a physical ARM phone with 16 KB pages. Strict alignment is fixed; hardware evidence is missing.
+- Retain exact-APK qualification and update preservation checks for future releases.
+- Finish UI acceptance after device error, keyboard, accessibility and restart scenarios.
+- Extend hardware coverage when suitable devices are available, without blocking this release.
 - Repeat longer sessions and observe background restrictions. Keep any ART crash traces; the historical cause is still unknown.
 
 ## Data and reproducibility

@@ -506,8 +506,8 @@
   },
   {
     "path": "host/python.txt",
-    "bytes": 460,
-    "sha256": "97db23516bb2bf6049ad30f472c86562fb8dfe24a0b04e4c2960b4a68c51f69d"
+    "bytes": 458,
+    "sha256": "c67aae2a61597a8e68af633f280a5272817a473e3f19cc20715a255bb354e71f"
   },
   {
     "path": "host-checks.json",

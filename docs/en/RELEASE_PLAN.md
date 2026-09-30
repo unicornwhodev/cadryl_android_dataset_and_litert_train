@@ -1,28 +1,9 @@
-# Ship Cadryl
+# Shipping Cadryl 0.0.1
 
-[Documentation](README.md) · [Français](../RELEASE_PLAN.md)
+[Release content](../RELEASE_001.md) · [Evidence](../RELEASE_001_EVIDENCE.json).
 
-Current delivery: **4.2.0-rc7**, a prerelease signed with the durable key, [published and verified](../RC7_PUBLICATION_RECEIPT.json). Files keep their technical `vision-dataset-studio` names for existing links and scripts. [rc7 contents and results](../RC7_RELEASE.md).
+Version code 14, the same durable signing certificate, actual Debug/Release builds and exact signed-APK test evidence. `tools/package_public_release.py` verifies source blobs, signatures, payloads, Android suites, independent UI checks and installed database preservation. Raw workstation/device logs remain private.
 
-## Published files
+The signed ARM64 app, anonymised qualification ZIP, three Maven archives and checksums are distributed through GitHub Releases. The OCI package retains the same files for authorised users; it is not runnable. Historical RC packagers retain their own evidence contracts. No GitHub Actions. Download every uploaded asset again and compare hashes. Privacy-redacted historical archives are explicitly labelled.
 
-- `vision-dataset-studio.apk`: ARM64 Release app, Android 9+, no model weights.
-- `vision-dataset-studio-4.2.0-rc7-qualification.zip`: ARM64/x86_64 app/test APKs, UI driver, docs, notices and selected evidence.
-- Maven ZIPs for Flex `2.16.1-vds16k1`, Graphics Path `1.0.1-vds16k1` and LiteRT `2.2.0-vds16k2`.
-- `PACKAGE.json`, `PUBLICATION_CHECKS.json` and `SHA256SUMS`: provenance and integrity.
-
-Assets are available through the [GitHub release](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7). The [GHCR package](https://github.com/users/unicornwhodev/packages/container/package/vision-dataset-studio-qualification) remains private. It holds artifacts, not a runnable container.
-
-## Prepare a release
-
-Build both Release app/test pairs, sign with the same durable key and test the signed bytes. Retain failures and partial results. Select public evidence without secrets, weights or user datasets. Follow [Release testing](../RELEASE_TESTING.md).
-
-After review and commit, `tools/package_native_release.py` checks a clean tree, compiled sources against Git, APKs against signing/test receipts and strict native alignment. It refuses to overwrite an existing delivery folder. Its build, signing, evidence and UI-driver arguments must identify the exact tested attempts.
-
-Review archives before upload. Use a new tag rather than overwriting an existing release. Verify GitHub asset hashes and sizes after publication, then pull back and check the OCI layers. [Publication checks](../PUBLICATION_CHECKS.md).
-
-## Updates
-
-Keep the Android ID and [durable key](../SIGNING.md), then increase `versionCode`. rc4/rc5 Debug certificate incompatibility stays explicit. Uninstalling is not a data migration.
-
-Prepared CI has not run for this delivery. Hardware gaps, the historical ART cause and pending native notices remain visible. rc7 is not labelled stable. The [rc6 publication receipt](../RC6_PUBLICATION_RECEIPT.json) is retained.
+Publication follows the owner’s 30 September decision; measured limitations and unexecuted checks remain documented.

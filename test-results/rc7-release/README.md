@@ -22,3 +22,6 @@ Les captures françaises dans `visuals` sont natives, non retouchées, prises su
 Les fichiers `package.txt` sont des extraits identifiés du dump brut. Les identifiants synthétiques inutiles à la filiation sont omis du reçu de continuité. Les fixtures ont été préparées et relues avec root uniquement sur l’émulateur dédié ; les tests applicatifs tournent avec ADB en UID shell 2000. Aucun poids, jeton, dépôt privé ou corpus utilisateur n’est inclus.
 
 Le téléphone, les échanges HF réels, les interruptions externes, la précision des modèles et la CI gardent leurs qualifications distinctes. [Note de version](../../docs/RC7_RELEASE.md).
+
+
+Privacy update, 30 September 2026: public host logs and historical qualification ZIPs are explicitly anonymised. Original bytes are retained privately; APK bytes and measured results are unchanged. See docs/PRIVACY_REDACTION_2026_09.md and the release-specific PRIVACY_REDACTION.json.

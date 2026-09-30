@@ -17,6 +17,20 @@ ROOT=Path(__file__).resolve().parents[1]
 
 def sha(data): return hashlib.sha256(data).hexdigest()
 
+def notice_paths(source, repo):
+    notices=[p for p in source.iterdir() if p.is_file() and re.search(r'^(LICENSE|NOTICE|COPYING|COPYRIGHT)([._-]|$)',p.name,re.I)]
+    if (source/'LICENSES').is_dir(): notices.extend(p for p in (source/'LICENSES').iterdir() if p.is_file())
+    if repo=='KleidiAI' and (source/'REUSE.toml').is_file(): notices.append(source/'REUSE.toml')
+    if repo=='fft2d': notices.extend(source.glob('readme*.txt'))
+    # LICENSE.md delegates the inherited libjpeg licence to this exact file.
+    if repo=='libjpeg_turbo':
+        ijg=source/'README.ijg'
+        if not ijg.is_file(): raise ValueError('Missing libjpeg-turbo IJG licence')
+        notices.append(ijg)
+    if not notices:
+        notices=[p for p in source.glob('*/*') if p.is_file() and re.search(r'^(LICENSE|NOTICE|COPYING|COPYRIGHT)([._-]|$)',p.name,re.I)]
+    return sorted(set(notices))
+
 def collect(work,kind,aar,output):
     caches=list((work/'bazel-cache').glob('*/external'))
     if len(caches)!=1: raise ValueError('Select the exact retained native build cache')
@@ -44,12 +58,7 @@ def collect(work,kind,aar,output):
     rows=[]
     for repo in sorted(repositories):
         source=(cache/'external'/repo).resolve()
-        notices=[p for p in source.iterdir() if p.is_file() and re.search(r'^(LICENSE|NOTICE|COPYING|COPYRIGHT)([._-]|$)',p.name,re.I)]
-        if (source/'LICENSES').is_dir(): notices.extend(p for p in (source/'LICENSES').iterdir() if p.is_file())
-        if repo=='KleidiAI' and (source/'REUSE.toml').is_file(): notices.append(source/'REUSE.toml')
-        if repo=='fft2d': notices.extend(source.glob('readme*.txt'))
-        if not notices:
-            notices=[p for p in source.glob('*/*') if p.is_file() and re.search(r'^(LICENSE|NOTICE|COPYING|COPYRIGHT)([._-]|$)',p.name,re.I)]
+        notices=notice_paths(source,repo)
         entries=[]
         for p in sorted(set(notices)):
             data=p.read_bytes();relative=p.relative_to(source)

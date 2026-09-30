@@ -31,8 +31,10 @@ Pour découvrir l’app, pars du **[premier lot](GETTING_STARTED.md)**. Tu peux 
 
 [État des tests](../TEST_REPORT.md) · [Recette Android](ANDROID_QUALIFICATION.md) · [Tester la Release](RELEASE_TESTING.md) · [Signature](SIGNING.md) · [Distribution](RELEASE_PLAN.md) · [Contrôles avant publication](PUBLICATION_CHECKS.md) · [Feuille de route](ROADMAP.md).
 
-La **[note rc7](RC7_RELEASE.md)** décrit le candidat actuel. Le [reçu rc7](RC7_PUBLICATION_RECEIPT.json) confirme les dix assets GitHub et les huit couches GHCR vérifiés. Le [reçu rc6](RC6_PUBLICATION_RECEIPT.json) reste la preuve de la publication précédente. Les comptes rendus datés restent accessibles depuis le rapport de tests : ils gardent leurs APK, leurs appareils et leurs limites d’origine. Un ancien succès ne valide pas automatiquement une nouvelle version.
+La [release 0.0.1](RELEASE_001.md) et ses [preuves](RELEASE_001_EVIDENCE.json) décrivent la livraison actuelle. Les campagnes RC précédentes restent historiques. Le [didacticiel](FIRST_LAUNCH_TUTORIAL.md) précise la case de désactivation ; les [archives expurgées](PRIVACY_REDACTION_2026_09.md) conservent leurs résultats et APK originales.
 
 ## Modèles et licences
 
 [Conversions Charlbi](https://huggingface.co/Charlbi/Lite_rt_prepared_for_android_dataset_builder) · [Catalogue FireViewer](https://huggingface.co/fireviewer/litert-models) · [Licence du code](../LICENSE) · [Attributions](../LICENSING_STATUS.md) · [Inventaire des dépendances](../third_party/README.md).
+
+[Release 0.0.1](RELEASE_001.md) · [Anonymisation](PRIVACY_REDACTION_2026_09.md).

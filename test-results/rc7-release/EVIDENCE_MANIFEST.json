@@ -106,13 +106,13 @@
   },
   {
     "path": "host/python-final.log",
-    "sha256": "cc76cbe1332ed55710b9ad48d656e6d3852d037c72e0ef80555560f564b2b565",
-    "bytes": 11551
+    "sha256": "730a7b0b4336ab3405a8f353949d2a286279be5275ee5336a388764a16dc9f31",
+    "bytes": 11549
   },
   {
     "path": "host/python-tests.log",
-    "sha256": "daccaf4ab1c7d9a0bfe8d5a018a853054e5e6c7f6f1cb582163f9f38be4fc99d",
-    "bytes": 11551
+    "sha256": "bcdf714480fdcb5896e4dcc5cd00a11bc9dda12e6c24d8f1e5b176f22ab39b31",
+    "bytes": 11549
   },
   {
     "path": "host/ui-driver-v3-build.log",

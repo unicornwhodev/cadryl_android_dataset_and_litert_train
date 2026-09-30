@@ -6,7 +6,7 @@ Le plus simple : quelques images, un projet et aucun modèle pour commencer. Tu 
 
 ## Installer Cadryl
 
-Dans la [release rc7](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7), prends **`vision-dataset-studio.apk`**. C’est l’app Release signée pour Android 9+ sur ARM64. Les modèles se téléchargent séparément.
+Dans la [release 0.0.1](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v0.0.1), prends **`vision-dataset-studio.apk`**. C’est l’app Release signée pour Android 9+ sur ARM64. Les modèles se téléchargent séparément.
 
 Le fichier `SHA256SUMS` permet de vérifier le téléchargement. Sous PowerShell :
 
@@ -16,15 +16,16 @@ Get-FileHash ./vision-dataset-studio.apk -Algorithm SHA256
 
 Compare le résultat à la ligne de l’APK. Les archives `qualification` contiennent aussi les APK de tests et la variante x86_64 ; elles servent au développement. Les trois ZIP Flex, Graphics Path et LiteRT sont les dépendances de compilation.
 
-**Tu utilises rc6 ?** rc7 garde sa signature et augmente le numéro de version pour permettre la mise à jour. **Une ancienne rc4/rc5 est déjà installée ?** Elle utilise une autre signature. Garde ses données et ne la désinstalle pas pour forcer le passage. [Signature durable](SIGNING.md). La recette de ce candidat sur téléphone reste à compléter.
+**Anciennes rc6 à rc8 :** signature durable conservée, versionCode augmenté. Les rc4/rc5 Debug ont une autre signature : conserver leurs données et leur installation. [Signature](SIGNING.md).
 
 ## 1. Crée ton projet
 
-Dans **Atelier → Projets**, crée ton projet, puis ouvre **Configurer**. Le guide propose trois étapes :
+Dans **Atelier → Projets**, crée ton projet, puis ouvre **Configurer**. La configuration propose quatre étapes :
 
 1. **Images** : choisis un dossier sur l’appareil ou un dataset Hugging Face. Pour HF, utilise **Inspecter la source** pour vérifier son accès et la colonne image.
 2. **Objectif** : choisis d’entourer, classer ou décrire les images. Ajoute les classes utiles. Si un modèle est sélectionné, recherche ses classes et touche leur nom pour les ajouter. Les noms doivent correspondre exactement ; une traduction n’est pas ajoutée automatiquement.
-3. **Vérifier** : relis le résumé. Tu peux commencer à la main, sans modèle ni compte HF pour une source locale. Le dossier de sortie se choisit plus tard dans **Export**.
+3. **Modèle** : garde le mode manuel ou sélectionne un modèle dont le contrat est compatible. L’entraînement reste facultatif.
+4. **Vérifier** : relis le résumé. Tu peux commencer à la main, sans modèle ni compte HF pour une source locale. Le dossier de sortie se choisit plus tard dans **Export**.
 
 Cadryl garde chaque projet séparément : sa source, ses lots, ses annotations et son historique.
 

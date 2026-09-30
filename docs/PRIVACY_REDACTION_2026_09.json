@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "originals_public": false,
+  "redactions": [
+    {
+      "path": "test-results/rc7-release/host/python-final.log",
+      "original_sha256": "cc76cbe1332ed55710b9ad48d656e6d3852d037c72e0ef80555560f564b2b565",
+      "public_sha256": "730a7b0b4336ab3405a8f353949d2a286279be5275ee5336a388764a16dc9f31",
+      "reason": "Personal Windows account path removed; original retained privately"
+    },
+    {
+      "path": "test-results/rc7-release/host/python-tests.log",
+      "original_sha256": "daccaf4ab1c7d9a0bfe8d5a018a853054e5e6c7f6f1cb582163f9f38be4fc99d",
+      "public_sha256": "bcdf714480fdcb5896e4dcc5cd00a11bc9dda12e6c24d8f1e5b176f22ab39b31",
+      "reason": "Personal Windows account path removed; original retained privately"
+    },
+    {
+      "path": "test-results/rc8-release/host/python.txt",
+      "original_sha256": "97db23516bb2bf6049ad30f472c86562fb8dfe24a0b04e4c2960b4a68c51f69d",
+      "public_sha256": "c67aae2a61597a8e68af633f280a5272817a473e3f19cc20715a255bb354e71f",
+      "reason": "Personal Windows account path removed; original retained privately"
+    }
+  ],
+  "historical_archives": [
+    {
+      "tag": "v4.2.0-rc8",
+      "original_asset_id": 599541902,
+      "original_asset_name": "vision-dataset-studio-4.2.0-rc8-qualification.zip",
+      "original_sha256": "9cc42de20be2985c00dcf5a87cad7075f81b86dfc24938503dd9cc1c064921ab",
+      "public_asset_name": "vision-dataset-studio-4.2.0-rc8-qualification-anonymized.zip",
+      "public_sha256": "830328de31f6237727fc2ee4543d7157ae2386ba313124af14660d3c34fb0811",
+      "redacted_files": 1
+    },
+    {
+      "tag": "v4.2.0-rc7",
+      "original_asset_id": 591602848,
+      "original_asset_name": "vision-dataset-studio-4.2.0-rc7-qualification.zip",
+      "original_sha256": "aaf2bd548703a733de648fa93b838858fbf54d8871ea2286035ad56ab23c43bc",
+      "public_asset_name": "vision-dataset-studio-4.2.0-rc7-qualification-anonymized.zip",
+      "public_sha256": "f38223beb1de80a599dcca8127911b06b406e28d204d4af1ac1a0bdd2b2e99a0",
+      "redacted_files": 2
+    },
+    {
+      "tag": "v4.2.0-rc5",
+      "original_asset_id": 583621882,
+      "original_asset_name": "vision-dataset-studio-4.2.0-rc5-qualification.zip",
+      "original_sha256": "4c012d1a719bcb37413a5e2589aeb21796dfb4a14887c3d0486480587919e1ae",
+      "public_asset_name": "vision-dataset-studio-4.2.0-rc5-qualification-anonymized.zip",
+      "public_sha256": "7dd604b3b446d6f4672fddeb0356f466f1b676f384e2816ca1ec1434ceb6241b",
+      "redacted_files": 2
+    }
+  ],
+  "history": {
+    "history_privacy_cleanup_pushed": true,
+    "force_with_lease": true,
+    "atomic_push": true,
+    "verified_refs": [
+      {
+        "ref": "refs/heads/main",
+        "sha": "5c0b14f94314d7af9accd3019b64fa60e43c4498"
+      },
+      {
+        "ref": "refs/tags/v4.2.0-rc2",
+        "sha": "400f0ca1a3b8f64a43c923b07a83223e2a73de70"
+      },
+      {
+        "ref": "refs/tags/v4.2.0-rc3",
+        "sha": "e965d1dd879e8d5f477cbca9ad85f738055f28e1"
+      },
+      {
+        "ref": "refs/tags/v4.2.0-rc4",
+        "sha": "bee54e90442c3abffa7b36367c5e6afe1e427897"
+      },
+      {
+        "ref": "refs/tags/v4.2.0-rc5",
+        "sha": "6571587b34e100364d2f24d45a70a9b8fb42e83c"
+      },
+      {
+        "ref": "refs/tags/v4.2.0-rc6",
+        "sha": "00efd9c5a422040c5ae9f18efa4a649526772533"
+      },
+      {
+        "ref": "refs/tags/v4.2.0-rc7",
+        "sha": "6e4d1ccf3bff41a477a2fa78448e0bed14a5a5d7"
+      },
+      {
+        "ref": "refs/tags/v4.2.0-rc8",
+        "sha": "9aa5df513154ba1fc563291d242a63f848032ffa"
+      }
+    ],
+    "owned_commit_email_removed": true,
+    "personal_account_paths_removed": true,
+    "original_git_bundle_private": true
+  }
+}

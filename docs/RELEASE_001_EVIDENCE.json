@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "version": "0.0.1",
+  "version_code": 14,
+  "edition": "public",
+  "application_id": "com.unicornwhodev.visiondatasetstudio",
+  "artifacts": {
+    "app": {
+      "file": "app.apk",
+      "sha256": "0e253e58a5e8382031cfb50d881c8e60298c758c8ee50cf5e77c0e915b1e5aa3",
+      "bytes": 101781186,
+      "source_sha256": "006882d7530fc77a3ed044d0d79141a0e6a855e79ae423b888b05d1f727db3db"
+    },
+    "tests": {
+      "file": "tests.apk",
+      "sha256": "381c952126f746362294002c96fb3ce68abe120eaaa98a9b9298213caba4aef4",
+      "bytes": 2566009,
+      "source_sha256": "6a2678fcdc95f09afb51752d310dd148f839fbbf691e4770384c0ca85a4dc5fa"
+    }
+  },
+  "debug_artifacts": {
+    "app": {
+      "file": "vision-dataset-studio-uwd-debug.apk",
+      "sha256": "d0322cb50d966eac3c4a533a79e56d9cb5dd97a6917d6d61e20db52b859a0ace",
+      "bytes": 416142879
+    },
+    "tests": {
+      "file": "vision-dataset-studio-uwd-test.apk",
+      "sha256": "034445189ad25fdebc16829a36b32de1328fc5cbeb0985dc68b84e7e4759b163",
+      "bytes": 3387698
+    }
+  },
+  "certificate_sha256": "51ef3e4abf953c62c8427deaecf4349aefffc2270c593229315722457f126895",
+  "jvm": {
+    "tests": 117,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "python": {
+    "passed": 113,
+    "failed": 0,
+    "log_sha256": "a9b5b78b08c55008f26d82f11eec1aa5d7ab30028a8d31f1280cd97156f8eca8"
+  },
+  "lint": {
+    "Error": 0,
+    "Warning": 83
+  },
+  "ksp_generated_files": 101,
+  "compiled_source_manifest_sha256": "dfb1cf0d8daaf073eaa1009da38b90f4018ef3204a2edcea4867ee18b63337ee",
+  "android": {
+    "physical_arm_release": {
+      "passed": 62,
+      "failed": 0,
+      "skipped": 0,
+      "abi": "arm64-v8a",
+      "api": 33,
+      "receipt_sha256": "37dc6a4eeb66d54cf2d36ba0c9ac15d0c8e3d187ed1d77feeb2ea803940f9d2a"
+    },
+    "emulator_debug": {
+      "passed": 62,
+      "failed": 0,
+      "skipped": 0,
+      "abi": "x86_64",
+      "api": 36,
+      "receipt_sha256": "902c6ccf30cc3125238d4958c1852a7f04e41231fb4eea9be54f8562bdd30e59"
+    },
+    "independent_ui": {
+      "passed": 4,
+      "failed": 0,
+      "instrumentation": false,
+      "receipt_sha256": "5145662aa1a91b2cf4d933fb38af29067dddeadbdaf8234241e38011aed18fdc"
+    }
+  },
+  "ui": {
+    "portrait_captures": 144,
+    "landscape_captures": 144,
+    "total_captures": 288,
+    "human_certified": false,
+    "matrix_receipts_sha256": {
+      "portrait": "337c6b6066b74a3bfc76dcdafbc035faef551e6537e88ea5a121b59e2dc0efe5",
+      "landscape": "460d579c55372c0ae297394a8699a9e6baa4e0b4da5f5c51429dd493be1f67b8"
+    }
+  },
+  "installed_database_preserved": true,
+  "user_contents_exported": false,
+  "monetization_sdk_audit": {
+    "outcome": "monetization_sdk_absent",
+    "apk_sha256": "d0322cb50d966eac3c4a533a79e56d9cb5dd97a6917d6d61e20db52b859a0ace",
+    "dex_files": 17,
+    "advertising_sdk": false,
+    "billing_sdk": false,
+    "billing_permission": false,
+    "advertising_identifier_permissions": false
+  },
+  "license": "Apache-2.0",
+  "ci_executed": false,
+  "raw_logs_public": false,
+  "historical_extended_campaigns": "RC8 HF/SAF/corpus/endurance reports retain their original APK scopes; not rerun for 0.0.1.",
+  "failed_attempts": [
+    {
+      "scope": "R8 launcher test referenced a removed R class; corrected and complete suite rerun",
+      "passed": 61,
+      "failed": 1,
+      "receipt_sha256": "bc3510b2ccd43cc26fda559a599b88d04b6a77811b0bb97e24b338ac8720a957",
+      "qualified": false
+    }
+  ],
+  "privacy_redaction": "PRIVACY_REDACTION_2026_09.json",
+  "native_transitive_notice_review_complete": false
+}

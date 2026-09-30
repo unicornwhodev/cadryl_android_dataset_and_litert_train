@@ -17,3 +17,9 @@ Toujours protéger les annotations humaines. Ne pas déplacer silencieusement le
 Le propriétaire a demandé le 30 septembre 2026 de ne pas utiliser de workflows
 ou GitHub Actions. Compiler, tester et qualifier localement ; ne pas recréer
 ces workflows ni conditionner une publication à leur exécution.
+
+Le propriétaire a ensuite décidé le 30 septembre 2026 de publier l’édition
+publique en `0.0.1` et l’édition commerciale séparée en `0.0.1-rc1`.
+Le contrôle physique ARM 16 Ko n’est plus une condition bloquante de publication.
+Ne pas le déclarer exécuté sans appareil ; conserver les audits natifs existants.
+Anonymiser les informations personnelles des Markdown de qualification.

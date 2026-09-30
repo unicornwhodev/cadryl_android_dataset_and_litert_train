@@ -1,7 +1,8 @@
 # Préparation de RC final0.1
 
-Demande du propriétaire du 30 septembre 2026. La RC8 publiée reste immuable.
-Le nom final de version n’est pas fixé ; le versionCode devra augmenter.
+Plan de travail historique du 30 septembre 2026. Le propriétaire a ensuite
+fixé la release publique à **0.0.1**, versionCode **14**. La confidentialité
+des anciennes preuves est corrigée par [anonymisation explicite](PRIVACY_REDACTION_2026_09.md).
 
 ## Édition publique
 
@@ -31,4 +32,4 @@ Le nom final de version n’est pas fixé ; le versionCode devra augmenter.
   exigence de redesign ajoutée par le propriétaire.
 - Arbres UI, captures et reçus par build ; validation humaine finale séparée.
 
-Aucun nouveau candidat final publié par ce document.
+La livraison est décrite dans [la note 0.0.1](RELEASE_001.md).

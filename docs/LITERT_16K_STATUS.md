@@ -38,7 +38,7 @@ python3 tools/build_litert_runtime.py --work-dir /tmp/vds-litert --android-sdk-l
 Exemple pour le checkout Windows, dans la distribution WSL de build existante :
 
 ```powershell
-wsl -d VDS-Flex-Build -- python3 /mnt/d/Dev/project/vision-dataset-studio/tools/build_litert_runtime.py --work-dir /opt/vds-litert --android-sdk-licenses /mnt/d/Programs/Android/SDK/licenses --jobs 6
+wsl -d VDS-Flex-Build -- python3 /mnt/<drive>/<checkout>/tools/build_litert_runtime.py --work-dir /opt/vds-litert --android-sdk-licenses /mnt/<drive>/<android-sdk>/licenses --jobs 6
 python -X utf8 tools/qa/check_litert_runtime.py
 ```
 

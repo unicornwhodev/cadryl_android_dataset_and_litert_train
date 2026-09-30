@@ -2,7 +2,7 @@
 
 [Project home](../../README.en.md) · [Français](../../KNOWN_LIMITATIONS.md)
 
-Cadryl **4.2.0-rc8** is a prerelease. The [report](../RC8_QUALIFICATION_2026_09.md) records exact APK/device scopes.
+Cadryl **0.0.1** is the public release. RC8 results below are historical. The [report](../RC8_QUALIFICATION_2026_09.md) records exact APK/device scopes.
 
 ## Devices and stability
 
@@ -28,8 +28,14 @@ Earlier campaigns injected real SAF, storage, HF and cleanup failures. Coverage 
 
 Duplicate tracking covers identical files or decoded pixels inside one project, not every crop or lossy recompression. **A dataset export is not a full project backup.** Room migrations do not recover another application’s data or an uninstalled app’s private storage.
 
+## Current source preparation
+
+The first-launch tutorial and newer import/export protections have separate preparation evidence. The final audit found and removed ten invalid template WebP launcher resources and added the original IJG notice; published RC8 assets remain unchanged. Current results are in the [audit](../FINAL_AUDIT_2026_09.md). Final human UI acceptance and full native provenance remain open.
+
 ## Distribution
 
 rc8 uses the durable signing key. Differently signed rc4/rc5 Debug installations cannot be updated directly; preserve their data. The current key and backup have been checked on two disks in the same PC. An off-machine backup is still needed.
 
-GitHub Actions workflows were removed at the owner’s request. Qualification runs locally. The 109-dependency inventory is available; native transitive notice review remains open. [Signing](../SIGNING.md) · [Licensing](../../LICENSING_STATUS.md) · [Roadmap](ROADMAP.md).
+GitHub Actions workflows were removed at the owner’s request. Qualification runs locally. The 103-dependency public runtime inventory is available; native transitive notice review remains open. [Signing](../SIGNING.md) · [Licensing](../../LICENSING_STATUS.md) · [Roadmap](ROADMAP.md).
+
+The 0.0.1 release follows the owner’s decision; unexecuted hardware checks are not reported as passes. [Current evidence](../RELEASE_001_EVIDENCE.json).

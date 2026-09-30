@@ -6,7 +6,7 @@ Start with a few images and no model. Add AI assistance once you are comfortable
 
 ## Install Cadryl
 
-Get **`vision-dataset-studio.apk`** from the [rc7 release](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7). This is the signed Release app for Android 9+ on ARM64. Model weights are downloaded separately.
+Get **`vision-dataset-studio.apk`** from the [0.0.1 release](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v0.0.1). This is the signed Release app for Android 9+ on ARM64. Model weights are downloaded separately.
 
 Check the download against `SHA256SUMS`. In PowerShell:
 
@@ -16,15 +16,16 @@ Get-FileHash ./vision-dataset-studio.apk -Algorithm SHA256
 
 The qualification ZIP also contains test APKs and an x86_64 build. The Flex, Graphics Path and LiteRT ZIPs are build dependencies; you do not need them to install the app.
 
-**Using rc6?** rc7 keeps its certificate and increases the version code to support updates. **Already have rc4 or rc5?** Those builds use different certificates. Keep their data and installation. [Durable signing key](../SIGNING.md). Phone acceptance for this candidate is still pending.
+**Previous rc6 through rc8:** same durable signature and a higher version code. Older rc4/rc5 Debug builds use another certificate: preserve their installation and data. [Signing](../SIGNING.md).
 
 ## 1. Create a project
 
-Create a project through **Studio → Projects**, then open **Setup**. Follow three steps:
+Create a project through **Studio → Projects**, then open **Setup**. Follow four configuration steps:
 
 1. **Images**: choose a folder on this device or a Hugging Face dataset. For HF, inspect the source to check access and its image column.
 2. **Task**: choose boxes, image labels or captions. Add the classes you need. With a selected model, search its classes and tap to add exact names. Names are not translated automatically.
-3. **Review**: check the summary. Manual work with local images needs no model or HF account. Choose an output folder later through **Export**.
+3. **Model**: keep manual mode or choose a model with a compatible contract. Training remains optional.
+4. **Review**: check the summary. Manual work with local images needs no model or HF account. Choose an output folder later through **Export**.
 
 Each project keeps its own source, batches, annotations and history.
 

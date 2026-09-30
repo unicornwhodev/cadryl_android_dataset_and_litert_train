@@ -4,10 +4,11 @@
 
 La priorité est de rendre le parcours actuel fiable sur téléphone. Les nouvelles fonctions viendront après les retours sur cette base.
 
-## D’abord : finir la recette du candidat
+## Suite de la release 0.0.1
 
-- Reprendre les deux suites Release sur le Honor avec le runtime final, puis tester une mise à jour signée en conservant ses données.
-- Exécuter le parcours sur un vrai téléphone ARM en pages de 16 Ko. L’alignement strict est corrigé ; la preuve matérielle manque encore.
+- Conserver la qualification des APK exactes et les contrôles de préservation lors des prochaines mises à jour.
+- Faire accepter l’interface finale, après les parcours erreurs, clavier, accessibilité et reprise sur appareil.
+- Compléter la couverture matérielle lorsque les appareils correspondants sont disponibles, sans bloquer cette livraison.
 - Refaire les essais longs et observer les restrictions d’arrière-plan. Conserver les traces si ART replante ; la cause historique reste à expliquer.
 
 ## Ensuite : données et reproductibilité

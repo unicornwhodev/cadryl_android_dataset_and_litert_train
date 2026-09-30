@@ -2,7 +2,7 @@
 
 [Le projet](README.md) · [English](docs/en/KNOWN_LIMITATIONS.md)
 
-Cadryl **4.2.0-rc8** est une préversion. Le [rapport du 30 septembre](docs/RC8_QUALIFICATION_2026_09.md) lie chaque contrôle aux APK et appareils réellement testés.
+Cadryl **0.0.1** est la release publique. Les résultats RC8 ci-dessous sont historiques. Le [rapport du 30 septembre](docs/RC8_QUALIFICATION_2026_09.md) lie chaque contrôle aux APK et appareils réellement testés.
 
 ## Appareils et stabilité
 
@@ -48,3 +48,5 @@ La préparation suivante vérifie l’absence des SDK AdMob/UMP/Billing dans les
 APK publics. La revue des captures à 200 % relève des
 textes et libellés coupés, notamment en paysage : l’UI reste à reprendre avant
 RC final0.1.
+
+La publication 0.0.1 suit la décision du propriétaire ; les contrôles matériels non exécutés ne sont pas déclarés réussis. [Preuves actuelles](docs/RELEASE_001_EVIDENCE.json).

@@ -2,7 +2,11 @@
 
 [Project home](../../README.en.md) · [Français](../../TEST_REPORT.md)
 
-## Current prerelease: 4.2.0-rc8
+## Public release 0.0.1
+
+117 JVM / 113 Python, zero lint errors and 83 warnings, 101 KSP outputs. Android core passes 62/62 on Debug emulator and signed minified ARM64 phone Release. Independent UI passes 4/4; portrait/landscape matrices contain 288 captures. Installed database tables are preserved. The initial launcher-test R8 failure is retained; the corrected full suite passes. [Exact evidence](../RELEASE_001_EVIDENCE.json). The following reports are historical.
+
+## Historical prerelease: 4.2.0-rc8
 
 30 September 2026: 106 JVM/93 Python; lint 0 errors/148 warnings; 101 KSP files. Core 53/53 on physical Honor/Oppo ARM64/4 KB and native x86/API 36/16 KB. Independent UI 4/4 on Oppo and the emulator. Real private authorized HF publication/conflict/lost-response, SAF revocation and volume loss, 1,000 CC0 photos and ten-minute physical inference passed within their recorded scopes.
 

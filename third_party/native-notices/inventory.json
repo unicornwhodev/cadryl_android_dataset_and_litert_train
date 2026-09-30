@@ -280,6 +280,10 @@
             {
               "path": "LICENSE.md",
               "sha256": "ee1eaf194d5924b6360af8a6ba6a4e1554037091f7505943300cdeec65f1aebb"
+            },
+            {
+              "path": "README.ijg",
+              "sha256": "4b7b9f8c03bb8d60270dfd12684e70ab21e4abfd27e73905cd1a7c4cae6f5cdb"
             }
           ]
         },

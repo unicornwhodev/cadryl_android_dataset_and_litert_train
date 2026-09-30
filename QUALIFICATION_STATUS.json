@@ -1,142 +1,84 @@
 {
-  "schema": 3,
+  "schema": 4,
   "product": "Cadryl",
   "brand": "Unicorn Who Dev",
-  "version": "4.2.0-rc8",
-  "version_code": 13,
+  "version": "0.0.1",
+  "version_code": 14,
   "date": "2026-09-30",
   "namespace": "com.unicornwhodev.visiondatasetstudio",
   "application_id": "com.unicornwhodev.visiondatasetstudio",
   "room_schema_version": 4,
-  "source_only": false,
-  "stable_release_ready": false,
   "license": "Apache-2.0",
+  "edition": "public",
+  "stable_release_ready": true,
+  "product_certified": false,
   "rights_and_transitive_notices_review": "pending",
   "android": {
-    "build_type": "minified-release",
-    "source_manifest": "test-results/rc8-release/arm/build/source-manifest.json",
-    "compiled_worktree_hashed": true,
     "apk_built": true,
     "test_apk_built": true,
-    "room_schema_generated": true,
-    "weights_embedded": false,
+    "build_type": "minified-release",
     "unit_tests": {
-      "passed": 106,
-      "failed": 0,
+      "tests": 117,
+      "failures": 0,
       "errors": 0,
       "skipped": 0
     },
     "lint": {
-      "errors": 0,
-      "warnings": 148
+      "Error": 0,
+      "Warning": 83
     },
-    "core_tests": 53,
+    "core_tests": 62,
     "independent_ui_scenarios": 4,
-    "physical_arm_4k_core_qualified": true,
-    "physical_arm_16k_qualified": false,
-    "strict_native_16k_audit_passed": true,
-    "evidence": "test-results/rc8-release/README.md",
-    "devices": [
-      {
-        "model": "Honor ELI-NX9",
-        "abi": "arm64-v8a",
-        "api": 36,
-        "page_size": 4096
-      },
-      {
-        "model": "Oppo CPH2343",
-        "abi": "arm64-v8a",
-        "api": 33,
-        "page_size": 4096
-      },
-      {
-        "model": "QA AVD",
-        "abi": "x86_64",
-        "api": 36,
-        "page_size": 16384
-      }
-    ],
+    "room_schema_generated": true,
+    "ksp_generated_files": 101,
+    "weights_embedded": false,
     "artifacts": {
-      "arm": {
-        "app_sha256": "f4f87ce602b71de297b3fd91d4dbfcb0707744b51c06c743e4878e6793b441e1",
-        "tests_sha256": "a1358970a9544e047834be9d66241dc86218d610484b36200f64566e81067b61"
+      "app": {
+        "file": "app.apk",
+        "sha256": "0e253e58a5e8382031cfb50d881c8e60298c758c8ee50cf5e77c0e915b1e5aa3",
+        "bytes": 101781186,
+        "source_sha256": "006882d7530fc77a3ed044d0d79141a0e6a855e79ae423b888b05d1f727db3db"
       },
-      "x86": {
-        "app_sha256": "e5b9e18c4887e95c3d664be90c2b478ad11da7c1b2396abd0874e95c42295163",
-        "tests_sha256": "a1358970a9544e047834be9d66241dc86218d610484b36200f64566e81067b61"
+      "tests": {
+        "file": "tests.apk",
+        "sha256": "381c952126f746362294002c96fb3ce68abe120eaaa98a9b9298213caba4aef4",
+        "bytes": 2566009,
+        "source_sha256": "6a2678fcdc95f09afb51752d310dd148f839fbbf691e4770384c0ca85a4dc5fa"
       }
-    }
+    },
+    "evidence": "docs/RELEASE_001_EVIDENCE.json",
+    "installed_database_preserved": true
   },
   "python_tests": {
-    "passed": 93,
+    "passed": 113,
     "failed": 0
+  },
+  "ci": {
+    "enabled": false,
+    "current_release_executed": false,
+    "policy": "Local builds; no GitHub Actions by owner request"
   },
   "signing": {
     "durable": true,
     "certificate_sha256": "51ef3e4abf953c62c8427deaecf4349aefffc2270c593229315722457f126895",
     "compatible_with_rc4_or_rc5_debug": false
   },
-  "ci": {
-    "prepared": true,
-    "current_release_executed": false,
-    "api_levels": [
-      28,
-      35,
-      36
-    ],
-    "page_sizes": [
-      4096,
-      16384
-    ]
+  "publication": {
+    "tag": "v0.0.1",
+    "status": "locally-qualified",
+    "release": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v0.0.1",
+    "receipt": "docs/RELEASE_001_PUBLICATION_RECEIPT.json"
   },
   "remaining": [
-    "Physical ARM 16 KB",
-    "Real complete/partial Viewer flow",
-    "FireViewer/model accuracy",
-    "Multi-model and background endurance",
-    "Remote CI",
+    "Model accuracy and broader model coverage",
+    "Real complete/partial Viewer workflows",
+    "Background and longer training endurance",
     "Native transitive notice review",
-    "Historical ART root cause"
+    "Final human UI acceptance"
   ],
-  "historical_reports": [
-    "docs/NATIVE_FIX_2026_09.md",
-    "docs/RELEASE_CLOSURE_2026_09.md",
-    "docs/RELEASE_HARDENING_2026_09.md",
-    "docs/P1_QUALIFICATION_2026_09.md",
-    "docs/LITERT_QUALIFICATION.md"
+  "historical_evidence": [
+    "docs/RC8_QUALIFICATION_2026_09.md",
+    "docs/PUBLIC_TUTORIAL_EVIDENCE.json"
   ],
-  "previous_product_name": "Vision Dataset Studio",
-  "previous_publication": {
-    "tag": "v4.2.0-rc7",
-    "release": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc7",
-    "source_commit": "b380778c321d220a2a8bac315473098a9fd2c02a",
-    "verified_at": "2026-09-26T22:43:46.851754+00:00",
-    "assets_verified": 10,
-    "receipt": "docs/RC7_PUBLICATION_RECEIPT.json",
-    "oci_digest": "sha256:d344b5be448297cbda183b8054ed087aab52db47793a35bca55cc8f49484c1e5",
-    "package_visibility": "private"
-  },
-  "publication": {
-    "tag": "v4.2.0-rc8",
-    "status": "published-verified",
-    "release": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc8",
-    "source_commit": "e588101aa72e7c78ef1043d664fd3147431e895c",
-    "verified_at": "2026-09-30T00:06:02.929264+00:00",
-    "assets_verified": 9,
-    "receipt": "docs/RC8_PUBLICATION_RECEIPT.json",
-    "oci_digest": "sha256:a821261717db166e0c402de274a249ab489475e9745c01b2950ab83c675cbe8f",
-    "package_visibility": "private"
-  },
-  "extended": {
-    "real_private_hf_publication": "passed-debug-avd",
-    "real_hf_conflict": "passed-debug-avd",
-    "real_hf_lost_response": "passed-debug-avd",
-    "real_saf_revocation": "passed-debug-oppo",
-    "real_volume_loss": "passed-debug-avd",
-    "corpus_images": 1000,
-    "corpus_import": "passed-debug-oppo",
-    "prolonged_inference_seconds": 600,
-    "prolonged_inference": "passed-release-honor",
-    "background_qualified": false
-  }
+  "hardware_publication_policy": "Coverage gaps are documented without blocking this release, per owner decision on 2026-09-30."
 }

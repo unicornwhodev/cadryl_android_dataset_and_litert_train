@@ -65,6 +65,7 @@ def main():
         state['page_size'] = int(run('page-size.txt', 'shell', 'getconf', 'PAGE_SIZE').strip())
         state['abi'] = run('abi.txt', 'shell', 'getprop', 'ro.product.cpu.abi').strip()
         state['android_api'] = run('android-api.txt', 'shell', 'getprop', 'ro.build.version.sdk').strip()
+        state['emulator'] = run('emulator.txt', 'shell', 'getprop', 'ro.kernel.qemu').strip()
         state['build_fingerprint'] = run('build-fingerprint.txt', 'shell', 'getprop', 'ro.build.fingerprint').strip()
         state['art_crashes_before'] = art_crashes(run('crash-before.txt', 'logcat', '-d', '-b', 'crash'))
         if state['art_crashes_before']:

@@ -15,3 +15,6 @@ Les identifiants du dépôt privé HF et ses credentials sont exclus. Les images
 La Release ARM finale est byte-identique à celle du benchmark Honor. Le téléphone a été libéré à la demande du propriétaire, puis les derniers contrôles ont été exécutés sur Oppo. Les tests corpus/SAF utilisent le pont Debug DocumentsUI ; il est absent de la Release. Les écritures HF sont effectuées sur Debug/AVD, avec fichiers métier identiques au build final.
 
 **Aucune qualification ARM physique 16 Ko, de précision de modèle ou d’endurance en arrière-plan n’est revendiquée.** [Rapport et portes restantes](../../docs/RC8_QUALIFICATION_2026_09.md).
+
+
+Privacy update, 30 September 2026: public host logs and historical qualification ZIPs are explicitly anonymised. Original bytes are retained privately; APK bytes and measured results are unchanged. See docs/PRIVACY_REDACTION_2026_09.md and the release-specific PRIVACY_REDACTION.json.

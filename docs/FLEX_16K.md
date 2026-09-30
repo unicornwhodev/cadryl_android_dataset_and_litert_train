@@ -45,7 +45,7 @@ Sur le poste Windows de qualification, la distribution WSL dédiée
 `VDS-Flex-Build` contient les outils Linux. Depuis PowerShell :
 
 ```powershell
-wsl -d VDS-Flex-Build -- python3 /mnt/d/Dev/project/vision-dataset-studio/tools/build_flex_runtime.py --work-dir /opt/vds-flex --downloads /mnt/d/Dev/project/vision-dataset-studio/dist/native-flex/downloads --android-sdk-licenses /mnt/d/Programs/Android/SDK/licenses
+wsl -d VDS-Flex-Build -- python3 /mnt/<drive>/<checkout>/tools/build_flex_runtime.py --work-dir /opt/vds-flex --downloads /mnt/<drive>/<checkout>/dist/native-flex/downloads --android-sdk-licenses /mnt/<drive>/<android-sdk>/licenses
 python -X utf8 tools/build_android.py
 ```
 

@@ -2,15 +2,15 @@
 
 [Documentation](README.md) · [Français](../DEVELOPMENT_RESUME.md)
 
-Development is on `main`. Current version: **4.2.0-rc7**, Android version code **12**. Cadryl is the display name; keep `com.unicornwhodev.visiondatasetstudio` as the application ID for updates and data continuity.
+Development is on `main`. Current version: **0.0.1**, Android version code **14**. Cadryl is the display name; keep `com.unicornwhodev.visiondatasetstudio` as the application ID for updates and data continuity.
 
 ## Set up the machine
 
 Install JDK 21, Python 3.11+, Android SDK 36 and build-tools 36.0.0. The repository bootstrap uses its pinned Gradle version. Point `JAVA_HOME` and `ANDROID_HOME` at your own installations.
 
 ```powershell
-git clone https://github.com/unicornwhodev/vision-dataset-studio.git
-cd vision-dataset-studio
+git clone https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train.git
+cd cadryl_android_dataset_and_litert_train
 git switch main
 git pull --ff-only
 $env:JAVA_HOME='C:/Program Files/Microsoft/jdk-21'
@@ -24,7 +24,7 @@ Those two paths are examples; adjust them to your machine.
 
 Gradle uses three verified local AARs: Flex `2.16.1-vds16k1`, Graphics Path `1.0.1-vds16k1` and LiteRT `2.2.0-vds16k2`. They are not stored in Git.
 
-Download their ZIPs from [rc7](https://github.com/unicornwhodev/vision-dataset-studio/releases/tag/v4.2.0-rc7), verify `SHA256SUMS` and extract the `dist/native-*/maven/...` paths into the clone root. Keep each AAR, POM and receipt together. Android build scripts check their hashes and recipe before use.
+Download their ZIPs from [0.0.1](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v0.0.1), verify `SHA256SUMS` and extract the `dist/native-*/maven/...` paths into the clone root. Keep each AAR, POM and receipt together. Android build scripts check their hashes and recipe before use.
 
 Source rebuilds require Linux or WSL with the pinned tools. See [Flex](../FLEX_16K.md), [Graphics Path](../GRAPHICS_PATH_16K.md) and [LiteRT](../LITERT_16K_STATUS.md). Later Android builds can run directly on Windows.
 
@@ -44,7 +44,7 @@ python -X utf8 tools/qa/build_release_test_apks.py --abi arm64-v8a
 python -X utf8 tools/qa/build_release_test_apks.py --abi x86_64
 ```
 
-Run these sequentially. [Release testing](../RELEASE_TESTING.md) explains app/test signing, R8 mappings and the 45 core tests. The independent `release-qa` driver covers five UI scenarios. Private keys stay outside the repository.
+Run these sequentially. [Release testing](../RELEASE_TESTING.md) explains app/test signing, R8 mappings and the exact selected build test count (53 for published RC8, 62 for the audited preparation). The independent host UI driver covers four scenarios. Private keys stay outside the repository.
 
 On Linux, use `python3` and your shell’s environment syntax. `tools/build_android.sh` wraps the same Python build.
 
@@ -62,4 +62,4 @@ Preserve human corrections, read back copies before cleanup and keep the origina
 
 ## Current next steps
 
-rc7 includes the native fixes and Release test suite. Phone acceptance, physical ARM 16 KB, longer sessions, catalogue quality, remote CI and native notice review remain open. See [results](VALIDATION.md) and the [roadmap](ROADMAP.md).
+Published RC8 and the tutorial preparation have distinct Oppo evidence. Current audit fixes do not replace the published APKs. Physical ARM 16 KB, catalogue accuracy, real Viewer sources, background endurance, full native notice review and final UI acceptance remain open. GitHub Actions is disabled at the owner’s request. See [results](VALIDATION.md) and the [roadmap](ROADMAP.md).

@@ -1,5 +1,13 @@
 # Build inputs have identical bytes on Windows and Unix, independently of core.autocrlf.
 * text=auto eol=lf
+# Binary assets must never pass through newline conversion.
+*.png -text
+*.webp -text
+*.jpg -text
+*.jpeg -text
+*.zip -text
+*.aar -text
+*.jar -text
 /third_party/native-notices/originals/** -text whitespace=-blank-at-eol,-blank-at-eof
 # Preserve the upstream whitespace in licence texts and their assembled notices.
 /third_party/native-notices/NOTICES.native.txt whitespace=-blank-at-eol,-blank-at-eof

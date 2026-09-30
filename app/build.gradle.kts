@@ -19,8 +19,8 @@ android {
     minSdk = 28
     targetSdk = 36
     testApplicationId = "com.unicornwhodev.visiondatasetstudio.test"
-    versionCode = 13
-    versionName = "4.2.0-rc8"
+    versionCode = 14
+    versionName = "0.0.1"
 
     testInstrumentationRunner = providers.gradleProperty("vdsInstrumentationRunner").orElse("androidx.test.runner.AndroidJUnitRunner").get().also {
       require(it in setOf("androidx.test.runner.AndroidJUnitRunner", "com.unicornwhodev.visiondatasetstudio.ReleaseContinuityInstrumentation"))

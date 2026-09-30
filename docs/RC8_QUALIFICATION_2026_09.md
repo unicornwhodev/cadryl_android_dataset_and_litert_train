@@ -56,3 +56,6 @@ Les [reçus des tentatives incomplètes](../test-results/rc8-release/failed-atte
 - CI distante et revue des notices natives transitives.
 
 La RC8 est distribuée comme **préversion** avec ces limites. Aucun reçu ne prétend une qualification complète de production.
+
+
+Privacy update, 30 September 2026: public host logs and historical qualification ZIPs are explicitly anonymised. Original bytes are retained privately; APK bytes and measured results are unchanged. See docs/PRIVACY_REDACTION_2026_09.md and the release-specific PRIVACY_REDACTION.json.

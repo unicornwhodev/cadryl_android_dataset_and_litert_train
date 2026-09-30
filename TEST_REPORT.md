@@ -4,6 +4,14 @@
 
 Ce rapport distingue le candidat actuel des campagnes précédentes. Pour chaque résultat, les reçus gardent le build, les APK et l’appareil concernés.
 
+## Release publique 0.0.1 — 30 septembre 2026
+
+117 tests JVM, 113 tests Python, lint zéro erreur / 83 avertissements, 101 fichiers KSP. Les nouvelles APK passent 62/62 sur émulateur en Debug et sur téléphone ARM64 en Release minifiée signée. Le pilote UI indépendant passe 4/4 ; les matrices portrait/paysage produisent 288 captures. Toutes les tables installées sont conservées lors de la mise à jour, sans exporter leur contenu. Les SDK commerciaux sont absents des DEX et manifestes publics.
+
+Le premier essai Release a relevé un défaut du nouveau test d’icônes (61/62). Le test a été corrigé pour lire les ressources installées sans référencer une classe R supprimée par R8 ; la suite complète repasse 62/62. Cet échec est conservé en privé et ne reçoit aucune qualification.
+
+[APK et reçus exacts](docs/RELEASE_001_EVIDENCE.json) · [Anonymisation](docs/PRIVACY_REDACTION_2026_09.md). Les sections suivantes sont historiques. Les services externes et essais prolongés RC8 ne sont pas présentés comme réexécutés sur 0.0.1. La revue humaine de l’interface reste séparée.
+
 ## Édition publique et didacticiel — 30 septembre 2026
 
 Le dépôt ne contient plus l’implémentation commerciale. Les tests et fichiers
@@ -69,7 +77,7 @@ L’AVD sans monétisation capture 144 cas par orientation, soit 288 captures : 
 
 Ces résultats ne modifient pas la release rc8 publiée. La revue UI intégrale, les annonces et achats réels, l’identité légale complète et la provenance native complète restent des contrôles séparés. [Travaux et portée](docs/FINAL01_STABILIZATION_2026_09.md) · [Conditions du candidat final](docs/FINAL_RC_0_1_PLAN.md).
 
-## Préversion actuelle : 4.2.0-rc8
+## Préversion historique : 4.2.0-rc8
 
 30 septembre 2026 : 106 JVM, 93 Python, lint 0 erreur/148 avertissements, 101 fichiers KSP. Suites Android 53/53 en Debug/AVD 16 Ko et Release/AVD 16 Ko, Honor et Oppo ARM64/4 Ko. UI indépendante 4/4 sur Oppo et AVD.
 
@@ -108,7 +116,7 @@ Les premiers essais de pilotes ont rencontré deux courses liées au clavier : 3
 | [Catalogue LiteRT](docs/LITERT_QUALIFICATION.md) | Résultats par variante et limites de couverture |
 | [Audit fonctionnel](docs/FUNCTIONAL_AUDIT_2026_09.md) | Parcours et modèles du 22 septembre |
 
-Les rapports datés peuvent utiliser l’ancien nom de l’app. Leurs reçus et empreintes restent inchangés. Aucun succès antérieur n’est transféré à rc7 sans nouveau passage.
+Les rapports datés peuvent utiliser l’ancien nom de l’app. Leurs résultats restent historiques ; les expurgations de données personnelles ont leurs propres reçus et empreintes. Aucun succès antérieur n’est transféré à rc7 sans nouveau passage.
 
 ## Ce qu’il manque encore
 

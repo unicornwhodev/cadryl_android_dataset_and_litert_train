@@ -13,6 +13,9 @@ ROOT=Path(__file__).resolve().parents[1]
 def git(*args):return subprocess.check_output(['git',*args],cwd=ROOT)
 def sha(path):
  with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
+def create_release_directory(path):
+ """A reviewed delivery is immutable, including its archive and receipts."""
+ path.mkdir(parents=True,exist_ok=False)
 def compiled(name):
  return name.startswith(('app/','gradle/')) and name!='app/.gitignore' or name in ('build.gradle.kts','settings.gradle.kts','gradle.properties','tools/build_android.py','tools/gradle_bootstrap.py')
 def source_hashes(value):
@@ -60,7 +63,7 @@ def main():
   apks.append(path)
  if weight_inventory(apks[0])['weight_files']:raise RuntimeError('Embedded model weights')
  package={'kind':'workstation-debug-prerelease','version':a.version,'stable_release':False,'source_commit':head,'compiled_source_commit':source['source_commit'],'compiled_files_verified':len(source['files']),'build_run':receipt['run_id'],'artifacts':receipt['artifacts'],'qualification':qualification,'ci_executed':False,'runnable_container':False}
- out=ROOT/'dist'/('release-'+a.version);out.mkdir(parents=True,exist_ok=True)
+ out=ROOT/'dist'/('release-'+a.version);create_release_directory(out)
  (out/'PACKAGE.json').write_text(json.dumps(package,indent=2)+'\n')
  dest=out/('vision-dataset-studio-'+a.version+'-qualification.zip')
  with zipfile.ZipFile(dest,'w',zipfile.ZIP_DEFLATED,compresslevel=3) as z:
