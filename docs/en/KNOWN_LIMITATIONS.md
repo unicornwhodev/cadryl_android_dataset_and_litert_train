@@ -32,4 +32,4 @@ Duplicate tracking covers identical files or decoded pixels inside one project, 
 
 rc8 uses the durable signing key. Differently signed rc4/rc5 Debug installations cannot be updated directly; preserve their data. The current key and backup have been checked on two disks in the same PC. An off-machine backup is still needed.
 
-Remote CI is prepared but has not run. The 109-dependency inventory is available; native transitive notice review remains open. [Signing](../SIGNING.md) · [Licensing](../../LICENSING_STATUS.md) · [Roadmap](ROADMAP.md).
+GitHub Actions workflows were removed at the owner’s request. Qualification runs locally. The 109-dependency inventory is available; native transitive notice review remains open. [Signing](../SIGNING.md) · [Licensing](../../LICENSING_STATUS.md) · [Roadmap](ROADMAP.md).

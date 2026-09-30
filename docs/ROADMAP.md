@@ -12,7 +12,7 @@ La priorité est de rendre le parcours actuel fiable sur téléphone. Les nouvel
 
 ## Ensuite : données et reproductibilité
 
-Compléter les interruptions et les gros transferts avec des destinations de test autorisées. Vérifier une ancienne base issue d’un usage réel, avec une copie de sauvegarde. Reproduire le build sur un autre poste et exécuter la CI préparée.
+Compléter les interruptions et les gros transferts avec des destinations de test autorisées. Vérifier une ancienne base issue d’un usage réel, avec une copie de sauvegarde. Reproduire le build sur un autre poste avec les scripts locaux.
 
 ## Puis : mesurer les modèles
 

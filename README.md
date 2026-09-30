@@ -55,7 +55,7 @@ Pour les modèles, deux catalogues publics sont documentés : [les conversions C
 
 **4.2.0-rc8 est une préversion.** Build réel, 106 tests JVM, 93 tests Python et schémas KSP. Les 53 tests Android passent en Debug et Release sur AVD API 36/16 Ko, et en Release sur Honor et Oppo ARM64/4 Ko. Quatre parcours UI indépendants passent sur Oppo et AVD. Les échanges HF privés autorisés, les fautes SAF, les 1 000 photos CC0 et les dix minutes d’inférence ont leurs preuves distinctes. [Résultats et APK exactes](docs/RC8_QUALIFICATION_2026_09.md).
 
-L’ARM physique 16 Ko, la qualité des modèles FireViewer, les sources Viewer réelles complète/partielle, l’endurance en arrière-plan, la CI et la revue des notices natives restent ouverts. [État des tests](TEST_REPORT.md) · [Limites connues](KNOWN_LIMITATIONS.md) · [Feuille de route](docs/ROADMAP.md).
+L’ARM physique 16 Ko, la qualité des modèles FireViewer, les sources Viewer réelles complète/partielle, l’endurance en arrière-plan, la revue des notices natives restent ouverts. [État des tests](TEST_REPORT.md) · [Limites connues](KNOWN_LIMITATIONS.md) · [Feuille de route](docs/ROADMAP.md).
 
 ## Mettre les mains dans le code
 
@@ -68,3 +68,8 @@ la validation humaine de la future interface finale reste ouverte.
 Un bug, une idée ou une amélioration ? [Ouvre une issue](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/issues) avec la version, l’appareil et les étapes pour reproduire. Les contributions sont les bienvenues ; les règles utiles tiennent dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Le code est sous [Apache-2.0](LICENSE). Les modèles, datasets et composants tiers gardent leurs propres conditions. [Licences et attributions](LICENSING_STATUS.md).
+
+## Compilation locale
+
+Aucun workflow GitHub Actions : retrait demandé par le propriétaire.
+Les builds, tests et signatures sont exécutés localement avec les scripts du dépôt.

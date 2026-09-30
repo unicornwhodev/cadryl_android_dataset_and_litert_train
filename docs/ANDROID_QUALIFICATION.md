@@ -4,7 +4,7 @@
 
 Cette page décrit les essais à faire et leurs critères de réussite. Les résultats exécutés sont dans le rapport, avec les builds et appareils concernés. Utilise un appareil dédié et des données de test autorisées.
 
-La [qualification rc8 des 29–30 septembre](RC8_QUALIFICATION_2026_09.md) passe P0 et 53/53 tests Android en Debug puis sur le runtime Release minifié sur AVD API 36/16 Ko. La Release signée avec la clé durable passe également 53/53 sur Honor ARM64/API 36/4 Ko le 30 septembre, quatre parcours UI indépendants et la relecture du cas QA de conservation après les essais. Les recettes HF privée, SAF réelle, corpus 1 000 images et inférence dix minutes passent dans leurs périmètres documentés. L’ARM physique 16 Ko et les autres portes P1 restent ouverts. Les anciennes campagnes [P1](P1_QUALIFICATION_2026_09.md), [Honor](RELEASE_CLOSURE_2026_09.md) et [arrière-plan](RELEASE_HARDENING_2026_09.md) conservent leur propre portée. La CI est préparée mais n’a pas été exécutée. Aucune écriture HF n’est déclenchée automatiquement par ce guide.
+La [qualification rc8 des 29–30 septembre](RC8_QUALIFICATION_2026_09.md) passe P0 et 53/53 tests Android en Debug puis sur le runtime Release minifié sur AVD API 36/16 Ko. La Release signée avec la clé durable passe également 53/53 sur Honor ARM64/API 36/4 Ko le 30 septembre, quatre parcours UI indépendants et la relecture du cas QA de conservation après les essais. Les recettes HF privée, SAF réelle, corpus 1 000 images et inférence dix minutes passent dans leurs périmètres documentés. L’ARM physique 16 Ko et les autres portes P1 restent ouverts. Les anciennes campagnes [P1](P1_QUALIFICATION_2026_09.md), [Honor](RELEASE_CLOSURE_2026_09.md) et [arrière-plan](RELEASE_HARDENING_2026_09.md) conservent leur propre portée. Les workflows GitHub Actions sont retirés ; la qualification est locale. Aucune écriture HF n’est déclenchée automatiquement par ce guide.
 
 ## P0 : assembler, résoudre et installer
 
@@ -60,6 +60,6 @@ Le nouvel applicationId est `com.unicornwhodev.visiondatasetstudio`. Une ancienn
 
 Les schémas JSON sont générés sous `app/schemas/com.unicornwhodev.visiondatasetstudio.data.db.AppDatabase/`. Ne pas inventer leurs hashes en attendant KSP.
 
-Les émulateurs API 28/35 du workflow complètent les tests hôte, mais ne prouvent ni le comportement d’un téléphone réel, ni un test d’inférence ARM, ni un aller-retour HF. Le script refuse les APK absents, dont le reçu ne correspond pas à la dernière tentative ou dont les octets ont changé. Le premier lancement de ce workflow reste à effectuer.
+Les émulateurs démarrés localement complètent les tests hôte, mais ne prouvent ni le comportement d’un téléphone réel, ni un test d’inférence ARM, ni un aller-retour HF. Le script refuse les APK absents, dont le reçu ne correspond pas à la dernière tentative ou dont les octets ont changé. Ces scripts ne nécessitent pas GitHub Actions.
 
 Avant une distribution publique : choix de licence explicite, inventaire des droits et notices de dépendances résolues. Le titulaire a choisi Apache-2.0 ; voir `LICENSING_STATUS.md`. Les notices transitives restent à vérifier.

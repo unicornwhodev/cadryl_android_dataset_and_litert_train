@@ -13,3 +13,7 @@ P1 : base réellement utilisée et sauvegardée ; source locale avec lots 2+1 ; 
 Aucun dépôt HF existant ne sert de poubelle de test. Pas de token, clé privée, poids privé ou corpus utilisateur dans les sources ou journaux. Écritures externes et création d’infrastructure seulement avec autorisation explicite.
 
 Toujours protéger les annotations humaines. Ne pas déplacer silencieusement le parent HF. Ne pas purger sans preuve de copie relue. Le reçu doit survivre à la purge. Les migrations Room ne transfèrent pas les données d’une autre application Android.
+
+Le propriétaire a demandé le 30 septembre 2026 de ne pas utiliser de workflows
+ou GitHub Actions. Compiler, tester et qualifier localement ; ne pas recréer
+ces workflows ni conditionner une publication à leur exécution.

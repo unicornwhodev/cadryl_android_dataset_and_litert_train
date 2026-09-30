@@ -41,7 +41,7 @@ The documented public model sources are [Charlbi’s conversions](https://huggin
 
 **4.2.0-rc8 is a prerelease.** Real Android builds, 106 JVM tests, 93 Python tests and KSP schemas. All 53 Android tests pass on native x86/API 36/16 KB and on physical Honor and Oppo ARM64/4 KB. Four independent UI scenarios pass on Oppo and the emulator. Private authorized HF publication/faults, real SAF failures, 1,000 CC0 photos and ten-minute physical inference have separate receipts. [Executed scopes](docs/RC8_QUALIFICATION_2026_09.md).
 
-Physical ARM/16 KB, FireViewer accuracy, real complete/partial Viewer flow, background endurance, remote CI and native transitive notices remain open. [Test results](docs/en/VALIDATION.md) · [Known limits](docs/en/KNOWN_LIMITATIONS.md).
+Physical ARM/16 KB, FireViewer accuracy, real complete/partial Viewer flow, background endurance, native transitive notices remain open. [Test results](docs/en/VALIDATION.md) · [Known limits](docs/en/KNOWN_LIMITATIONS.md).
 
 ## Work on the app
 
@@ -50,3 +50,7 @@ The app uses **Kotlin, Compose, Room and LiteRT**. The [development guide](docs/
 Found a bug or have an idea? [Open an issue](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/issues) with the version, device and steps to reproduce. Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Project code is [Apache-2.0](LICENSE). Models, datasets and third-party components retain their own terms. [Licensing status](LICENSING_STATUS.md).
+
+## Local builds
+
+No GitHub Actions workflows. Build, test and signing scripts run locally.

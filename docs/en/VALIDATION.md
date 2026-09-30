@@ -8,7 +8,7 @@
 
 [Exact artifacts and scope](../RC8_QUALIFICATION_2026_09.md) · [Public receipts](../../test-results/rc8-release/README.md) · [Machine-readable status](../../QUALIFICATION_STATUS.json).
 
-Physical ARM 16 KB remains unavailable: both phones use 4 KB. Model accuracy, real complete/partial Viewer import, background endurance, CI and native transitive notices remain open.
+Physical ARM 16 KB remains unavailable: both phones use 4 KB. Model accuracy, real complete/partial Viewer import, background endurance, native transitive notices remain open.
 
 ## Previous prerelease: 4.2.0-rc7
 
@@ -37,4 +37,4 @@ ARM64 uses `libndk_translation` on an x86_64 host. **This is not phone acceptanc
 
 ## Still pending
 
-Physical ARM 16 KB, multi-model/background endurance, model quality, real complete/partial Viewer import, remote CI and native transitive notices. The historical ART crash has no confirmed cause. [Known limits](KNOWN_LIMITATIONS.md) · [Release testing](../RELEASE_TESTING.md).
+Physical ARM 16 KB, multi-model/background endurance, model quality, real complete/partial Viewer import, remote native transitive notices. The historical ART crash has no confirmed cause. [Known limits](KNOWN_LIMITATIONS.md) · [Release testing](../RELEASE_TESTING.md).

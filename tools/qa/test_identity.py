@@ -69,10 +69,12 @@ class IdentityTests(unittest.TestCase):
         for path in (ROOT/name for name in sorted(set(names)) if name.endswith('.gradle.kts') and (ROOT/name).is_file()):
             for use in re.findall(r'libs\.([a-z][\w.]*)',path.read_text(encoding='utf-8')):
                 self.assertIn(use[8:] if use.startswith('plugins.') else use,plugins if use.startswith('plugins.') else libraries,path)
-    def test_build_workflow_has_emulator_job_without_publication(self):
-        text=(ROOT/'.github/workflows/android-qualification.yml').read_text(encoding='utf-8')
-        for expected in ['workflow_dispatch:', 'instrumented:', 'api: 28', 'api: 35', 'target: google_apis_ps16k', 'pages: 16384', 'contents: read', '--expected-page-size']:
+    def test_local_qualification_exists_without_github_actions(self):
+        workflows=ROOT/'.github/workflows'
+        self.assertFalse(any(workflows.glob('*.yml')) or any(workflows.glob('*.yaml')))
+        text=(ROOT/'tools/qa/run_device_qualification.py').read_text(encoding='utf-8')
+        for expected in ('--expected-page-size', 'VDS_ALLOW_TEST_INSTALL', 'parse_instrumentation'):
             self.assertIn(expected,text)
-        self.assertNotIn('contents: write',text)
-        self.assertNotIn('HF_TOKEN',text)
+        self.assertTrue((ROOT/'tools/build_android.py').is_file())
+        self.assertTrue((ROOT/'tools/qa/run_release_business_qualification.py').is_file())
 if __name__=='__main__':unittest.main(verbosity=2)

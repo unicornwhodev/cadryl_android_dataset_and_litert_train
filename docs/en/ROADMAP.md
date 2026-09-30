@@ -12,7 +12,7 @@ The priority is a reliable phone workflow. New features should follow feedback o
 
 ## Data and reproducibility
 
-Extend interruption and large-transfer coverage using authorised test destinations. Check an older database from real use, working from a backup. Reproduce the build on another machine and run the prepared CI.
+Extend interruption and large-transfer coverage using authorised test destinations. Check an older database from real use, working from a backup. Reproduce the build on another machine using the local scripts.
 
 ## Model quality
 
