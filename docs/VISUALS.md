@@ -4,13 +4,21 @@
 
 Les images décoratives et les captures de l’application sont identifiées séparément. Les captures Android restent intactes ; elles montrent le logiciel tel qu’il a tourné.
 
-## L’identité rc6
+## Identité actuelle dans les sources
+
+Le propriétaire a fourni et retenu le lynx orange. Le [PNG original](../app/src/main/res/drawable-nodpi/ic_cadryl.png) est conservé sans redessin. Barlow et Phosphor Duotone sont livrés localement avec leurs licences et leurs empreintes ; [BRAND.md](BRAND.md) décrit les sources épinglées.
+
+Les captures de la refonte décrivent une véritable interface Compose avec un projet de recette et une image synthétique autorisée. Le [rapport visuel](../design-qa.md) précise les états, dimensions, différences et corrections. Une image de référence est une maquette ; elle ne constitue pas une preuve d’exécution Android. Les éventuels recadrages documentaires enlèvent uniquement les barres système et gardent un reçu distinct du PNG brut.
+
+Les anciens tags publiés conservent leur APK, leur apparence et leurs preuves. Le studio actuel est décrit dans [le guide de la refonte](STUDIO_UI_2026_09.md).
+
+## Identité historique rc6
 
 La [bannière Cadryl](brand/cadryl-hero.png) a été générée avec l’outil intégré Image Gen le 24 septembre 2026. Elle donne la direction graphique : cadre ouvert cyan, angle lilas, fond encre et nom court. Le [prompt](brand/imagegen-prompt.txt) et le [reçu de provenance](brand/provenance.json) accompagnent le fichier.
 
 Le [symbole SVG](brand/cadryl-mark.svg), le [logo](brand/cadryl-lockup.svg) et les VectorDrawable Android ont ensuite été dessinés pour garder une géométrie nette à petite taille. La bannière est une illustration de marque, pas une capture, une image de dataset ou un résultat d’inférence.
 
-## L’application réelle
+## Captures historiques de l’application
 
 Les captures [accueil rc7](../test-results/rc7-release/visuals/home.png) et [Images rc7](../test-results/rc7-release/visuals/images.png) ont été prises le 27 septembre sur la Release x86_64 signée, en français, puis inspectées sans retouche. Elles utilisent un projet de démonstration vide sur l’émulateur API 36/16 Ko. Le [reçu](../test-results/rc7-release/visuals/binding.json) relie l’APK installée et les fichiers à leurs empreintes. Les captures rc6 ci-dessous restent historiques.
 
@@ -33,4 +41,4 @@ Les scripts reproductibles sont dans [tools/docs](../tools/docs/). L’[ancienne
 
 ## English
 
-The Cadryl banner is generated brand artwork. Editable SVG and Android vector marks were then drawn for reliable small-size rendering. Current screenshots are unmodified emulator captures tied to the exact rc6 APK; the splash image is a frame from a real launch recording. The older editor screenshot and dated charts retain their original scope. None of these visuals establishes physical ARM acceptance or model accuracy.
+Current sources use the exact owner-supplied lynx, bundled Barlow fonts and licensed Phosphor Duotone icons. Native redesign captures and their state differences are described in design-qa.md. The older generated banner, SVG marks, RC6/RC7 screenshots and dated charts are historical and retain their original APK bindings. No artwork or screenshot establishes model accuracy or final human UI acceptance.

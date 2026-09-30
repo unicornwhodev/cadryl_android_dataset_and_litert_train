@@ -3,8 +3,7 @@ package com.unicornwhodev.visiondatasetstudio.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,7 +51,7 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
                 StudioSection(tr("Compatibilité avec le projet", "Project compatibility"),
                     tr("Les tâches et classes du dataset se configurent à un seul endroit : Configuration du projet. Ici, vous vérifiez uniquement ce que le modèle peut proposer.",
                         "Dataset tasks and classes are configured in one place: Project setup. Here you only check what the model can propose."),
-                    Icons.Default.Checklist) {
+                    CadrylIcons.Checklist) {
                     ModelCompatibilityPanel(config, p.activeTasksCsv, p.classesCsv)
                     val classCount=com.unicornwhodev.visiondatasetstudio.core.workflow.ProjectVocabulary.parse(p.classesCsv).size
                     Text(tr("${p.activeTasksCsv.ifBlank{"Aucune tâche"}} · $classCount classe(s)",
@@ -61,11 +60,11 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
                         Text(tr("Modifier tâches et classes", "Edit tasks and classes"))
                     }
                 }
-                StudioDisclosure(tr("Options du modèle", "Model options"),Icons.Default.Tune,keepContent=true) {
+                StudioDisclosure(tr("Options du modèle", "Model options"),CadrylIcons.Tune,keepContent=true) {
                     ModelSettingsPanel(p,busy,vm::saveModelConfig,spec)
                 }
                 StudioSection(tr("Essayer sur une image", "Try on an image"),
-                    tr("Utilise les réglages enregistrés. Les annotations sont conservées.", "Uses saved settings. Annotations are preserved."), Icons.Default.Science) {
+                    tr("Utilise les réglages enregistrés. Les annotations sont conservées.", "Uses saved settings. Annotations are preserved."), CadrylIcons.Science) {
                     if(config!=null && ModelContract.adapter(config)!="inspect_only" && !runtimeReady) {
                         StudioDetails(tr("Le contrat est configuré, mais aucun poids LiteRT ou endpoint local n’est actif. Installez ou importez le modèle avant l’essai.",
                             "The contract is configured, but no LiteRT weights or local endpoint is active. Install or import the model before testing."),
@@ -82,7 +81,7 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
                             "Execution succeeded, with no proposals at the current threshold. Check the target classes and threshold.")
                     else tr("${it.proposals.size} propositions · ${it.latencyMs} ms", "${it.proposals.size} proposals · ${it.latencyMs} ms"),
                         color = if (it.success) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error) }
-                    StudioDisclosure(tr("Diagnostics et erreurs précédentes", "Diagnostics & previous errors"), Icons.Default.History) {
+                    StudioDisclosure(tr("Diagnostics et erreurs précédentes", "Diagnostics & previous errors"), CadrylIcons.History) {
                         TextButton(onClick = { vm.refreshInferenceReceipts(true) }, enabled = !busy) { Text(tr("Afficher les derniers échecs", "Show recent failures")) }
                         TextButton(onClick = { vm.refreshInferenceReceipts() }, enabled = !busy) { Text(tr("Afficher les derniers essais", "Show recent trials")) }
                         if (diagnostics.isNotBlank()) Text(diagnostics, style = MaterialTheme.typography.bodySmall)

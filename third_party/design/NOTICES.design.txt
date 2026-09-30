@@ -1,0 +1,17 @@
+Cadryl native interface assets
+
+Barlow Regular, Medium, SemiBold and Bold
+Source: https://github.com/google/fonts/tree/6cdf01867df0813c2390f90dff7dc66c87f14cf7/ofl/barlow
+License: SIL Open Font License 1.1; see OFL.barlow.txt.
+
+Phosphor Duotone pictograms, selected native Compose vectors
+Source: https://github.com/adamglin0/compose-phosphor-icon/tree/d83bea0a9ed83c38c91cb56e927381e1b2943db8
+Artwork: https://github.com/phosphor-icons/core
+Licenses: MIT; see LICENSE.compose-phosphor-icon and LICENSE.phosphor.
+Only vectors used by the interface are included. Arrow navigation enables
+Android autoMirror. Unused icon families and AllIcons lists are omitted.
+Upstream and installed hashes are recorded in manifest.json.
+
+Cadryl lynx emblem
+Supplied and selected by the owner for this project. No third-party brand
+or endorsement is claimed. Distributed with the project's Apache-2.0 assets.

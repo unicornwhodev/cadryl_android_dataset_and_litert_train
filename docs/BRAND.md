@@ -1,29 +1,32 @@
-# Cadryl, en quelques traits
+# Cadryl : logo et interface
 
 [Documentation](README.md)
 
-**Cadryl** devient le nom de l’app à partir de rc6. Il évoque le cadre de l’image, avec une forme courte qui tient sous une icône. La signature est **« Un regard. Un dataset. »** : l’app aide à préparer les données, la relecture reste humaine.
+## Identité actuelle
 
-![Logo Cadryl](brand/cadryl-lockup.svg)
+Le propriétaire a fourni et retenu le lynx orange le 30 septembre 2026. Son bitmap transparent est repris sans redessin ni modification des pixels.
 
-Le symbole assemble un cadre cyan ouvert et un angle lilas. On peut y lire un C et deux pièces qui se complètent. Il reste simple pour être lisible dans le lanceur Android.
+<img src="../app/src/main/res/drawable-nodpi/ic_cadryl.png" alt="Lynx Cadryl retenu" width="100">
 
-| Élément | Fichier |
+| Élément | Source |
 |---|---|
-| Symbole vectoriel | [cadryl-mark.svg](brand/cadryl-mark.svg) |
-| Logo avec nom | [cadryl-lockup.svg](brand/cadryl-lockup.svg) |
-| Icône de présentation | [cadryl-icon.svg](brand/cadryl-icon.svg) |
-| Bannière du dépôt | [cadryl-hero.png](brand/cadryl-hero.png) |
-| Sources Android | [Drawables](../app/src/main/res/drawable/ic_cadryl.xml) · [icône adaptative](../app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) · [monochrome](../app/src/main/res/drawable/ic_launcher_monochrome.xml) |
+| Lynx original | [PNG transparent](../app/src/main/res/drawable-nodpi/ic_cadryl.png) |
+| Icône adaptative | [Premier plan](../app/src/main/res/drawable/ic_launcher_foreground.xml) · [fond](../app/src/main/res/drawable/ic_launcher_background.xml) |
+| Icône monochrome | [Bitmap teinté par le lanceur](../app/src/main/res/drawable/ic_launcher_monochrome.xml) |
+| Typographie native | [Barlow Regular, Medium, SemiBold, Bold](../app/src/main/res/font/) |
+| Pictogrammes | [Sélection Phosphor Duotone](../app/src/main/java/com/adamglin/phosphoricons/duotone/) |
+| Provenance et licences | [Manifestes et textes MIT/OFL](../third_party/design/) |
 
-La palette utilise l’encre `#0B101B`, le cyan `#61E4DA`, le lilas `#AB98FF` et le blanc `#F5F3EE`. Garder de l’espace autour du signe et ses deux pièces distinctes. Le fond sombre accompagne le lancement ; l’interface conserve les thèmes clair, sombre et système choisis dans les réglages.
+Le studio utilise porcelaine `#F5F2EC`, graphite `#252D2C`, vermillon `#D85836` pour les annotations humaines et `#B94222` pour les commandes à texte blanc. Le thème clair est proposé à la première installation ; les choix clair, sombre et système déjà enregistrés sont conservés. Barlow est embarquée : aucun téléchargement de police ou d’icône au lancement.
 
-Le splash est natif : fond sombre et symbole au centre, compatible avec l’écran de lancement Android 12+. Les versions Android plus anciennes utilisent le même dessin dans le fond de fenêtre. Aucune temporisation n’est ajoutée au démarrage. L’icône possède aussi une version monochrome pour les lanceurs qui la prennent en charge.
+Le lanceur et le splash utilisent le même lynx, avec les marges adaptées aux masques Android. Le splash natif n’ajoute pas de temporisation artificielle. Le logo n’est pas remplacé par une lettre C ou une approximation vectorielle. Les icônes d’outils appartiennent à une seule famille, dont les sources officielles sont épinglées et licenciées.
 
-La bannière a été créée avec Image Gen. Le symbole a ensuite été redessiné en SVG et en VectorDrawable pour les petits formats et le rendu Android. Ce visuel n’est ni une capture de l’app ni un résultat de modèle. [Provenance](VISUALS.md).
+L’édition publique conserve `com.unicornwhodev.visiondatasetstudio`, la base et les projets existants. Le branding ne remplace aucune attribution et ne constitue pas une preuve d’origine des droits.
 
-Le changement de nom ne modifie ni l’identifiant `com.unicornwhodev.visiondatasetstudio`, ni la base de données, ni les noms des projets existants. Les URL GitHub/HF, coordonnées Maven et noms techniques d’archives restent stables. Les licences et attributions existantes sont conservées.
+## Historique des visuels
+
+Les fichiers `docs/brand/cadryl-mark.svg`, `cadryl-lockup.svg`, `cadryl-icon.svg` et `cadryl-hero.png` documentent l’ancien cadre cyan/lilas des RC6–RC8. Ils ne sont plus l’identité de l’interface actuelle. Leur provenance reste décrite dans [VISUALS.md](VISUALS.md). Les releases précédemment publiées gardent leurs reçus et leur apparence d’origine.
 
 ## English
 
-Cadryl is the app’s display name from rc6. The open cyan frame and lilac corner form a compact mark for a human-reviewed image workflow. The editable SVGs and native Android vectors above are the source assets. The generated banner is artwork, not a screenshot. The native splash adds no artificial delay; the adaptive launcher icon includes a monochrome variant. Application ID, data, project names and repository URLs remain unchanged.
+The current mark is the exact transparent lynx bitmap supplied and selected by the owner. Native Android uses bundled Barlow fonts and a pinned, licensed Phosphor Duotone icon selection. The public application ID and saved data remain unchanged. The older cyan/lilac assets are historical; branding never replaces required attribution or proves ownership of third-party rights.

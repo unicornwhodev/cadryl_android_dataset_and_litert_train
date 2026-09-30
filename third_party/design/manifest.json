@@ -1,0 +1,538 @@
+{
+  "schema": 1,
+  "icon_commit": "d83bea0a9ed83c38c91cb56e927381e1b2943db8",
+  "font_commit": "6cdf01867df0813c2390f90dff7dc66c87f14cf7",
+  "files": {
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Archive.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Archive.kt",
+      "upstream_sha256": "728e57f6d9650e0328f157d75f5624b7ca0781b356b02e098e75e0845f7cd540",
+      "sha256": "728e57f6d9650e0328f157d75f5624b7ca0781b356b02e098e75e0845f7cd540"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Arrowclockwise.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Arrowclockwise.kt",
+      "upstream_sha256": "c68854e497a3b6e094db20a16e4b486a515c04ac03c934279b5b3010520556f9",
+      "sha256": "c68854e497a3b6e094db20a16e4b486a515c04ac03c934279b5b3010520556f9"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Arrowleft.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Arrowleft.kt",
+      "upstream_sha256": "9a9498768cb213a502a6c73979e59246322e138bc83c572332be8abf1abf9ee8",
+      "sha256": "12d8fd93034251c4c8ec6773e87d04ae1f569f2a47d0aa170b3f275c6275b65e",
+      "adaptation": "autoMirror=true for RTL navigation"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Arrowright.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Arrowright.kt",
+      "upstream_sha256": "fad6c7fb95bd9f8799649cecfcc7745d27c43047c6af9b011ffd7fb7f0991282",
+      "sha256": "4f13819d2b084574ae96a6f8198d4ecbaf1a99bb84b7dbadc520df5c61915dc2",
+      "adaptation": "autoMirror=true for RTL navigation"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Arrowuupleft.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Arrowuupleft.kt",
+      "upstream_sha256": "6b83fe1f17a56d91e6633b16cbbb190837dc08698dbc30b1b94a8bb40507e454",
+      "sha256": "66cbd21982c96e6a90e5bc06d2ca9e70a0da8b3db062cf2b4639e65c220778a4",
+      "adaptation": "autoMirror=true for RTL navigation"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Arrowuupright.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Arrowuupright.kt",
+      "upstream_sha256": "7275a762c630db082ea8de7d9d450a12c7e0988a7625fdf840e2f6b70c4743b9",
+      "sha256": "e1ab7a2f69fbe0e5958e2d9ec54d9366fa19acc77e8347530c44dc80a8351fb0",
+      "adaptation": "autoMirror=true for RTL navigation"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Arrowsclockwise.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Arrowsclockwise.kt",
+      "upstream_sha256": "154214d54f6fb216ccb739ecd6b27e507e877fdbc1f4da1cacc0bbcbfea91da7",
+      "sha256": "154214d54f6fb216ccb739ecd6b27e507e877fdbc1f4da1cacc0bbcbfea91da7"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Bookmarksimple.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Bookmarksimple.kt",
+      "upstream_sha256": "ab2d6692b8ce1dda651af60cb8df7dec6a6e2113eb51960f50efdb24c4f89ebb",
+      "sha256": "ab2d6692b8ce1dda651af60cb8df7dec6a6e2113eb51960f50efdb24c4f89ebb"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Boundingbox.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Boundingbox.kt",
+      "upstream_sha256": "967c775119638c111a06ecf40374218802cfc6f7fabca52b915243579eb4b48d",
+      "sha256": "967c775119638c111a06ecf40374218802cfc6f7fabca52b915243579eb4b48d"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Bracketscurly.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Bracketscurly.kt",
+      "upstream_sha256": "abc6fc5fbda9834b592a5d6a0f5fdb9bdaa6c4f4f369a7c6e490d6255000ddb2",
+      "sha256": "abc6fc5fbda9834b592a5d6a0f5fdb9bdaa6c4f4f369a7c6e490d6255000ddb2"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Brain.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Brain.kt",
+      "upstream_sha256": "731b6b61b44ed7b0447fbc9f2cf1073b118a834f18bed42e1474a59175e471a9",
+      "sha256": "731b6b61b44ed7b0447fbc9f2cf1073b118a834f18bed42e1474a59175e471a9"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Caretdown.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Caretdown.kt",
+      "upstream_sha256": "a0c6d90a9ce5760b43deee667e3061f9918727347562953d191ccc11dbba712e",
+      "sha256": "a0c6d90a9ce5760b43deee667e3061f9918727347562953d191ccc11dbba712e"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Caretleft.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Caretleft.kt",
+      "upstream_sha256": "e41fddc9b93de77484be1faa2076c5c71c66ff3c1d95841385f47f0b0d6d8e92",
+      "sha256": "e41fddc9b93de77484be1faa2076c5c71c66ff3c1d95841385f47f0b0d6d8e92"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Caretright.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Caretright.kt",
+      "upstream_sha256": "61c321e50075934e1a8e5add253345c0b0c5f895d2b4a43da7cd4bf81920f1e2",
+      "sha256": "61c321e50075934e1a8e5add253345c0b0c5f895d2b4a43da7cd4bf81920f1e2"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Caretup.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Caretup.kt",
+      "upstream_sha256": "a4d610e73c99160960428a7b288c2985e333699fb7cc79e450a55ea78b60d949",
+      "sha256": "a4d610e73c99160960428a7b288c2985e333699fb7cc79e450a55ea78b60d949"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Chartline.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Chartline.kt",
+      "upstream_sha256": "9825407d9e57117828c6a07db0f6bdc097b90a8cbcca2e2ac10f162625678602",
+      "sha256": "9825407d9e57117828c6a07db0f6bdc097b90a8cbcca2e2ac10f162625678602"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Check.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Check.kt",
+      "upstream_sha256": "0ba174fbd7ea24963c7ef1535da75c2ae77caae0498ff71a9e41b23f5d9dbe0b",
+      "sha256": "0ba174fbd7ea24963c7ef1535da75c2ae77caae0498ff71a9e41b23f5d9dbe0b"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Checkcircle.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Checkcircle.kt",
+      "upstream_sha256": "6b6f450d8dbe79dd7e70e89b143c9a92c285892f2e373a2633debf4014e19889",
+      "sha256": "6b6f450d8dbe79dd7e70e89b143c9a92c285892f2e373a2633debf4014e19889"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Circle.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Circle.kt",
+      "upstream_sha256": "bf8ea7d92337a37a42fee45e314a0f77e23427be7a25599e58fe5f829fca68d9",
+      "sha256": "bf8ea7d92337a37a42fee45e314a0f77e23427be7a25599e58fe5f829fca68d9"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Circledashed.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Circledashed.kt",
+      "upstream_sha256": "099837d9855616dfe407131ed2862e04bab3ba5f310df9d00f31b19016d659d4",
+      "sha256": "099837d9855616dfe407131ed2862e04bab3ba5f310df9d00f31b19016d659d4"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Clipboard.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Clipboard.kt",
+      "upstream_sha256": "6d902d30e8284ed316425f6afaef4ce557e378fc06813861a27cee66da0b71f1",
+      "sha256": "6d902d30e8284ed316425f6afaef4ce557e378fc06813861a27cee66da0b71f1"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Clipboardtext.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Clipboardtext.kt",
+      "upstream_sha256": "c6b15e8e3d270e976ccb91e9de9fc3e13b2359dbc80324133bd067759493925a",
+      "sha256": "c6b15e8e3d270e976ccb91e9de9fc3e13b2359dbc80324133bd067759493925a"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Clock.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Clock.kt",
+      "upstream_sha256": "cb1970bf646dee94a2591e0332141d4fac8f7967114182653735246b2931276a",
+      "sha256": "cb1970bf646dee94a2591e0332141d4fac8f7967114182653735246b2931276a"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Clockcounterclockwise.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Clockcounterclockwise.kt",
+      "upstream_sha256": "e855e5b50d2861d25dc2d92d04510ac2ff5c1083a642fe151c7d3fbd6e0e93e4",
+      "sha256": "e855e5b50d2861d25dc2d92d04510ac2ff5c1083a642fe151c7d3fbd6e0e93e4"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Cloudarrowdown.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Cloudarrowdown.kt",
+      "upstream_sha256": "c5b070c35dddf79ece7d8b8e04e7a3ea06293fb951dff69a86396dd25328f9f1",
+      "sha256": "c5b070c35dddf79ece7d8b8e04e7a3ea06293fb951dff69a86396dd25328f9f1"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Cloudarrowup.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Cloudarrowup.kt",
+      "upstream_sha256": "482f7f48ae07c46335a895b20e5bfda68765af6c211d5bb3076966644e5c780c",
+      "sha256": "482f7f48ae07c46335a895b20e5bfda68765af6c211d5bb3076966644e5c780c"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Cloudcheck.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Cloudcheck.kt",
+      "upstream_sha256": "dedcff2180cbd6d2d80ec91e2314f34f091fdbb58a8323c64b0c99621a6de60f",
+      "sha256": "dedcff2180cbd6d2d80ec91e2314f34f091fdbb58a8323c64b0c99621a6de60f"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Code.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Code.kt",
+      "upstream_sha256": "8212163cb6b6da6263a921f57c2fea35ddfdcf4ed9ed5a8f1602770e916b3b0e",
+      "sha256": "8212163cb6b6da6263a921f57c2fea35ddfdcf4ed9ed5a8f1602770e916b3b0e"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Copy.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Copy.kt",
+      "upstream_sha256": "6d868b419cbf24e93e505900d5fe47e33566b1e1e98234b439034cfb3f26cfa9",
+      "sha256": "6d868b419cbf24e93e505900d5fe47e33566b1e1e98234b439034cfb3f26cfa9"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Cpu.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Cpu.kt",
+      "upstream_sha256": "8829471e3200ab1f3f056c7efe80a8ddee9ab2d81c1633659952599fe8733cb4",
+      "sha256": "8829471e3200ab1f3f056c7efe80a8ddee9ab2d81c1633659952599fe8733cb4"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Crosshair.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Crosshair.kt",
+      "upstream_sha256": "713742b7e09bfd8e75420752b706d199243b036ca2cfde239aa7894e980c7f03",
+      "sha256": "713742b7e09bfd8e75420752b706d199243b036ca2cfde239aa7894e980c7f03"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Cursor.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Cursor.kt",
+      "upstream_sha256": "b506391d2311cca342168b41e74187c81c1e98efbf2a7047ae8f7ea7b709951b",
+      "sha256": "b506391d2311cca342168b41e74187c81c1e98efbf2a7047ae8f7ea7b709951b"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Database.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Database.kt",
+      "upstream_sha256": "55d3a20209526ac433bc5ecbc1eb0d0a7dc59984292df16c94ded087f277ef05",
+      "sha256": "55d3a20209526ac433bc5ecbc1eb0d0a7dc59984292df16c94ded087f277ef05"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Devicemobile.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Devicemobile.kt",
+      "upstream_sha256": "dcf36d43917dddf3225fedc4eea1eeec24f9e2a0a211d686b033f1e8ea0af058",
+      "sha256": "dcf36d43917dddf3225fedc4eea1eeec24f9e2a0a211d686b033f1e8ea0af058"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Dotsthreevertical.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Dotsthreevertical.kt",
+      "upstream_sha256": "292cf6ec61c53b92fd46a026fe6972ea296dec370169db2ff60d0ce215732827",
+      "sha256": "292cf6ec61c53b92fd46a026fe6972ea296dec370169db2ff60d0ce215732827"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Downloadsimple.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Downloadsimple.kt",
+      "upstream_sha256": "8da6afb30742048874fc32a968467f9c6afaa3b7b883af4e90cbaf90c4a66916",
+      "sha256": "8da6afb30742048874fc32a968467f9c6afaa3b7b883af4e90cbaf90c4a66916"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Eraser.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Eraser.kt",
+      "upstream_sha256": "1492c05c163cb26cdfe3843012eb862f3cef93c9ee3a7a05a01cef966785c9d5",
+      "sha256": "1492c05c163cb26cdfe3843012eb862f3cef93c9ee3a7a05a01cef966785c9d5"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Exam.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Exam.kt",
+      "upstream_sha256": "d2d43d4b068342e64811e7b6d30c08a4aef61fd28808b1657fb75f090aa7b1a8",
+      "sha256": "d2d43d4b068342e64811e7b6d30c08a4aef61fd28808b1657fb75f090aa7b1a8"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Export.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Export.kt",
+      "upstream_sha256": "780bdd02295ecf57dd89b892390cd679a27e2f7661bd7868b67ec24b1e48adff",
+      "sha256": "780bdd02295ecf57dd89b892390cd679a27e2f7661bd7868b67ec24b1e48adff"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Eye.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Eye.kt",
+      "upstream_sha256": "50f6dcfd2d9543a41dae6827ce52d63987834ba1392401acff363e77b9d6dd4a",
+      "sha256": "50f6dcfd2d9543a41dae6827ce52d63987834ba1392401acff363e77b9d6dd4a"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Eyeslash.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Eyeslash.kt",
+      "upstream_sha256": "af207d731728ada373aad0dee0dc1f60c44f98c8c36ecfa70db70c2f4fce053b",
+      "sha256": "af207d731728ada373aad0dee0dc1f60c44f98c8c36ecfa70db70c2f4fce053b"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Fadershorizontal.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Fadershorizontal.kt",
+      "upstream_sha256": "c7b8e607c2ff868cb66e99b7769e1b29926db3e64784c1638e3e0762d2cf41f0",
+      "sha256": "c7b8e607c2ff868cb66e99b7769e1b29926db3e64784c1638e3e0762d2cf41f0"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/File.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/File.kt",
+      "upstream_sha256": "c5d1d9ad7f46a55e67d973efe218caac95f965247e4654a8da8d445fee8da2f9",
+      "sha256": "c5d1d9ad7f46a55e67d973efe218caac95f965247e4654a8da8d445fee8da2f9"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Filearrowup.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Filearrowup.kt",
+      "upstream_sha256": "566f04674737e443ccce83d17d62bb727e3d6ae45b1967684c3f6659b2a1e9af",
+      "sha256": "566f04674737e443ccce83d17d62bb727e3d6ae45b1967684c3f6659b2a1e9af"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Filemagnifyingglass.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Filemagnifyingglass.kt",
+      "upstream_sha256": "8c2604442884b6d088fe037f0d432c3a207c99de764e83f40070d8a41477745e",
+      "sha256": "8c2604442884b6d088fe037f0d432c3a207c99de764e83f40070d8a41477745e"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Filetext.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Filetext.kt",
+      "upstream_sha256": "8be3fe9edb83fc5b58b71a32da58762f9f5692419af45ed654cbbd10ee333756",
+      "sha256": "8be3fe9edb83fc5b58b71a32da58762f9f5692419af45ed654cbbd10ee333756"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Filezip.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Filezip.kt",
+      "upstream_sha256": "fb71d65b98288f13504c9d4c9761028993a49a73e83f66e143d0963e3a6b9516",
+      "sha256": "fb71d65b98288f13504c9d4c9761028993a49a73e83f66e143d0963e3a6b9516"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Files.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Files.kt",
+      "upstream_sha256": "9aa5a16aeeb0c4481ebe769bdced58c49df1b6df615097e48c989248724dc9f5",
+      "sha256": "9aa5a16aeeb0c4481ebe769bdced58c49df1b6df615097e48c989248724dc9f5"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Flask.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Flask.kt",
+      "upstream_sha256": "6eba0298fbb1cdf10465ad95b3a275fea9b2965598df7a4c66443bb4315baf81",
+      "sha256": "6eba0298fbb1cdf10465ad95b3a275fea9b2965598df7a4c66443bb4315baf81"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Folderopen.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Folderopen.kt",
+      "upstream_sha256": "55e739b59d941ff47ce08316108abd3851c86d4b58cf50370cfe46e085ce1dd3",
+      "sha256": "55e739b59d941ff47ce08316108abd3851c86d4b58cf50370cfe46e085ce1dd3"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Foldersimple.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Foldersimple.kt",
+      "upstream_sha256": "82e41f4610705e49220f4b30a156ced220018a8cbb06387e7d71f8b01b63b996",
+      "sha256": "82e41f4610705e49220f4b30a156ced220018a8cbb06387e7d71f8b01b63b996"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Framecorners.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Framecorners.kt",
+      "upstream_sha256": "124bd0c486350bac13fd6ff6fc30e9538226c382f99124b4eda3f0223e48e200",
+      "sha256": "124bd0c486350bac13fd6ff6fc30e9538226c382f99124b4eda3f0223e48e200"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Funnel.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Funnel.kt",
+      "upstream_sha256": "caf6b15bd312f1b90a4e9422941068792fb0c9dd723ea6197b363563c0a94d21",
+      "sha256": "caf6b15bd312f1b90a4e9422941068792fb0c9dd723ea6197b363563c0a94d21"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Funnelx.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Funnelx.kt",
+      "upstream_sha256": "f3bfbb5c7f1f8d3a63e59d7d7e2e741fb4d20f27b4caa3f937f56125509a57c3",
+      "sha256": "f3bfbb5c7f1f8d3a63e59d7d7e2e741fb4d20f27b4caa3f937f56125509a57c3"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Gauge.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Gauge.kt",
+      "upstream_sha256": "b8237875e4c0d5f4008d0f3687bf1ba14a530efacc1f634d8c4a444f83892ba4",
+      "sha256": "b8237875e4c0d5f4008d0f3687bf1ba14a530efacc1f634d8c4a444f83892ba4"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Gridfour.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Gridfour.kt",
+      "upstream_sha256": "634a5f36cbb85ee38c355b55f0d8906f3070d6519ef1cd1b00c541cd492b1605",
+      "sha256": "634a5f36cbb85ee38c355b55f0d8906f3070d6519ef1cd1b00c541cd492b1605"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Hand.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Hand.kt",
+      "upstream_sha256": "23a327fcdf4ba9e2d0ce6e98e6f76a73a6456d7063b18cfaad4b5a8a62cc8f45",
+      "sha256": "23a327fcdf4ba9e2d0ce6e98e6f76a73a6456d7063b18cfaad4b5a8a62cc8f45"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Handtap.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Handtap.kt",
+      "upstream_sha256": "58ffe8cb597c13812c3ff75b0f9f2d4b552d6815ec8738c42ea21321e52423d9",
+      "sha256": "58ffe8cb597c13812c3ff75b0f9f2d4b552d6815ec8738c42ea21321e52423d9"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Image.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Image.kt",
+      "upstream_sha256": "91c0d142f5bca80a471714e3cce43e0b2bd392cb2228c183c49494b2fcc732b7",
+      "sha256": "91c0d142f5bca80a471714e3cce43e0b2bd392cb2228c183c49494b2fcc732b7"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Imagebroken.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Imagebroken.kt",
+      "upstream_sha256": "69e2a1767a4524e26699bb4120dd08d04c3720ad15def7b7a301f5cec0088b2e",
+      "sha256": "69e2a1767a4524e26699bb4120dd08d04c3720ad15def7b7a301f5cec0088b2e"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Images.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Images.kt",
+      "upstream_sha256": "4c868cfdf77db1ef80f5c83edce07ddf3ec5f9cfe924a6ca40c8f8b1d5801de0",
+      "sha256": "4c868cfdf77db1ef80f5c83edce07ddf3ec5f9cfe924a6ca40c8f8b1d5801de0"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Info.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Info.kt",
+      "upstream_sha256": "5a777b56487a4b0dad679bf6870131cae52c83dc2ec53fb791706a01599705e7",
+      "sha256": "5a777b56487a4b0dad679bf6870131cae52c83dc2ec53fb791706a01599705e7"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Key.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Key.kt",
+      "upstream_sha256": "cedb2ee4cfbeb5904b52c5274ec95c3cb057b1738e2663dcd755764b1b86622a",
+      "sha256": "cedb2ee4cfbeb5904b52c5274ec95c3cb057b1738e2663dcd755764b1b86622a"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Lasso.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Lasso.kt",
+      "upstream_sha256": "448395eb7a71a6d9e913971dd1650a76b7690e6fc02845569028e6e5e37561d6",
+      "sha256": "448395eb7a71a6d9e913971dd1650a76b7690e6fc02845569028e6e5e37561d6"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Linksimple.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Linksimple.kt",
+      "upstream_sha256": "65d7b5b8cb29702044a841bbeabaac51d41ed9bde3cc12944fdb21f79f228e9d",
+      "sha256": "65d7b5b8cb29702044a841bbeabaac51d41ed9bde3cc12944fdb21f79f228e9d"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Listchecks.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Listchecks.kt",
+      "upstream_sha256": "370abd10ab5ccefaf415047f81da02e80b6a1cd706363a16aa0600af5a7ee5e4",
+      "sha256": "370abd10ab5ccefaf415047f81da02e80b6a1cd706363a16aa0600af5a7ee5e4"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Lockkey.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Lockkey.kt",
+      "upstream_sha256": "2a0c959ff47f043aab47d44f4bfe3938925ef8d4d12185f683beaa383faf246e",
+      "sha256": "2a0c959ff47f043aab47d44f4bfe3938925ef8d4d12185f683beaa383faf246e"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Magnifyingglass.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Magnifyingglass.kt",
+      "upstream_sha256": "c6d423222c2c24791c8a4520cba9b45e65766dc4c5420a8a34a96767730c9f47",
+      "sha256": "c6d423222c2c24791c8a4520cba9b45e65766dc4c5420a8a34a96767730c9f47"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Minus.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Minus.kt",
+      "upstream_sha256": "fb1c188ec104ee81132b4e777d2048fff30875780bb918a395c6cf8ce0fb3f65",
+      "sha256": "fb1c188ec104ee81132b4e777d2048fff30875780bb918a395c6cf8ce0fb3f65"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Notepencil.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Notepencil.kt",
+      "upstream_sha256": "d892cde9633a91c7e18c47a7ad4cca0b197499df0f7784f4053cc1aab49f762c",
+      "sha256": "d892cde9633a91c7e18c47a7ad4cca0b197499df0f7784f4053cc1aab49f762c"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Package.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Package.kt",
+      "upstream_sha256": "00321f41803bb307f82db3094413ce92ce8153cb20394ff06f2fc81d6aab07fd",
+      "sha256": "00321f41803bb307f82db3094413ce92ce8153cb20394ff06f2fc81d6aab07fd"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Paintbrush.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Paintbrush.kt",
+      "upstream_sha256": "a6b36beb00cc135d4f9bffb6def4041e1a54316ed3e0bf6c8fc815c12ad15a04",
+      "sha256": "a6b36beb00cc135d4f9bffb6def4041e1a54316ed3e0bf6c8fc815c12ad15a04"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Paintbucket.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Paintbucket.kt",
+      "upstream_sha256": "821cfff6afb50209a76940c95c4e56591e20ca10131d2bc8bdc534c908ea69c6",
+      "sha256": "821cfff6afb50209a76940c95c4e56591e20ca10131d2bc8bdc534c908ea69c6"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Palette.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Palette.kt",
+      "upstream_sha256": "d15bb90cc3cd379b425497882af2b6c9b81fb86ea58b3e2437dd91f6e87d5508",
+      "sha256": "d15bb90cc3cd379b425497882af2b6c9b81fb86ea58b3e2437dd91f6e87d5508"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Pencilsimple.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Pencilsimple.kt",
+      "upstream_sha256": "0aa52d0dec79f5b6425d74df1308c223ec1894d31b38c265c6d80d8ca94b5edf",
+      "sha256": "0aa52d0dec79f5b6425d74df1308c223ec1894d31b38c265c6d80d8ca94b5edf"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Play.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Play.kt",
+      "upstream_sha256": "7460d51076901764df3c0eb3c2f68f6faf1adf32e645c42e48afb137f5e81cc0",
+      "sha256": "7460d51076901764df3c0eb3c2f68f6faf1adf32e645c42e48afb137f5e81cc0"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Plus.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Plus.kt",
+      "upstream_sha256": "0c9785052585f3b2dfea509e1231a935e4e4db85f3cbaa0ee047acb72044a4ce",
+      "sha256": "0c9785052585f3b2dfea509e1231a935e4e4db85f3cbaa0ee047acb72044a4ce"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Polygon.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Polygon.kt",
+      "upstream_sha256": "0ffab7e166bd6bf4827ec9e4c00c4ca0372319cb98f55f80f94fb7888ce7e5dd",
+      "sha256": "0ffab7e166bd6bf4827ec9e4c00c4ca0372319cb98f55f80f94fb7888ce7e5dd"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Prohibit.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Prohibit.kt",
+      "upstream_sha256": "afdfa54a7f72927adbb1e5fa12da148bb97f09f1112aece369abfec250fa229c",
+      "sha256": "afdfa54a7f72927adbb1e5fa12da148bb97f09f1112aece369abfec250fa229c"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Question.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Question.kt",
+      "upstream_sha256": "9067c9b311332138608dff6d1e0de55378b35e71fa8cf4ebd9e9e96e9f106c76",
+      "sha256": "9067c9b311332138608dff6d1e0de55378b35e71fa8cf4ebd9e9e96e9f106c76"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Radiobutton.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Radiobutton.kt",
+      "upstream_sha256": "c13d1d04470c46fb2206c476c81b70ea7bd5bf68669402cbea7dd330f19e01ea",
+      "sha256": "c13d1d04470c46fb2206c476c81b70ea7bd5bf68669402cbea7dd330f19e01ea"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Robot.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Robot.kt",
+      "upstream_sha256": "6ec3120e56fca25e2d81df35e347a0f71ab8db2e03dd7079ae755102cb28164f",
+      "sha256": "6ec3120e56fca25e2d81df35e347a0f71ab8db2e03dd7079ae755102cb28164f"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Shapes.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Shapes.kt",
+      "upstream_sha256": "f5a5d8ac5e41442ff0b93ccfdaf101920ee9b55b3f529eb5193dd8ad2737ec00",
+      "sha256": "f5a5d8ac5e41442ff0b93ccfdaf101920ee9b55b3f529eb5193dd8ad2737ec00"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Shieldcheck.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Shieldcheck.kt",
+      "upstream_sha256": "aec5f22754c640f7e4f71bc71af5d7f62fe3c6b4569fcc2935be609869beef91",
+      "sha256": "aec5f22754c640f7e4f71bc71af5d7f62fe3c6b4569fcc2935be609869beef91"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Skipforward.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Skipforward.kt",
+      "upstream_sha256": "ef1749a70c16e6c149c6d3f9086de1f3f87689d1d8cf803d6bcd1ad38b1b9b72",
+      "sha256": "ef1749a70c16e6c149c6d3f9086de1f3f87689d1d8cf803d6bcd1ad38b1b9b72"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Sparkle.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Sparkle.kt",
+      "upstream_sha256": "c95f209483197d6d068c0351d437bf92841cc254f20a712039f31fdf959d03e5",
+      "sha256": "c95f209483197d6d068c0351d437bf92841cc254f20a712039f31fdf959d03e5"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Squaresfour.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Squaresfour.kt",
+      "upstream_sha256": "a6fe51aca39d7eef687056bceccdd6b7c693cc84aed938cee05a5e2b495733bf",
+      "sha256": "a6fe51aca39d7eef687056bceccdd6b7c693cc84aed938cee05a5e2b495733bf"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Stack.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Stack.kt",
+      "upstream_sha256": "ad56f1b529a4d04739ad1abc28d1b5dd951048e0ffb2cf5c8ce4b7ad24cc9588",
+      "sha256": "ad56f1b529a4d04739ad1abc28d1b5dd951048e0ffb2cf5c8ce4b7ad24cc9588"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Stop.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Stop.kt",
+      "upstream_sha256": "d92bc9a6c41fb2424f6b704a073f3fe32f9c664142951fc41d9dbb00de451c93",
+      "sha256": "d92bc9a6c41fb2424f6b704a073f3fe32f9c664142951fc41d9dbb00de451c93"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Tag.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Tag.kt",
+      "upstream_sha256": "c2c1831d0987af30f90b4bc6299d6cf7db9a205c0dabb1a57cebe0fa99bc5294",
+      "sha256": "c2c1831d0987af30f90b4bc6299d6cf7db9a205c0dabb1a57cebe0fa99bc5294"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Trash.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Trash.kt",
+      "upstream_sha256": "19c85107edb447e98b674deaf5031fab72ec29924e209938c04e9b7097316374",
+      "sha256": "19c85107edb447e98b674deaf5031fab72ec29924e209938c04e9b7097316374"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Treestructure.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Treestructure.kt",
+      "upstream_sha256": "4d43b33217ae6e19ef6ff1150afe8b07a534e505772e7ddfa1342542ebf64803",
+      "sha256": "4d43b33217ae6e19ef6ff1150afe8b07a534e505772e7ddfa1342542ebf64803"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Usersthree.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Usersthree.kt",
+      "upstream_sha256": "0df2fdba0f6c829ef57f0a1203caec0df0afed15a7130b3dac98438e14fa81e9",
+      "sha256": "0df2fdba0f6c829ef57f0a1203caec0df0afed15a7130b3dac98438e14fa81e9"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Warningcircle.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Warningcircle.kt",
+      "upstream_sha256": "edc6bcd738f41d9fb0e25b8979c6839a2839d94f640285c7ff645392fb352881",
+      "sha256": "edc6bcd738f41d9fb0e25b8979c6839a2839d94f640285c7ff645392fb352881"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/X.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/X.kt",
+      "upstream_sha256": "f09c02a577599ef3a9350fa4c32e3cf7e7d85aecb347d7a2444e29683afc39d1",
+      "sha256": "f09c02a577599ef3a9350fa4c32e3cf7e7d85aecb347d7a2444e29683afc39d1"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/duotone/Xcircle.kt": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/phosphor/src/commonMain/kotlin/com/adamglin/phosphoricons/duotone/Xcircle.kt",
+      "upstream_sha256": "17d0b08bad111fc9fd123d21b58631d74a598e860bb6578d386908f45ada3810",
+      "sha256": "17d0b08bad111fc9fd123d21b58631d74a598e860bb6578d386908f45ada3810"
+    },
+    "app/src/main/res/font/barlow_regular.ttf": {
+      "url": "https://raw.githubusercontent.com/google/fonts/6cdf01867df0813c2390f90dff7dc66c87f14cf7/ofl/barlow/Barlow-Regular.ttf",
+      "upstream_sha256": "95aa02c7c43096e0dd44d787ba6216864a67157e402adab59b35572e0c1577ea",
+      "sha256": "95aa02c7c43096e0dd44d787ba6216864a67157e402adab59b35572e0c1577ea"
+    },
+    "app/src/main/res/font/barlow_medium.ttf": {
+      "url": "https://raw.githubusercontent.com/google/fonts/6cdf01867df0813c2390f90dff7dc66c87f14cf7/ofl/barlow/Barlow-Medium.ttf",
+      "upstream_sha256": "f8906f762cb73dca441da034bc363b2d8e2e68bc10d5c05e58717646c20cc4b4",
+      "sha256": "f8906f762cb73dca441da034bc363b2d8e2e68bc10d5c05e58717646c20cc4b4"
+    },
+    "app/src/main/res/font/barlow_semibold.ttf": {
+      "url": "https://raw.githubusercontent.com/google/fonts/6cdf01867df0813c2390f90dff7dc66c87f14cf7/ofl/barlow/Barlow-SemiBold.ttf",
+      "upstream_sha256": "86577cb32f8abe3673db53ca0f4221e6856751a4f6730c867e00f720f8bb1fc5",
+      "sha256": "86577cb32f8abe3673db53ca0f4221e6856751a4f6730c867e00f720f8bb1fc5"
+    },
+    "app/src/main/res/font/barlow_bold.ttf": {
+      "url": "https://raw.githubusercontent.com/google/fonts/6cdf01867df0813c2390f90dff7dc66c87f14cf7/ofl/barlow/Barlow-Bold.ttf",
+      "upstream_sha256": "84e6a4d61e7c3e21f3c50ea6a4f7e5303a3467864c038be6ea3759bab8d547f9",
+      "sha256": "84e6a4d61e7c3e21f3c50ea6a4f7e5303a3467864c038be6ea3759bab8d547f9"
+    },
+    "third_party/design/LICENSE.compose-phosphor-icon": {
+      "url": "https://raw.githubusercontent.com/adamglin0/compose-phosphor-icon/d83bea0a9ed83c38c91cb56e927381e1b2943db8/LICENSE",
+      "upstream_sha256": "a1fd84db0ee0ce85fc5c6e6a01238255398942e6c28de0651e8b54b1cde6b77b",
+      "sha256": "a1fd84db0ee0ce85fc5c6e6a01238255398942e6c28de0651e8b54b1cde6b77b"
+    },
+    "third_party/design/OFL.barlow.txt": {
+      "url": "https://raw.githubusercontent.com/google/fonts/6cdf01867df0813c2390f90dff7dc66c87f14cf7/ofl/barlow/OFL.txt",
+      "upstream_sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f",
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f"
+    },
+    "third_party/design/LICENSE.phosphor": {
+      "url": "https://raw.githubusercontent.com/phosphor-icons/core/2b75f3ad12b420c9504ef05df8d2564a28f8500e/LICENSE",
+      "upstream_sha256": "b5b1f1da112d18ea2147decfd48ddc1bf2b5aeb6c265381579340e95b15a2bb2",
+      "sha256": "b5b1f1da112d18ea2147decfd48ddc1bf2b5aeb6c265381579340e95b15a2bb2"
+    },
+    "app/src/main/res/drawable-nodpi/ic_cadryl.png": {
+      "source": "Owner-supplied and selected Cadryl lynx emblem; original bitmap",
+      "sha256": "3ac82a491945cdb3a828b6000214d99911dfa27b101e41d0bc957d4e22ba1121"
+    },
+    "app/src/main/java/com/adamglin/PhosphorIcons.kt": {
+      "source": "Minimal registry for the pinned MIT-licensed Phosphor vectors",
+      "sha256": "fdb6c2d293a0a119e5a7f5249c87412e192c78a362a5499c558d5e974648523a"
+    },
+    "app/src/main/java/com/adamglin/phosphoricons/DuotoneGroup.kt": {
+      "source": "Minimal registry for the pinned MIT-licensed Phosphor vectors",
+      "sha256": "b8a9e72dd8d1e7e9e0a7bff7b60af8381da6ceda4096ba15986928d067ff9cfa"
+    }
+  }
+}

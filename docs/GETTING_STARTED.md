@@ -20,7 +20,7 @@ Compare le résultat à la ligne de l’APK. Les archives `qualification` contie
 
 ## 1. Crée ton projet
 
-Dans **Atelier → Projets**, crée ton projet, puis ouvre **Configurer**. La configuration propose quatre étapes :
+Dans **Outils → Projets**, crée ton projet, puis ouvre **Configurer**. La configuration propose quatre étapes :
 
 1. **Images** : choisis un dossier sur l’appareil ou un dataset Hugging Face. Pour HF, utilise **Inspecter la source** pour vérifier son accès et la colonne image.
 2. **Objectif** : choisis d’entourer, classer ou décrire les images. Ajoute les classes utiles. Si un modèle est sélectionné, recherche ses classes et touche leur nom pour les ajouter. Les noms doivent correspondre exactement ; une traduction n’est pas ajoutée automatiquement.
@@ -37,7 +37,7 @@ Si une image n’a pas pu être récupérée, réessaie ou exclus-la avec un mot
 
 ## 3. Ajoute un modèle si tu en as besoin
 
-Dans **Modèles**, importe un fichier compatible ou choisis une source Hugging Face autorisée. Les [conversions Charlbi](https://huggingface.co/Charlbi/Lite_rt_prepared_for_android_dataset_builder) ont chacune leur contrat et leurs résultats. Un bundle peut nécessiter plusieurs graphes, un processeur et un tokenizer : garde l’ensemble.
+Dans **Outils → Modèles**, importe un fichier compatible ou choisis une source Hugging Face autorisée. Les [conversions Charlbi](https://huggingface.co/Charlbi/Lite_rt_prepared_for_android_dataset_builder) ont chacune leur contrat et leurs résultats. Un bundle peut nécessiter plusieurs graphes, un processeur et un tokenizer : garde l’ensemble.
 
 Dans **Modèles → Réglages**, vérifie les classes et tâches prises en charge, puis essaie une image. Les dimensions sont contrôlées contre le fichier réel avant enregistrement. Les modèles à classes fixes affichent les correspondances ; les modèles à texte libre ne garantissent pas un vocabulaire fermé. TinyCLIP peut reprendre les classes du projet comme textes candidats et SAM demande la classe du masque.
 

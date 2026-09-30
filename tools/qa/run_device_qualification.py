@@ -17,7 +17,7 @@ import uuid
 import time
 import xml.etree.ElementTree as ET
 
-from resolve_apks import APP_ID, ROOT, resolve
+from resolve_apks import CLASS_NAMESPACE, APP_ID, ROOT, resolve
 from art_environment import art_crashes
 from adb_transport import prefix,server_port
 
@@ -58,7 +58,10 @@ def parse_instrumentation(text: str) -> dict:
 def home_ui_visible(xml: str) -> bool:
     # Compact physical-device navigation can omit the literal Studio label.
     labels = {node.get('text') for node in ET.fromstring(xml).iter('node') if node.get('package') == APP_ID}
-    return 'Studio' in labels or (bool(labels & {'Modèle', 'Model'}) and bool(labels & {'Outils', 'Tools'})) or (
+    return (bool(labels & {'Outils', 'Tools'}) and bool(labels & {
+        'Importer vos images', 'Import your images', 'Reprendre l’annotation', 'Continue annotating',
+        'Ouvrir le lot', 'Open batch',
+    })) or 'Studio' in labels or (bool(labels & {'Modèle', 'Model'}) and bool(labels & {'Outils', 'Tools'})) or (
         bool(labels & {'Atelier', 'Studio'}) and bool(labels & {'Modèles', 'Models'})
         and bool(labels & {'Export', 'Exporter'}))
 
@@ -122,7 +125,7 @@ def main() -> int:
                                         if info.returncode or 'Unfreezing process' not in info.stdout:
                                             raise RuntimeError('Could not disable freezing for the dedicated instrumentation process.')
                                     if args.qa_foreground_service and package == APP_ID:
-                                        info = subprocess.run([*adb, 'shell', 'am', 'start-foreground-service', '-n', APP_ID + '/.qa.QaKeepAliveService'], capture_output=True, text=True, timeout=15)
+                                        info = subprocess.run([*adb, 'shell', 'am', 'start-foreground-service', '-n', APP_ID + '/' + CLASS_NAMESPACE + '.qa.QaKeepAliveService'], capture_output=True, text=True, timeout=15)
                                         (out / 'qa-foreground-service.txt').write_text(info.stdout + info.stderr, encoding='utf-8')
                                         if info.returncode or 'Error' in info.stdout + info.stderr:
                                             raise RuntimeError('Could not start the explicit debug QA foreground service.')
@@ -139,7 +142,7 @@ def main() -> int:
                                               'NativePhotoInferenceUiTest', 'SegmentationCanvasTest',
                                               'StudioComposeV4Test', 'GuidedSetupTest', 'FirstLaunchTutorialTest')
                                 if active and active != foreground_test and active[0].split('.')[-1] not in ui_classes:
-                                    info = subprocess.run([*adb, 'shell', 'am', 'start', '-f', '0x20000000', '-n', APP_ID + '/.qa.QaPresenceActivity'], capture_output=True, text=True, timeout=15)
+                                    info = subprocess.run([*adb, 'shell', 'am', 'start', '-f', '0x20000000', '-n', APP_ID + '/' + CLASS_NAMESPACE + '.qa.QaPresenceActivity'], capture_output=True, text=True, timeout=15)
                                     if info.returncode or 'Error' in info.stdout + info.stderr:
                                         raise RuntimeError('Could not establish visible foreground QA conditions.')
                                     foreground_test = active
@@ -199,7 +202,7 @@ def main() -> int:
         for name, source in [('training-fixture', args.training_fixture), ('hf-runtime-fixture', args.tokenizer_fixture)]:
             run(f'stage-{name}.txt', [sys.executable, str(ROOT / 'tools/qa/stage_android_fixture.py'),
                                     '--serial', args.serial, '--name', name, '--source', str(source)])
-        options = ['-e', 'notClass', ','.join(APP_ID + '.' + c for c in EXCLUDED),
+        options = ['-e', 'notClass', ','.join(CLASS_NAMESPACE + '.' + c for c in EXCLUDED),
                    '-e', 'audit_download_models', 'true', '-e', 'inferenceOnlyAudit', 'true']
         output = run('instrumentation.txt', [*adb, 'shell', 'am', 'instrument', '-w', '-r',
                      *options, APP_ID + '.test/androidx.test.runner.AndroidJUnitRunner'], timeout=args.suite_timeout)
@@ -223,7 +226,7 @@ def main() -> int:
                 and continuation.get('second_final_weights') != continuation.get('second_initial_weights')):
             raise RuntimeError('Original preservation or learned model continuation evidence is incomplete.')
         run('collapse-system-panel.txt', [*adb, 'shell', 'cmd', 'statusbar', 'collapse'], check=False)
-        run('start.txt', [*adb, 'shell', 'am', 'start', '-W', '-n', APP_ID + '/' + APP_ID + '.MainActivity'])
+        run('start.txt', [*adb, 'shell', 'am', 'start', '-W', '-n', APP_ID + '/' + CLASS_NAMESPACE + '.MainActivity'])
         # am start -W can finish before the splash screen has left the window.
         for index in range(10):
             run(f'ui-dump-{index}.txt', [*adb, 'shell', 'uiautomator', 'dump', '/sdcard/vds-qa-window.xml'])

@@ -11,8 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -56,7 +55,7 @@ fun QualityDashboardScreen(viewModel: MainViewModel) {
                         Text(tr("Aucun lot à analyser", "No batch to analyze"), style = MaterialTheme.typography.titleLarge)
                         Text(tr("Les résultats apparaîtront après l’import des images.", "Results will appear after importing images."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         OutlinedButton(onClick = { viewModel.navigateTo(com.unicornwhodev.visiondatasetstudio.ui.Screen.BatchGrid) }) {
-                            Text(stringResource(R.string.quality_open_batches)); Spacer(Modifier.width(8.dp)); Icon(Icons.Default.ArrowForward, null, Modifier.size(18.dp))
+                            Text(stringResource(R.string.quality_open_batches)); Spacer(Modifier.width(8.dp)); Icon(CadrylIcons.ArrowForward, null, Modifier.size(18.dp))
                         }
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
@@ -77,17 +76,17 @@ fun QualityDashboardScreen(viewModel: MainViewModel) {
                                 MetricTile("$rejected", tr("Rejetés", "Rejected"), Modifier.weight(1f))
                             }
                             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                                if(untouched>0) StatusPill(tr("$untouched à traiter", "$untouched untouched"),Icons.Default.Edit)
-                                if(drafts>0) StatusPill(tr("$drafts brouillon(s) importé(s)", "$drafts imported draft(s)"),Icons.Default.Description)
-                                if(proposals>0) StatusPill(tr("$proposals suggestion(s) IA", "$proposals AI suggestion(s)"),Icons.Default.AutoAwesome)
-                                if(manualPending>0) StatusPill(tr("$manualPending traité(s) à valider", "$manualPending manually handled, needs approval"),Icons.Default.EditNote)
+                                if(untouched>0) StatusPill(tr("$untouched à traiter", "$untouched untouched"),CadrylIcons.Edit)
+                                if(drafts>0) StatusPill(tr("$drafts brouillon(s) importé(s)", "$drafts imported draft(s)"),CadrylIcons.Description)
+                                if(proposals>0) StatusPill(tr("$proposals suggestion(s) IA", "$proposals AI suggestion(s)"),CadrylIcons.AutoAwesome)
+                                if(manualPending>0) StatusPill(tr("$manualPending traité(s) à valider", "$manualPending manually handled, needs approval"),CadrylIcons.EditNote)
                             }
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         }
                     }
                 }
                 item {
-                    StudioSection(stringResource(R.string.quality_storage), icon = Icons.Default.Storage) {
+                    StudioSection(stringResource(R.string.quality_storage), icon = CadrylIcons.Storage) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(tr("${metrics.second} Mo", "${metrics.second} MB"), style = MaterialTheme.typography.titleLarge)
                             Text(tr("/ ${project?.diskBudgetMb ?: 500} Mo", "/ ${project?.diskBudgetMb ?: 500} MB"), color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -99,7 +98,7 @@ fun QualityDashboardScreen(viewModel: MainViewModel) {
                 item { Text(tr("Activité récente", "Recent activity"), style = MaterialTheme.typography.titleMedium) }
                 if (logs.isEmpty()) item {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.History, null, tint = MaterialTheme.colorScheme.secondary)
+                        Icon(CadrylIcons.History, null, tint = MaterialTheme.colorScheme.secondary)
                         Text(tr("Aucune activité enregistrée.", "No activity recorded."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
@@ -133,7 +132,7 @@ fun AuditLogItem(log: AuditLogEntity) {
     }
     Column(Modifier.fillMaxWidth().clickable { expanded = !expanded }.animateContentSize()) {
         Row(Modifier.padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Icon(when (log.action) { "VALIDATE" -> Icons.Default.CheckCircleOutline; "REJECT" -> Icons.Default.Block; "DEFER" -> Icons.Default.Schedule; else -> Icons.Default.History },
+            Icon(when (log.action) { "VALIDATE" -> CadrylIcons.CheckCircleOutline; "REJECT" -> CadrylIcons.Block; "DEFER" -> CadrylIcons.Schedule; else -> CadrylIcons.History },
                 null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
             Column(Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleSmall)

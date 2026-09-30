@@ -1,4 +1,4 @@
-![Cadryl — Un regard. Un dataset.](docs/brand/cadryl-hero.png)
+<img src="app/src/main/res/drawable-nodpi/ic_cadryl.png" alt="Lynx Cadryl" width="76">
 
 # Cadryl
 
@@ -9,6 +9,12 @@ Tu importes tes images, tu vérifies ce que propose le modèle, tu corriges et t
 Un projet indépendant de **Unicorn Who Dev**, auparavant nommé *Vision Dataset Studio*.
 
 [Release 0.0.1](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v0.0.1) · [Premier lot](docs/GETTING_STARTED.md) · [Documentation](docs/README.md) · [English](README.en.md)
+
+## Studio actuel dans les sources
+
+Lynx retenu, typographie Barlow, icônes Phosphor Duotone et interface porcelaine/graphite/vermillon. Le volet **Outils** donne accès aux modèles, à l’apprentissage, aux imports et aux exports ; la console regroupe les commandes de l’éditeur. [Guide du studio](docs/STUDIO_UI_2026_09.md) · [Revue visuelle](design-qa.md) · [Preuves de la refonte](docs/STUDIO_UI_EVIDENCE.json).
+
+La release `v0.0.1` publiée conserve son interface et ses APK d’origine. La nouvelle interface est compilée et testée dans les sources actuelles ; elle n’a pas remplacé les fichiers de cette release.
 
 ## Version publique 0.0.1
 
@@ -27,9 +33,9 @@ L’apprentissage est facultatif et désactivé au départ. **Aucun poids de mod
 
 ## Dans l’app
 
-<img src="test-results/rc7-release/visuals/home.png" alt="Accueil de Cadryl rc7 sur l’émulateur de test" width="260">
+<img src="docs/studio/native-editor.png" alt="Studio natif Cadryl avec le lynx retenu" width="300">
 
-Capture réelle sur émulateur. La bannière en haut de page est une illustration ; [les visuels et leur provenance](docs/VISUALS.md) sont documentés.
+Capture native réelle sur émulateur API 36, APK Debug de la refonte, image synthétique autorisée et annotation enregistrée. [Liaison à l’APK](docs/studio/capture.json) · [Visuels et provenance](docs/VISUALS.md).
 
 ## Essayer Cadryl
 
@@ -47,7 +53,7 @@ Builds Android réels, contrôles JVM/lint/KSP, suites Android et parcours UI in
 
 L’app utilise **Kotlin, Compose, Room et LiteRT**. Le [guide de développement](docs/DEVELOPMENT_RESUME.md) explique les dépendances natives, le build Windows/Linux et les tests. L’[architecture](docs/ARCHITECTURE.md) donne les repères pour trouver le bon endroit dans le code.
 
-La [reprise de l’interface](docs/UI_REWORK_2026_09.md) simplifie le studio après rc8.
+Le [studio actuel](docs/STUDIO_UI_2026_09.md) rassemble les outils après rc8.
 Les [preuves 0.0.1](docs/RELEASE_001_EVIDENCE.json) décrivent les APK livrées ;
 la validation humaine finale de l’interface reste distincte.
 

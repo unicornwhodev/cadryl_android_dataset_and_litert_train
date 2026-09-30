@@ -88,5 +88,20 @@
     "docs/RC8_QUALIFICATION_2026_09.md",
     "docs/PUBLIC_TUTORIAL_EVIDENCE.json"
   ],
-  "hardware_publication_policy": "Coverage gaps are documented without blocking this release, per owner decision on 2026-09-30."
+  "hardware_publication_policy": "Coverage gaps are documented without blocking this release, per owner decision on 2026-09-30.",
+  "published_artifact_scope": "Existing publication fields describe the earlier published APKs only; current studio source evidence is separate.",
+  "source_studio_redesign": {
+    "date": "2026-09-30",
+    "evidence": "docs/STUDIO_UI_EVIDENCE.json",
+    "compiled": true,
+    "android_debug_tests_passed": 63,
+    "android_release_tests_passed": 63,
+    "physical_ui_scenarios_passed": 5,
+    "installed_database_preserved": true,
+    "internal_design_qa": "passed",
+    "human_ui_accepted": false,
+    "published": false,
+    "compiled_source_bytes_equal_git_index": true,
+    "source_manifest_sha256": "46315378de4809db0568ff4ddf75e1405f2a958b10882fd2627cd8855e110a60"
+  }
 }

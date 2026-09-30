@@ -25,7 +25,19 @@ public final class QaEvidenceProvider extends ContentProvider {
     @Override public int delete(Uri uri, String selection, String[] args) { throw new UnsupportedOperationException(); }
     @Override public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
         try {
-            int allowed=getContext().getPackageManager().getApplicationInfo("com.unicornwhodev.visiondatasetstudio",0).uid;
+            // Resolve the target from this test APK's merged instrumentation manifest.
+            // The source namespace is shared; the installed application ID can differ.
+            android.content.pm.PackageManager packages=getContext().getPackageManager();
+            android.content.pm.InstrumentationInfo[] runners=packages.getPackageInfo(
+                    getContext().getPackageName(),android.content.pm.PackageManager.GET_INSTRUMENTATION).instrumentation;
+            String targetPackage=null;
+            if(runners!=null)for(android.content.pm.InstrumentationInfo runner:runners) {
+                if(targetPackage!=null && !targetPackage.equals(runner.targetPackage))
+                    throw new SecurityException("One target QA package required");
+                targetPackage=runner.targetPackage;
+            }
+            if(targetPackage==null)throw new SecurityException("Target QA package missing");
+            int allowed=packages.getApplicationInfo(targetPackage,0).uid;
             String path=uri.getPath();
             if(Binder.getCallingUid()==2000 && mode.equals("r") && path!=null &&
                     path.matches("/final01-ui/[a-f0-9]{12}/(portrait|landscape)/archive.zip")) {

@@ -15,7 +15,7 @@ utilisation et redistribution restent soumis à leurs propres conditions.
 Le choix de licence ne vaut pas qualification technique : les résultats de compilation,
 tests et recette sont consignés séparément dans les rapports de validation.
 
-Le 30 septembre 2026 UTC, les 103 artefacts du runtime public ont été inventoriés
+Le 30 septembre 2026 UTC, les 102 artefacts du runtime public ont été inventoriés
 dans [third_party](third_party/README.md), avec les métadonnées de licence et les
 notices embarquées. La revue des composants transitifs liés dans les bibliothèques
 natives reste ouverte ; cet inventaire ne constitue pas une validation juridique.
@@ -30,8 +30,8 @@ Six binaires LiteRT/Flex retenus sont vérifiés contre les AAR distribués pour
 rattacher leurs notices aux entrées de liaison. Les limites de couverture figurent
 dans [l’inventaire natif](third_party/native-notices/inventory.json).
 
-La vente n’est pas ouverte : l’éditeur a fourni « Unicorn Who Dev », France et
-unicornwhodev@gmail.com, audience tout public. Son identité juridique complète,
-son adresse professionnelle, les informations commerciales applicables et l’URL
-publique de confidentialité restent à renseigner. Les politiques et conditions
-de préparation ne constituent pas une attestation de conformité ou une vente active.
+Cette édition publique ne contient aucun service de vente ni abonnement.
+Sa politique décrit le traitement local et les échanges externes facultatifs
+choisis par l’utilisateur.
+
+La nouvelle interface conserve Phosphor Duotone sous MIT et Barlow sous OFL-1.1, avec leurs notices d’origine et leurs empreintes dans `third_party/design/`. Le code propre au projet conserve Apache-2.0 ; ces licences ne sont pas remplacées.

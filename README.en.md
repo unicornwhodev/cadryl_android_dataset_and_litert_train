@@ -1,4 +1,4 @@
-![Cadryl — Un regard. Un dataset.](docs/brand/cadryl-hero.png)
+<img src="app/src/main/res/drawable-nodpi/ic_cadryl.png" alt="Lynx Cadryl" width="76">
 
 # Cadryl
 
@@ -9,6 +9,12 @@ Import your images, review the model’s suggestions, make your corrections and 
 An independent project by **Unicorn Who Dev**, previously called *Vision Dataset Studio*.
 
 [Release 0.0.1](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v0.0.1) · [Your first batch](docs/en/GETTING_STARTED.md) · [Documentation](docs/en/README.md) · [Français](README.md)
+
+## Current studio sources
+
+Selected lynx, bundled Barlow fonts, Phosphor Duotone icons and porcelain/graphite/vermilion surfaces. **Tools** opens models, training, imports and exports; the editor console groups its commands. [Studio guide](docs/STUDIO_UI_2026_09.md) · [Visual QA](design-qa.md) · [Redesign evidence](docs/STUDIO_UI_EVIDENCE.json).
+
+The published `v0.0.1` release retains its original APKs and interface. The redesign is built and tested in current sources; it has not replaced those published assets.
 
 ## Public release 0.0.1
 
@@ -27,9 +33,9 @@ Training is optional and off by default. **The APK includes no model weights or 
 
 ## Inside the app
 
-<img src="test-results/rc7-release/visuals/home.png" alt="Cadryl rc7 running on the test emulator" width="260">
+<img src="docs/studio/native-editor.png" alt="Native Cadryl studio with the selected lynx" width="300">
 
-This is a real emulator screenshot. The banner is an illustration; [visual sources are documented](docs/VISUALS.md).
+Actual API 36 emulator screenshot of the redesign Debug APK, using an authorized synthetic image and a saved human annotation. [APK binding](docs/studio/capture.json) · [Visual provenance](docs/VISUALS.md).
 
 ## Try it
 

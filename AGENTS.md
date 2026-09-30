@@ -23,3 +23,5 @@ publique en `0.0.1` et l’édition commerciale séparée en `0.0.1-rc1`.
 Le contrôle physique ARM 16 Ko n’est plus une condition bloquante de publication.
 Ne pas le déclarer exécuté sans appareil ; conserver les audits natifs existants.
 Anonymiser les informations personnelles des Markdown de qualification.
+
+La direction UI retenue ensuite le 30 septembre 2026 est porcelaine/graphite/vermillon, avec le lynx original fourni et approuvé par le propriétaire. Elle remplace la direction cyan/violet précédente. Conserver les fonctions, données, confirmations et préférences de thème existantes.

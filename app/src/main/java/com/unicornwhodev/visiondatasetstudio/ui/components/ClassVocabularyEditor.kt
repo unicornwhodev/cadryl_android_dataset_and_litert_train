@@ -1,9 +1,7 @@
 package com.unicornwhodev.visiondatasetstudio.ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -29,13 +27,13 @@ fun ClassVocabularyEditor(value: String, onChange: (String) -> Unit, enabled: Bo
         labels.take(24).forEach { label -> InputChip(selected = true, enabled = enabled,
             onClick = { onChange(ProjectVocabulary.format(labels.filterNot { it == label })) }, label = { Text(label) },
             modifier = Modifier.testTag("project_class_$label"),
-            trailingIcon = { Icon(Icons.Default.Close, tr("Retirer $label", "Remove $label"), Modifier.size(14.dp)) }) }
+            trailingIcon = { Icon(CadrylIcons.Close, tr("Retirer $label", "Remove $label"), Modifier.size(14.dp)) }) }
     }
     if (labels.size > 24) Text(tr("${labels.size} classes au total", "${labels.size} classes in total"), style = MaterialTheme.typography.bodySmall)
-    if (suggestions.isNotEmpty()) StudioDisclosure(tr("Choisir parmi les ${suggestions.size} classes du modèle", "Choose from ${suggestions.size} model classes"), Icons.Default.Search, true) {
+    if (suggestions.isNotEmpty()) StudioDisclosure(tr("Choisir parmi les ${suggestions.size} classes du modèle", "Choose from ${suggestions.size} model classes"), CadrylIcons.Search, true) {
         OutlinedTextField(query, { query = it }, enabled = enabled, singleLine = true,
             label = { Text(tr("Rechercher une classe", "Search for a class")) },
-            leadingIcon = { Icon(Icons.Default.Search, null) }, modifier = Modifier.fillMaxWidth().testTag("class_search"))
+            leadingIcon = { Icon(CadrylIcons.Search, null) }, modifier = Modifier.fillMaxWidth().testTag("class_search"))
         val results = suggestions.distinct().filter { it.contains(query, ignoreCase = true) }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             results.take(limit).forEach { label ->

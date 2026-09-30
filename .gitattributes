@@ -8,13 +8,17 @@
 *.zip -text
 *.aar -text
 *.jar -text
+*.ttf -text
 /third_party/native-notices/originals/** -text whitespace=-blank-at-eol,-blank-at-eof
 # Preserve the upstream whitespace in licence texts and their assembled notices.
 /third_party/native-notices/NOTICES.native.txt whitespace=-blank-at-eol,-blank-at-eof
 /third_party/NOTICES.runtime.txt whitespace=-blank-at-eol,-blank-at-eof
 /app/src/main/assets/legal/notices.txt whitespace=-blank-at-eol,-blank-at-eof
+/third_party/design/OFL.barlow.txt whitespace=-blank-at-eol,-blank-at-eof
 *.bat text eol=crlf
 # Qualification receipts are immutable raw evidence, including Windows line endings.
 /test-results/rc6-release/** -text
 /test-results/rc7-release/** -text whitespace=cr-at-eol
 /test-results/rc8-release/** -text whitespace=cr-at-eol
+# Preserve the exact raw receipt bytes copied from the studio build attempt.
+/docs/studio/source-manifest.json -text whitespace=cr-at-eol

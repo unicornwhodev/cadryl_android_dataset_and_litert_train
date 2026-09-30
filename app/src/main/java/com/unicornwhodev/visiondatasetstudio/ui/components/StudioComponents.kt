@@ -14,9 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,6 +30,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import com.unicornwhodev.visiondatasetstudio.ui.OperationProgress
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,18 +39,44 @@ import com.unicornwhodev.visiondatasetstudio.ui.OperationProgress
 fun StudioTopBar(title: String, eyebrow: String? = null, onBack: (() -> Unit)? = null,
                  actions: @Composable RowScope.() -> Unit = {}) {
     Column {
-        Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).heightIn(min = 72.dp).padding(start = 8.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Retour", "Back"), Modifier.size(20.dp)) }
-            else Box(Modifier.width(48.dp), contentAlignment = Alignment.Center) {
-                Icon(painterResource(R.drawable.ic_cadryl), stringResource(R.string.app_name), Modifier.size(30.dp), tint = Color.Unspecified)
-            }
+        StudioBrandBar()
+        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(start = if(onBack==null) 20.dp else 4.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (onBack != null) IconButton(onClick = onBack) { Icon(CadrylIcons.ArrowBack, tr("Retour", "Back"), Modifier.size(22.dp)) }
             Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
                 Text(title, modifier = Modifier.testTag("screen_title"), style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (eyebrow != null) Text(eyebrow, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             actions()
         }
-        Spacer(Modifier.height(4.dp))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+    }
+}
+
+@Composable
+fun StudioBrandBar() {
+    val openTools = LocalStudioToolbox.current
+    Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
+        Row(Modifier.fillMaxWidth().heightIn(min=64.dp).padding(horizontal=20.dp,vertical=4.dp),
+            verticalAlignment=Alignment.CenterVertically) {
+            Icon(painterResource(R.drawable.ic_cadryl),stringResource(R.string.app_name),Modifier.size(44.dp),tint=Color.Unspecified)
+            Spacer(Modifier.width(6.dp))
+            Text("cadryl",style=MaterialTheme.typography.headlineLarge.copy(fontSize=30.sp,fontWeight=FontWeight.SemiBold),
+                color=MaterialTheme.colorScheme.onSurface)
+            Spacer(Modifier.weight(1f))
+            if(openTools!=null) OutlinedButton(onClick=openTools,modifier=Modifier.testTag("studio_tools"),
+                shape=RoundedCornerShape(8.dp),border=BorderStroke(1.dp,MaterialTheme.colorScheme.outlineVariant),
+                contentPadding=PaddingValues(horizontal=12.dp,vertical=8.dp),
+                colors=ButtonDefaults.outlinedButtonColors(contentColor=MaterialTheme.colorScheme.onSurface)) {
+                Icon(CadrylIcons.Tune,null,Modifier.size(22.dp));Spacer(Modifier.width(8.dp));Text(tr("Outils","Tools"))
+            }
+        }
+        Box(Modifier.fillMaxWidth().height(4.dp).padding(horizontal=20.dp)) {
+            HorizontalDivider(Modifier.align(Alignment.Center),color=MaterialTheme.colorScheme.outlineVariant)
+            Box(Modifier.align(Alignment.CenterStart).offset(x=70.dp).size(width=12.dp,height=2.dp)
+                .background(MaterialTheme.colorScheme.onSurface))
+            Box(Modifier.align(Alignment.CenterEnd).offset(x=(-38).dp).size(width=38.dp,height=2.dp)
+                .background(MaterialTheme.colorScheme.primary))
+        }
     }
 }
 
@@ -59,11 +85,11 @@ fun StudioTopBar(title: String, eyebrow: String? = null, onBack: (() -> Unit)? =
 fun StudioAction(label: String, onClick: () -> Unit, modifier: Modifier = Modifier,
                  icon: ImageVector? = null, enabled: Boolean = true, primary: Boolean = false) {
     if (primary) Button(onClick=onClick,enabled=enabled,modifier=modifier.heightIn(min=50.dp),
-        shape=RoundedCornerShape(14.dp),contentPadding=PaddingValues(horizontal=18.dp,vertical=12.dp)) {
+        shape=RoundedCornerShape(8.dp),contentPadding=PaddingValues(horizontal=18.dp,vertical=12.dp)) {
         if(icon!=null) { Icon(icon,null,Modifier.size(20.dp));Spacer(Modifier.width(8.dp)) }
         Text(label,style=MaterialTheme.typography.labelLarge)
     } else FilledTonalButton(onClick=onClick,enabled=enabled,modifier=modifier.heightIn(min=50.dp),
-        shape=RoundedCornerShape(14.dp),contentPadding=PaddingValues(horizontal=16.dp,vertical=12.dp)) {
+        shape=RoundedCornerShape(8.dp),contentPadding=PaddingValues(horizontal=16.dp,vertical=12.dp)) {
         if(icon!=null) { Icon(icon,null,Modifier.size(20.dp));Spacer(Modifier.width(8.dp)) }
         Text(label,style=MaterialTheme.typography.labelLarge)
     }
@@ -82,16 +108,14 @@ fun StudioRouteMotion(route: String, content: @Composable () -> Unit) {
 fun StudioSection(title: String, subtitle: String? = null, icon: ImageVector? = null,
                   modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     var help by remember { mutableStateOf(false) }
-    Surface(modifier.fillMaxWidth(),shape=MaterialTheme.shapes.large,
-        color=MaterialTheme.colorScheme.surface,border=BorderStroke(1.dp,MaterialTheme.colorScheme.outlineVariant.copy(alpha=.45f))) {
-        Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+    Surface(modifier.fillMaxWidth(),shape=MaterialTheme.shapes.medium,
+        color=MaterialTheme.colorScheme.surface) {
+        Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalAlignment=Alignment.CenterVertically) {
-                if(icon!=null) Surface(shape=RoundedCornerShape(12.dp),color=MaterialTheme.colorScheme.primaryContainer) {
-                    Icon(icon,null,Modifier.padding(10.dp).size(20.dp),tint=MaterialTheme.colorScheme.primary)
-                }
+                if(icon!=null) Icon(icon,null,Modifier.size(24.dp),tint=MaterialTheme.colorScheme.onSurface)
                 Text(title,Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
                 if(subtitle!=null) IconButton(onClick={help=!help}) {
-                    Icon(Icons.Default.HelpOutline,tr("Aide : $title","Help: $title"),Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(CadrylIcons.HelpOutline,tr("Aide : $title","Help: $title"),Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             AnimatedVisibility(help && subtitle!=null) {
@@ -103,7 +127,7 @@ fun StudioSection(title: String, subtitle: String? = null, icon: ImageVector? = 
 }
 
 @Composable
-fun StudioDisclosure(title: String, icon: ImageVector = Icons.Default.Tune, initiallyExpanded: Boolean = false,
+fun StudioDisclosure(title: String, icon: ImageVector = CadrylIcons.Tune, initiallyExpanded: Boolean = false,
                      keepContent: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
     val rotation by animateFloatAsState(if (expanded) 180f else 0f, label = "disclosure")
@@ -114,7 +138,7 @@ fun StudioDisclosure(title: String, icon: ImageVector = Icons.Default.Tune, init
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                 Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                Icon(Icons.Default.ExpandMore, null, Modifier.size(18.dp).graphicsLayer { rotationZ = rotation })
+                Icon(CadrylIcons.ExpandMore, null, Modifier.size(18.dp).graphicsLayer { rotationZ = rotation })
             }
             if(keepContent) {
                 // Keep unsaved form state while the user folds the options.
@@ -130,24 +154,23 @@ fun StudioDisclosure(title: String, icon: ImageVector = Icons.Default.Tune, init
 
 @Composable
 fun StudioTabs(labels: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical=6.dp),
-        horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+    Row(modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        horizontalArrangement=Arrangement.spacedBy(2.dp)) {
         labels.forEachIndexed { index,label ->
             val active=index==selected
-            val color by animateColorAsState(if(active) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,label="workspace tab")
-            Surface(shape=RoundedCornerShape(12.dp),color=color) {
-                Box(Modifier.heightIn(min=44.dp).clickable(role=Role.Tab) { onSelect(index) }
-                    .semantics { this.selected=active }.padding(horizontal=16.dp,vertical=12.dp),contentAlignment=Alignment.Center) {
+            Column(Modifier.width(IntrinsicSize.Min).clickable(role=Role.Tab) { onSelect(index) }.semantics { this.selected=active }) {
+                Box(Modifier.heightIn(min=48.dp).padding(horizontal=12.dp,vertical=12.dp),contentAlignment=Alignment.Center) {
                     Text(label,style=MaterialTheme.typography.labelLarge,
-                        color=if(active) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
+                        color=if(active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+                Box(Modifier.fillMaxWidth().height(2.dp).background(if(active) MaterialTheme.colorScheme.primary else Color.Transparent))
             }
         }
     }
 }
 
 @Composable
-fun StatusPill(text: String, icon: ImageVector = Icons.Default.Circle, attention: Boolean = false) {
+fun StatusPill(text: String, icon: ImageVector = CadrylIcons.Circle, attention: Boolean = false) {
     Surface(shape = RoundedCornerShape(50), color = if (attention) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh) {
         Row(Modifier.padding(horizontal = 10.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, Modifier.size(11.dp), tint = if(attention) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary)
@@ -172,10 +195,10 @@ fun OperationBanner(progress: OperationProgress?, busy: Boolean, onDismiss: () -
         modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite }) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp).animateContentSize()) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Icon(if (progress.isError) Icons.Default.ErrorOutline else if (busy) Icons.Default.Sync else Icons.Default.CheckCircleOutline, null, Modifier.size(20.dp))
+                Icon(if (progress.isError) CadrylIcons.ErrorOutline else if (busy) CadrylIcons.Sync else CadrylIcons.CheckCircleOutline, null, Modifier.size(20.dp))
                 Text(progress.message, Modifier.weight(1f).clickable { expanded = !expanded }, maxLines = if (expanded) Int.MAX_VALUE else 2,
                     overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
-                if (!busy) IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, tr("Fermer le message", "Dismiss message")) }
+                if (!busy) IconButton(onClick = onDismiss) { Icon(CadrylIcons.Close, tr("Fermer le message", "Dismiss message")) }
             }
             if (busy) {
                 if (progress.total > 1) LinearProgressIndicator(progress = { (progress.current.toFloat() / progress.total).coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())
@@ -208,7 +231,7 @@ fun StudioDetails(text: String, modifier: Modifier = Modifier,
     var expanded by rememberSaveable(text) { mutableStateOf(false) }
     Column(modifier.animateContentSize()) {
         TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(horizontal = 0.dp)) {
-            Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.Info, null, Modifier.size(16.dp))
+            Icon(if (expanded) CadrylIcons.ExpandLess else CadrylIcons.Info, null, Modifier.size(16.dp))
             Spacer(Modifier.width(6.dp)); Text(if (expanded) tr("Moins de détails", "Less detail") else tr("En savoir plus", "Learn more"))
         }
         AnimatedVisibility(expanded) { Text(text, style = style, color = color) }

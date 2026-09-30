@@ -16,8 +16,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -102,17 +101,17 @@ fun BatchGridScreen(viewModel: MainViewModel) {
             if (samples.isNotEmpty()) IconButton(onClick = viewModel::resumeWork,
                 enabled = !busy && samples.any { StudioWorkflow.isPending(it.annotationStatus) && it.localImagePath != null },
                 modifier = Modifier.testTag("start_annotating_button")) {
-                Icon(Icons.Default.PlayArrow, tr("Reprendre", "Resume"), tint = MaterialTheme.colorScheme.primary)
+                Icon(CadrylIcons.PlayArrow, tr("Reprendre", "Resume"), tint = MaterialTheme.colorScheme.primary)
             }
             Box {
-                IconButton(onClick = { batchMenu = true }, enabled = !busy) { Icon(Icons.Default.History, tr("Choisir un lot", "Choose a batch")) }
+                IconButton(onClick = { batchMenu = true }, enabled = !busy) { Icon(CadrylIcons.History, tr("Choisir un lot", "Choose a batch")) }
                 DropdownMenu(expanded = batchMenu, onDismissRequest = { batchMenu = false }) {
                     batches.forEach { b -> DropdownMenuItem(text = { Text(tr("Lot ${b.batchNumber} · ${b.totalCases} cas · ${b.status}", "Batch ${b.batchNumber} · ${b.totalCases} samples · ${b.status}")) }, enabled = !busy, onClick = { viewModel.loadBatch(b.batchNumber); batchMenu = false }) }
                     if (batches.isEmpty()) DropdownMenuItem(text = { Text(stringResource(R.string.batch_none)) }, onClick = { batchMenu = false })
                 }
             }
             Box {
-                IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, tr("Actions du lot", "Batch actions")) }
+                IconButton(onClick = { menu = true }) { Icon(CadrylIcons.MoreVert, tr("Actions du lot", "Batch actions")) }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text(stringResource(R.string.batch_retry_downloads)) }, enabled = !busy, onClick = { menu = false; viewModel.fetchAndPrepareBatch(batchNumber) })
                     DropdownMenuItem(text = { Text(if(annotationModelCompatible) tr("Préannoter le lot…", "Preannotate batch…") else tr("Vérifier le modèle et les classes…", "Check model and classes…")) }, enabled = !busy, onClick = {
@@ -133,7 +132,7 @@ fun BatchGridScreen(viewModel: MainViewModel) {
     }, bottomBar = {
         if (selected.isNotEmpty()) Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                IconButton(onClick = { selected = emptySet() }) { Icon(Icons.Default.Close, tr("Annuler la sélection", "Clear selection")) }
+                IconButton(onClick = { selected = emptySet() }) { Icon(CadrylIcons.Close, tr("Annuler la sélection", "Clear selection")) }
                 Text("${selected.size}", style = MaterialTheme.typography.titleMedium)
                 OutlinedButton(onClick = { actionDialog = "defer" }, enabled = !busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.batch_defer)) }
                 Button(onClick = { actionDialog = "tag" }, enabled = !busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.batch_add_tag)) }
@@ -142,13 +141,13 @@ fun BatchGridScreen(viewModel: MainViewModel) {
     }) { inset ->
         Column(Modifier.fillMaxSize().padding(inset)) {
             if (samples.isEmpty()) {
-                EmptyWorkspace(tr("Aucun lot préparé", "No batch prepared"), tr("Configurez une source, puis préparez vos images.", "Configure a source, then prepare your images."), Icons.Default.PhotoLibrary,
+                EmptyWorkspace(tr("Aucun lot préparé", "No batch prepared"), tr("Configurez une source, puis préparez vos images.", "Configure a source, then prepare your images."), CadrylIcons.PhotoLibrary,
                     if (!sourceReady) tr("Configurer la source", "Configure source") else tr("Préparer le lot", "Prepare batch")) {
                     if (!sourceReady) viewModel.navigateTo(Screen.Setup) else viewModel.fetchAndPrepareBatch(batchNumber)
                 }
             } else {
                 Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    OutlinedTextField(search, { search = it }, leadingIcon = { Icon(Icons.Default.Search, null, Modifier.size(18.dp)) }, placeholder = { Text(tr("Rechercher une image", "Search images"), style = MaterialTheme.typography.bodySmall) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(top = 12.dp))
+                    OutlinedTextField(search, { search = it }, leadingIcon = { Icon(CadrylIcons.Search, null, Modifier.size(18.dp)) }, placeholder = { Text(tr("Rechercher une image", "Search images"), style = MaterialTheme.typography.bodySmall) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(top = 12.dp))
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         BatchFilter.entries.forEach { f ->
                             FilterChip(selected=filter==f,onClick={filter=f},label={
@@ -159,7 +158,7 @@ fun BatchGridScreen(viewModel: MainViewModel) {
                     }
                     if (priority) Text(tr("Priorité aux révisions", "Prioritize review"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
                 }
-                if (filtered.isEmpty()) EmptyWorkspace(tr("Aucun résultat", "No results"), tr("Essayez un autre filtre.", "Try another filter."), Icons.Default.FilterAltOff, tr("Tout afficher", "Show all")) { filter = BatchFilter.ALL; search = "" }
+                if (filtered.isEmpty()) EmptyWorkspace(tr("Aucun résultat", "No results"), tr("Essayez un autre filtre.", "Try another filter."), CadrylIcons.FilterAltOff, tr("Tout afficher", "Show all")) { filter = BatchFilter.ALL; search = "" }
                 else LazyVerticalGrid(columns = GridCells.Adaptive(gridWidth), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(filtered, key = { it.sampleId }) { sample ->
                         val editable = StudioWorkflow.canEdit(sample.acquisitionStatus, sample.syncStatus, sample.localImagePath != null)
@@ -212,14 +211,14 @@ fun SampleThumbnailCard(sample: SampleEntity, onClick: () -> Unit, selected: Boo
         }
     }
     val icon = when(label) {
-        tr("Copie vérifiée", "Copy verified") -> Icons.Default.CloudDone
-        tr("Traité manuellement", "Manually reviewed") -> Icons.Default.CheckCircleOutline
-        tr("Brouillon importé · à relire", "Imported draft · needs review") -> Icons.Default.Description
-        tr("Suggestions IA", "AI suggestions") -> Icons.Default.AutoAwesome
-        tr("À revoir", "To review") -> Icons.Default.Schedule
-        tr("À récupérer", "To download") -> Icons.Default.ErrorOutline
-        tr("Rejeté", "Rejected") -> Icons.Default.Block
-        else -> Icons.Default.Edit
+        tr("Copie vérifiée", "Copy verified") -> CadrylIcons.CloudDone
+        tr("Traité manuellement", "Manually reviewed") -> CadrylIcons.CheckCircleOutline
+        tr("Brouillon importé · à relire", "Imported draft · needs review") -> CadrylIcons.Description
+        tr("Suggestions IA", "AI suggestions") -> CadrylIcons.AutoAwesome
+        tr("À revoir", "To review") -> CadrylIcons.Schedule
+        tr("À récupérer", "To download") -> CadrylIcons.ErrorOutline
+        tr("Rejeté", "Rejected") -> CadrylIcons.Block
+        else -> CadrylIcons.Edit
     }
     val outline by androidx.compose.animation.animateColorAsState(if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, label = "sample selection")
     Column(Modifier.clip(RoundedCornerShape(18.dp)).border(if(selected) 2.dp else 1.dp, outline, RoundedCornerShape(18.dp))
@@ -228,8 +227,8 @@ fun SampleThumbnailCard(sample: SampleEntity, onClick: () -> Unit, selected: Boo
         .testTag("sample_${sample.sampleId}")) {
         Box(Modifier.fillMaxWidth().aspectRatio(4f / 3f).background(MaterialTheme.colorScheme.surfaceContainerLowest), contentAlignment = Alignment.Center) {
             if (sample.localImagePath != null) AsyncImage(model = File(sample.localImagePath), contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
-            else Icon(if (published) Icons.Default.CloudDone else Icons.Default.BrokenImage, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
-            if (selected) Surface(Modifier.align(Alignment.TopEnd).padding(8.dp), shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primary) { Icon(Icons.Default.Check, tr("Sélectionné", "Selected"), Modifier.padding(5.dp).size(18.dp)) }
+            else Icon(if (published) CadrylIcons.CloudDone else CadrylIcons.BrokenImage, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
+            if (selected) Surface(Modifier.align(Alignment.TopEnd).padding(8.dp), shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primary) { Icon(CadrylIcons.Check, tr("Sélectionné", "Selected"), Modifier.padding(5.dp).size(18.dp)) }
         }
         Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Text(sample.assetId, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelMedium)

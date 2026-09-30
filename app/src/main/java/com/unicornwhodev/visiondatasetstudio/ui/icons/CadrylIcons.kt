@@ -1,0 +1,113 @@
+package com.unicornwhodev.visiondatasetstudio.ui.icons
+
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Duotone
+import com.adamglin.phosphoricons.duotone.*
+
+/** Semantic names keep one Phosphor Duotone family throughout the studio. */
+object CadrylIcons {
+    val AccountTree: ImageVector get() = PhosphorIcons.Duotone.TreeStructure
+    val Add: ImageVector get() = PhosphorIcons.Duotone.Plus
+    val Adjust: ImageVector get() = PhosphorIcons.Duotone.CircleDashed
+    val Archive: ImageVector get() = PhosphorIcons.Duotone.Archive
+    val ArrowDropDown: ImageVector get() = PhosphorIcons.Duotone.CaretDown
+    val ArrowForward: ImageVector get() = PhosphorIcons.Duotone.ArrowRight
+    val Assignment: ImageVector get() = PhosphorIcons.Duotone.ClipboardText
+    val AutoAwesome: ImageVector get() = PhosphorIcons.Duotone.Sparkle
+    val AutoFixOff: ImageVector get() = PhosphorIcons.Duotone.Eraser
+    val Block: ImageVector get() = PhosphorIcons.Duotone.Prohibit
+    val BookmarkAdd: ImageVector get() = PhosphorIcons.Duotone.BookmarkSimple
+    val BrokenImage: ImageVector get() = PhosphorIcons.Duotone.ImageBroken
+    val Brush: ImageVector get() = PhosphorIcons.Duotone.PaintBrush
+    val Cancel: ImageVector get() = PhosphorIcons.Duotone.XCircle
+    val ChangeHistory: ImageVector get() = PhosphorIcons.Duotone.Polygon
+    val Check: ImageVector get() = PhosphorIcons.Duotone.Check
+    val CheckCircle: ImageVector get() = PhosphorIcons.Duotone.CheckCircle
+    val CheckCircleOutline: ImageVector get() = PhosphorIcons.Duotone.CheckCircle
+    val Checklist: ImageVector get() = PhosphorIcons.Duotone.ListChecks
+    val ChevronLeft: ImageVector get() = PhosphorIcons.Duotone.CaretLeft
+    val ChevronRight: ImageVector get() = PhosphorIcons.Duotone.CaretRight
+    val Circle: ImageVector get() = PhosphorIcons.Duotone.Circle
+    val Close: ImageVector get() = PhosphorIcons.Duotone.X
+    val CloudDone: ImageVector get() = PhosphorIcons.Duotone.CloudCheck
+    val CloudDownload: ImageVector get() = PhosphorIcons.Duotone.CloudArrowDown
+    val CloudUpload: ImageVector get() = PhosphorIcons.Duotone.CloudArrowUp
+    val Code: ImageVector get() = PhosphorIcons.Duotone.Code
+    val ContentCopy: ImageVector get() = PhosphorIcons.Duotone.Copy
+    val ContentPaste: ImageVector get() = PhosphorIcons.Duotone.Clipboard
+    val CopyAll: ImageVector get() = PhosphorIcons.Duotone.Files
+    val CropFree: ImageVector get() = PhosphorIcons.Duotone.FrameCorners
+    val CropSquare: ImageVector get() = PhosphorIcons.Duotone.BoundingBox
+    val DataObject: ImageVector get() = PhosphorIcons.Duotone.BracketsCurly
+    val DeleteOutline: ImageVector get() = PhosphorIcons.Duotone.Trash
+    val Description: ImageVector get() = PhosphorIcons.Duotone.FileText
+    val Download: ImageVector get() = PhosphorIcons.Duotone.DownloadSimple
+    val Edit: ImageVector get() = PhosphorIcons.Duotone.PencilSimple
+    val EditNote: ImageVector get() = PhosphorIcons.Duotone.NotePencil
+    val ErrorOutline: ImageVector get() = PhosphorIcons.Duotone.WarningCircle
+    val ExpandLess: ImageVector get() = PhosphorIcons.Duotone.CaretUp
+    val ExpandMore: ImageVector get() = PhosphorIcons.Duotone.CaretDown
+    val FactCheck: ImageVector get() = PhosphorIcons.Duotone.Exam
+    val FilterAlt: ImageVector get() = PhosphorIcons.Duotone.Funnel
+    val FilterAltOff: ImageVector get() = PhosphorIcons.Duotone.FunnelX
+    val Folder: ImageVector get() = PhosphorIcons.Duotone.FolderSimple
+    val FolderOpen: ImageVector get() = PhosphorIcons.Duotone.FolderOpen
+    val FolderZip: ImageVector get() = PhosphorIcons.Duotone.FileZip
+    val FormatColorFill: ImageVector get() = PhosphorIcons.Duotone.PaintBucket
+    val Gesture: ImageVector get() = PhosphorIcons.Duotone.Lasso
+    val GridView: ImageVector get() = PhosphorIcons.Duotone.GridFour
+    val Groups: ImageVector get() = PhosphorIcons.Duotone.UsersThree
+    val HelpOutline: ImageVector get() = PhosphorIcons.Duotone.Question
+    val History: ImageVector get() = PhosphorIcons.Duotone.ClockCounterClockwise
+    val Image: ImageVector get() = PhosphorIcons.Duotone.Image
+    val ImageSearch: ImageVector get() = PhosphorIcons.Duotone.FileMagnifyingGlass
+    val Info: ImageVector get() = PhosphorIcons.Duotone.Info
+    val InsertDriveFile: ImageVector get() = PhosphorIcons.Duotone.File
+    val Insights: ImageVector get() = PhosphorIcons.Duotone.ChartLine
+    val Inventory2: ImageVector get() = PhosphorIcons.Duotone.Package
+    val IosShare: ImageVector get() = PhosphorIcons.Duotone.Export
+    val Key: ImageVector get() = PhosphorIcons.Duotone.Key
+    val KeyboardArrowDown: ImageVector get() = PhosphorIcons.Duotone.CaretDown
+    val KeyboardArrowLeft: ImageVector get() = PhosphorIcons.Duotone.CaretLeft
+    val KeyboardArrowRight: ImageVector get() = PhosphorIcons.Duotone.CaretRight
+    val KeyboardArrowUp: ImageVector get() = PhosphorIcons.Duotone.CaretUp
+    val Label: ImageVector get() = PhosphorIcons.Duotone.Tag
+    val Layers: ImageVector get() = PhosphorIcons.Duotone.Stack
+    val Link: ImageVector get() = PhosphorIcons.Duotone.LinkSimple
+    val Lock: ImageVector get() = PhosphorIcons.Duotone.LockKey
+    val Memory: ImageVector get() = PhosphorIcons.Duotone.Cpu
+    val ModelTraining: ImageVector get() = PhosphorIcons.Duotone.Brain
+    val MoreVert: ImageVector get() = PhosphorIcons.Duotone.DotsThreeVertical
+    val MyLocation: ImageVector get() = PhosphorIcons.Duotone.Crosshair
+    val NearMe: ImageVector get() = PhosphorIcons.Duotone.Cursor
+    val Palette: ImageVector get() = PhosphorIcons.Duotone.Palette
+    val PanTool: ImageVector get() = PhosphorIcons.Duotone.Hand
+    val PhonelinkSetup: ImageVector get() = PhosphorIcons.Duotone.DeviceMobile
+    val PhotoLibrary: ImageVector get() = PhosphorIcons.Duotone.Images
+    val PlayArrow: ImageVector get() = PhosphorIcons.Duotone.Play
+    val RadioButtonChecked: ImageVector get() = PhosphorIcons.Duotone.RadioButton
+    val RadioButtonUnchecked: ImageVector get() = PhosphorIcons.Duotone.Circle
+    val Refresh: ImageVector get() = PhosphorIcons.Duotone.ArrowClockwise
+    val Remove: ImageVector get() = PhosphorIcons.Duotone.Minus
+    val Schedule: ImageVector get() = PhosphorIcons.Duotone.Clock
+    val Science: ImageVector get() = PhosphorIcons.Duotone.Flask
+    val Search: ImageVector get() = PhosphorIcons.Duotone.MagnifyingGlass
+    val SkipNext: ImageVector get() = PhosphorIcons.Duotone.SkipForward
+    val SmartToy: ImageVector get() = PhosphorIcons.Duotone.Robot
+    val SpaceDashboard: ImageVector get() = PhosphorIcons.Duotone.SquaresFour
+    val Speed: ImageVector get() = PhosphorIcons.Duotone.Gauge
+    val Stop: ImageVector get() = PhosphorIcons.Duotone.Stop
+    val Storage: ImageVector get() = PhosphorIcons.Duotone.Database
+    val Sync: ImageVector get() = PhosphorIcons.Duotone.ArrowsClockwise
+    val TouchApp: ImageVector get() = PhosphorIcons.Duotone.HandTap
+    val Tune: ImageVector get() = PhosphorIcons.Duotone.FadersHorizontal
+    val UploadFile: ImageVector get() = PhosphorIcons.Duotone.FileArrowUp
+    val VerifiedUser: ImageVector get() = PhosphorIcons.Duotone.ShieldCheck
+    val Visibility: ImageVector get() = PhosphorIcons.Duotone.Eye
+    val VisibilityOff: ImageVector get() = PhosphorIcons.Duotone.EyeSlash
+    val Widgets: ImageVector get() = PhosphorIcons.Duotone.Shapes
+    val ArrowBack: ImageVector get() = PhosphorIcons.Duotone.ArrowLeft
+    val Undo: ImageVector get() = PhosphorIcons.Duotone.ArrowUUpLeft
+    val Redo: ImageVector get() = PhosphorIcons.Duotone.ArrowUUpRight
+}

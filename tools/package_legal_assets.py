@@ -15,7 +15,11 @@ def package(root=ROOT):
         'notices.txt': ['LICENSE', 'NOTICE', 'third_party/NOTICES.runtime.txt',
                         'third_party/patches/LICENSE.cpuinfo', 'third_party/patches/README.md',
                         'third_party/native-notices/NOTICES.native.txt',
-                        'third_party/supplemental/javax.inject-1-copyright.txt'],
+                        'third_party/supplemental/javax.inject-1-copyright.txt',
+                        'third_party/design/NOTICES.design.txt',
+                        'third_party/design/LICENSE.compose-phosphor-icon',
+                        'third_party/design/LICENSE.phosphor',
+                        'third_party/design/OFL.barlow.txt'],
     }
     result = {'schema': 1, 'legal_clearance': False, 'input_line_endings': 'canonical LF', 'files': {}}
     for name, paths in inputs.items():

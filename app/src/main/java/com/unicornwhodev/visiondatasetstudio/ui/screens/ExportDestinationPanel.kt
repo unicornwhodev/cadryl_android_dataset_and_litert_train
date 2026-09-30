@@ -1,8 +1,7 @@
 package com.unicornwhodev.visiondatasetstudio.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,7 +25,7 @@ fun ExportDestinationPanel(vm: MainViewModel) {
     var create by remember { mutableStateOf(false) }
     val valid = destination.isBlank() || StudioWorkflow.normalizeRepo(destination, true) != null
     StudioSection(tr("Publier sur Hugging Face", "Publish to Hugging Face"),
-        tr("Facultatif. L’archive locale reste disponible.", "Optional. Local archives remain available."), Icons.Default.CloudUpload) {
+        tr("Facultatif. L’archive locale reste disponible.", "Optional. Local archives remain available."), CadrylIcons.CloudUpload) {
         OutlinedTextField(destination, { destination = it }, enabled = !busy, singleLine = true,
             isError = !valid, label = { Text(tr("Dépôt de destination", "Destination repository")) },
             placeholder = { Text("organisation/dataset") }, modifier = Modifier.fillMaxWidth())
@@ -40,7 +39,7 @@ fun ExportDestinationPanel(vm: MainViewModel) {
             "Repository readable. HF checks write permission when publishing.") else it.message.orEmpty(), style = MaterialTheme.typography.bodySmall) }
         Text(if (auth?.isValid == true) tr("Connecté : ${auth?.username.orEmpty()}", "Signed in: ${auth?.username.orEmpty()}")
             else tr("Connectez-vous pour publier ou accéder à un dépôt privé.", "Sign in to publish or access a private repository."), style = MaterialTheme.typography.bodyMedium)
-        StudioDisclosure(tr("Compte et jeton HF", "HF account & token"), Icons.Default.Key, auth?.isValid != true) {
+        StudioDisclosure(tr("Compte et jeton HF", "HF account & token"), CadrylIcons.Key, auth?.isValid != true) {
             OutlinedTextField(token, { token = it }, label = { Text(tr("Jeton HF", "HF token")) }, singleLine = true,
                 visualTransformation = PasswordVisualTransformation(), enabled = !busy, modifier = Modifier.fillMaxWidth())
             Button(onClick = { vm.saveToken(token); token = "" }, enabled = !busy && token.isNotBlank()) { Text(tr("Connecter", "Connect")) }

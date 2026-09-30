@@ -1004,6 +1004,7 @@
   public java.lang.Object getBatchSync(long,int,kotlin.coroutines.Continuation);
   public java.lang.Object insertOrReplace(com.unicornwhodev.visiondatasetstudio.data.model.BatchEntity,kotlin.coroutines.Continuation);
   public java.lang.Object updateBatch(com.unicornwhodev.visiondatasetstudio.data.model.BatchEntity,kotlin.coroutines.Continuation);
+  public java.lang.Object deleteProjectBatches(long,kotlin.coroutines.Continuation);
 }
 -keep,allowaccessmodification interface com.unicornwhodev.visiondatasetstudio.data.db.ImageIdentityDao {
   public java.lang.Object owner(long,java.lang.String,java.lang.String,kotlin.coroutines.Continuation);
@@ -1017,6 +1018,7 @@
 -keep,allowaccessmodification interface com.unicornwhodev.visiondatasetstudio.data.db.ProjectDao {
   public java.lang.Object getProjectSync(long,kotlin.coroutines.Continuation);
   public java.lang.Object saveProject(com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity,kotlin.coroutines.Continuation);
+  public java.lang.Object deleteProject(long,kotlin.coroutines.Continuation);
 }
 -keep,allowaccessmodification interface com.unicornwhodev.visiondatasetstudio.data.db.SampleDao {
   public java.lang.Object getAllSamples(long,kotlin.coroutines.Continuation);
@@ -1543,6 +1545,7 @@
   public void createProject(java.lang.String);
   public void deleteCurrentProject();
   public kotlinx.coroutines.flow.StateFlow getActiveProjectId();
+  public kotlinx.coroutines.flow.StateFlow getBenchmarkReport();
   public com.unicornwhodev.visiondatasetstudio.domain.batch.BatchEngine getBatchEngine();
   public kotlinx.coroutines.flow.StateFlow getCurrentAnnotations();
   public kotlinx.coroutines.flow.StateFlow getCurrentSample();

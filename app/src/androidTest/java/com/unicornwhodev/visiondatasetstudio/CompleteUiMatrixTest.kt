@@ -56,7 +56,7 @@ class CompleteUiMatrixTest {
         require(case.matches(Regex("[a-f0-9]{12}")))
         // A test-only provider transfers descriptors across Android's separate app UIDs.
         fun artifact(name:String)=requireNotNull(app.contentResolver.openOutputStream(android.net.Uri.parse(
-            "content://com.unicornwhodev.visiondatasetstudio.test.qa-evidence/final01-ui/$case/$orientation/$name"),"w"))
+            "content://${instrumentation.context.packageName}.qa-evidence/final01-ui/$case/$orientation/$name"),"w"))
         fun settle() {
             rule.mainClock.advanceTimeBy(600)
             rule.waitForIdle()

@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "description": "Unretouched native Android Debug screenshot; owned API 36 emulator; authorized synthetic image; saved human QA box",
+  "application_id": "com.unicornwhodev.visiondatasetstudio",
+  "apk_sha256": "c9b8e94bd9c3f515de2f8d5ceaed428a9a347f9199a73a81b024d58f9d58786c",
+  "test_apk_sha256": "bd2e89639a668d723d46d0109040e440487d1903fb5bb4316039a1bc6f4a83fd",
+  "file": "native-editor.png",
+  "sha256": "a814552802b910c72a840b50b172a9b77296a0c9d72e6974fcf59cf0229130ad",
+  "pixels": [
+    1080,
+    2400
+  ],
+  "density": 2.625,
+  "state": {
+    "theme": "light",
+    "language": "fr",
+    "font_scale": 1,
+    "class": "Sac",
+    "annotation_count": 1,
+    "saved": true,
+    "active_ai_model": false
+  },
+  "logo_sha256": "3ac82a491945cdb3a828b6000214d99911dfa27b101e41d0bc957d4e22ba1121"
+}

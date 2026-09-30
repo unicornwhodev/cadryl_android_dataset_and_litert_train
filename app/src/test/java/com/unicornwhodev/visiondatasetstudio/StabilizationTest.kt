@@ -206,4 +206,11 @@ class StabilizationTest {
     }
 
     private fun assertFails(block:()->Unit) { try { block();fail("failure expected") } catch(_:IllegalArgumentException) {} catch(_:IllegalStateException) {} }
+    @Test fun switchingProjectKeepsAHomeRootForBack() {
+        val nav=NavigationHistory("Home")
+        nav.navigate("Models");nav.navigate("Training")
+        nav.reset("Home");nav.navigate("Controls")
+        assertEquals("Home",nav.back())
+        assertEquals("Home",nav.back())
+    }
 }

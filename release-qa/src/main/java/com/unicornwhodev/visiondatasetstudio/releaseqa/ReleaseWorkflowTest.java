@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 public final class ReleaseWorkflowTest {
     private static final String APP = "com.unicornwhodev.visiondatasetstudio";
+    private static final String ACTIVITY = "com.unicornwhodev.visiondatasetstudio.MainActivity";
     private UiAutomation automation;
 
     private static final class Node {
@@ -117,7 +118,7 @@ public final class ReleaseWorkflowTest {
         // before killing the process, as a user leaving the screen would.
         automation.waitForIdle(200,5000);
         shell("am force-stop "+APP);
-        shell("am start -W -n "+APP+"/.MainActivity");
+        shell("am start -W -n "+APP+"/"+ACTIVITY);
         find(n->n.description.matches("Gérer les projets|Manage projects"),"Home project shortcut",false);
     }
 
@@ -130,14 +131,20 @@ public final class ReleaseWorkflowTest {
     }
 
     @Test public void homeRendersFromOptimizedApk() throws Exception {
-        text("Outils|Tools",true);text("Modèles|Models",false);
+        text("Outils|Tools",false);
+        text("Importer vos images|Import your images|Reprendre l’annotation|Continue annotating|Ouvrir le lot|Open batch",true);
+    }
+
+    private void navigate(String pattern) throws Exception {
+        click("Outils|Tools");tap(text(pattern,true));
     }
 
     @Test public void modelImportExportAndQualityRemainAccessible() throws Exception {
-        click("Modèles|Models");click("Importer|Import");
+        navigate("Modèles|Models");click("Importer|Import");
         text("Choisir un \\.tflite|Choose a \\.tflite file",false);
-        click("Export");text("Archive locale|Local archive",true);
-        click("Qualité|Quality");text("Stockage|Storage",false);
+        navigate("Exporter|Export");text("Archive locale|Local archive",true);
+        navigate("Qualité du projet|Project quality");text("Stockage|Storage",false);
+        navigate("Apprentissage|Training");text("Apprentissage|Training",false);
     }
 
     private String createProject() throws Exception {
@@ -183,7 +190,7 @@ public final class ReleaseWorkflowTest {
 
     @Test public void guidedSetupValidatesSourceAndReachesReviewWithoutModel() throws Exception {
         createProject();
-        click("Configurer|Setup");
+        navigate("Importer et configurer|Import and configure");
         text("D’où viennent vos images \\?|Where are your images\\?",false);
         Node next=text("Continuer|Continue",false);
         while(next!=null&&!next.clickable)next=next.parent;
@@ -203,7 +210,7 @@ public final class ReleaseWorkflowTest {
         click("Continuer|Continue");
         text("Vérifiez avant de démarrer|Review before you start",false);
         text("La source n’est pas encore vérifiée.*|The source is not checked yet.*",true);
-        text("Vous commencerez à la main.*|You will start manually.*",true);
+        text("Aide IA : désactivée · annotation manuelle\\.|AI assistance: disabled · manual annotation\\.",true);
         // Review only: no synthetic repository is queried and the draft is not saved.
         restart();
     }

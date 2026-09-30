@@ -16,15 +16,19 @@
       }
     },
     "notices.txt": {
-      "sha256": "0397f01c37b6a4d0075eb7187e77b2776f6ebad68724793fa41ef8fea70473ff",
+      "sha256": "ff898771b66caee5c5b9118f698841e5ac6266b6b5f4f3ab708cddba381901d0",
       "inputs": {
         "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
         "NOTICE": "bbce71a984b3f95d1c877bf56cfb331b33cf1ed768e9a457300f0bfe365a7316",
-        "third_party/NOTICES.runtime.txt": "b7af754757841f64f215b75e256170d246f7d9f1092b2a045b6e35b64b940bc9",
+        "third_party/NOTICES.runtime.txt": "621f7071989a682de355686463f96b379761c2a66d5a062f3ac791f41b9776c1",
         "third_party/patches/LICENSE.cpuinfo": "8e7e60636c3aa0cb03571a1a841ce5697f9551ff92b3c426c2561613d15ade70",
         "third_party/patches/README.md": "4bd19e3ce303e476f48ac1efcb526ff007b87cab9937518717be182b283326e6",
         "third_party/native-notices/NOTICES.native.txt": "de2642d7b537939ddd0844c6b490ef6035578d64d337f144e062ee84680f24ae",
-        "third_party/supplemental/javax.inject-1-copyright.txt": "17a53a5dfc12a0c07ae56da76d3294380cc799c40bb9e5992aa76a66c21b0b84"
+        "third_party/supplemental/javax.inject-1-copyright.txt": "17a53a5dfc12a0c07ae56da76d3294380cc799c40bb9e5992aa76a66c21b0b84",
+        "third_party/design/NOTICES.design.txt": "2943271b34f24f24545f313168cdfc0c5c6c1b5f7da74ca6e393bb092f56bf4e",
+        "third_party/design/LICENSE.compose-phosphor-icon": "a1fd84db0ee0ce85fc5c6e6a01238255398942e6c28de0651e8b54b1cde6b77b",
+        "third_party/design/LICENSE.phosphor": "b5b1f1da112d18ea2147decfd48ddc1bf2b5aeb6c265381579340e95b15a2bb2",
+        "third_party/design/OFL.barlow.txt": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f"
       }
     }
   }

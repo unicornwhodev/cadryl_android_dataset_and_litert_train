@@ -7,8 +7,7 @@ import com.unicornwhodev.visiondatasetstudio.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,26 +39,26 @@ fun WorkflowScreen(vm:MainViewModel) {
                 }
                 OutlinedTextField(instructions,{instructions=it.take(8000)},label={Text(stringResource(R.string.workflow_optional_instructions))},modifier=Modifier.fillMaxWidth(),minLines=2,maxLines=4)
                 Text(tr("Consignes pour la relecture et l’agent local. Prompt d’inférence dans Modèles.", "Instructions for review and the local agent. Set the inference prompt in Models."),style=MaterialTheme.typography.bodySmall)
-                StudioAction(if(run==null)stringResource(R.string.workflow_prepare) else tr("Repartir du template", "Restart from template"),{vm.startWorkflow(selected,instructions)},enabled=!busy,icon=Icons.Default.AccountTree)
+                StudioAction(if(run==null)stringResource(R.string.workflow_prepare) else tr("Repartir du template", "Restart from template"),{vm.startWorkflow(selected,instructions)},enabled=!busy,icon=CadrylIcons.AccountTree)
                 run?.takeIf { it.projectId==project && it.batchNumber==batch }?.let { state ->
                     HorizontalDivider()
                     if(state.instructions.isNotBlank()) Text(state.instructions,style=MaterialTheme.typography.bodyMedium)
                     val template=WorkflowTools.template(state.template)
                     template.steps.forEachIndexed { index,step ->
                         Row(Modifier.fillMaxWidth().padding(vertical=4.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-                            Icon(if(index<state.cursor)Icons.Default.CheckCircle else if(index==state.cursor)Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,null,Modifier.size(18.dp),tint=if(index<=state.cursor)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                            Icon(if(index<state.cursor)CadrylIcons.CheckCircle else if(index==state.cursor)CadrylIcons.RadioButtonChecked else CadrylIcons.RadioButtonUnchecked,null,Modifier.size(18.dp),tint=if(index<=state.cursor)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(WorkflowTools.labels.getValue(step),style=MaterialTheme.typography.bodyMedium)
                         }
                     }
                     if(state.message.isNotBlank())Text(state.message,style=MaterialTheme.typography.bodySmall,color=if(state.phase=="failed")MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
-                    if(state.phase!="completed")StudioAction(stringResource(R.string.common_continue),vm::resumeWorkflow,primary=true,enabled=!busy,icon=Icons.Default.PlayArrow)
+                    if(state.phase!="completed")StudioAction(stringResource(R.string.common_continue),vm::resumeWorkflow,primary=true,enabled=!busy,icon=CadrylIcons.PlayArrow)
                     Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                         TextButton(onClick={vm.navigateTo(Screen.BatchGrid)},enabled=!busy) { Text(stringResource(R.string.workflow_review)) }
                         TextButton(onClick={vm.navigateTo(Screen.Publication)},enabled=!busy) { Text(stringResource(R.string.common_export)) }
                         TextButton(onClick={vm.navigateTo(Screen.Training)},enabled=!busy) { Text(stringResource(R.string.common_training)) }
                     }
                 }
-                StudioDisclosure(stringResource(R.string.workflow_local_agent),Icons.Default.SmartToy) {
+                StudioDisclosure(stringResource(R.string.workflow_local_agent),CadrylIcons.SmartToy) {
                     OutlinedTextField(endpoint,{endpoint=it},label={Text(stringResource(R.string.workflow_server))},modifier=Modifier.fillMaxWidth(),singleLine=true)
                     Text(stringResource(R.string.workflow_privacy),style=MaterialTheme.typography.bodySmall)
                     StudioAction(stringResource(R.string.workflow_propose),{vm.askLocalWorkflowAgent(endpoint,instructions)},enabled=!busy)

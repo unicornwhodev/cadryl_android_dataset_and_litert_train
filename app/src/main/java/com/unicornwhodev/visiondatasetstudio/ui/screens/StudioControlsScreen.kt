@@ -12,8 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -73,10 +72,10 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
             Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
                 when(tab) {
                     0 -> {
-                        StudioSection(stringResource(R.string.controls_projects),tr("Chaque projet conserve sa source, son curseur, ses lots, annotations et preuves de copie. Le token HF et la bibliothèque de modèles restent communs à l’appareil.", "Each project keeps its own source, cursor, batches, annotations and copy receipts. The HF token and model library are shared on the device."),Icons.Default.FolderOpen) {
+                        StudioSection(stringResource(R.string.controls_projects),tr("Chaque projet conserve sa source, son curseur, ses lots, annotations et preuves de copie. Le token HF et la bibliothèque de modèles restent communs à l’appareil.", "Each project keeps its own source, cursor, batches, annotations and copy receipts. The HF token and model library are shared on the device."),CadrylIcons.FolderOpen) {
                             allProjects.forEach { item ->
                                 OutlinedButton(onClick={vm.selectProject(item.id)},enabled=!busy && item.id!=p.id,modifier=Modifier.fillMaxWidth()) {
-                                    Icon(if(item.id==p.id)Icons.Default.CheckCircle else Icons.Default.Folder,null);Spacer(Modifier.width(8.dp));Text(item.name,Modifier.weight(1f))
+                                    Icon(if(item.id==p.id)CadrylIcons.CheckCircle else CadrylIcons.Folder,null);Spacer(Modifier.width(8.dp));Text(item.name,Modifier.weight(1f))
                                 }
                             }
                             OutlinedTextField(newName,{newName=it},label={Text(stringResource(R.string.controls_new_project_name))},singleLine=true,modifier=Modifier.fillMaxWidth())
@@ -89,15 +88,15 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                             OutlinedButton(onClick={destructiveAction="project"},enabled=!busy){Text(stringResource(R.string.controls_reset_project))}
                             TextButton(onClick={destructiveAction="delete"},enabled=!busy,colors=ButtonDefaults.textButtonColors(contentColor=MaterialTheme.colorScheme.error)){Text(stringResource(R.string.controls_delete_project))}
                         }
-                        StudioSection(tr("Packs de projet","Project packs"),tr("Un pack configure les tâches, classes, taille de lot et contrat modèle. Il exclut les poids, le jeton HF du coffre, le corpus et ses emplacements. Le contrat, le prompt et le corps JSON personnalisé sont inclus : retirez tout secret avant partage.", "A preset configures tasks, classes, batch size and the model contract. It excludes weights, the vault's HF token, corpus and locations. The contract, prompt and custom JSON body are included: remove secrets before sharing."),Icons.Default.Inventory2) {
+                        StudioSection(tr("Packs de projet","Project packs"),tr("Un pack configure les tâches, classes, taille de lot et contrat modèle. Il exclut les poids, le jeton HF du coffre, le corpus et ses emplacements. Le contrat, le prompt et le corps JSON personnalisé sont inclus : retirez tout secret avant partage.", "A preset configures tasks, classes, batch size and the model contract. It excludes weights, the vault's HF token, corpus and locations. The contract, prompt and custom JSON body are included: remove secrets before sharing."),CadrylIcons.Inventory2) {
                             Button(onClick={packIn.launch(arrayOf("application/json","text/*","application/octet-stream"))},enabled=!busy){Text(stringResource(R.string.controls_import_preset))}
                             OutlinedButton(onClick={packOut.launch("studio-preset.json")},enabled=!busy){Text(stringResource(R.string.controls_export_preset))}
                             StudioDetails(tr("Chaque projet peut utiliser son propre pack de tâches et de classes. Sélectionnez séparément les modèles que vous êtes autorisé à utiliser.", "Each project can use its own task and class preset. Select models you are authorized to use separately."), style =MaterialTheme.typography.bodyMedium)
                         }
                     }
                     1 -> {
-                        StudioSection(stringResource(R.string.controls_source_selection),tr("Enregistrez les réglages avant d’indexer. Après le premier lot, changer de source ou de filtre exige un nouveau projet.", "Save settings before indexing. After the first batch, changing sources or filters requires a new project."),Icons.Default.CloudDownload) {
-                            if(sourceLocked) StatusPill(tr("Source figée depuis le premier lot", "Source locked since the first batch"),Icons.Default.Lock)
+                        StudioSection(stringResource(R.string.controls_source_selection),tr("Enregistrez les réglages avant d’indexer. Après le premier lot, changer de source ou de filtre exige un nouveau projet.", "Save settings before indexing. After the first batch, changing sources or filters requires a new project."),CadrylIcons.CloudDownload) {
+                            if(sourceLocked) StatusPill(tr("Source figée depuis le premier lot", "Source locked since the first batch"),CadrylIcons.Lock)
                             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                                 listOf("HF_VIEWER" to "HF Viewer","HF_MANIFEST" to tr("JSONL sur HF", "JSONL on HF"),"LOCAL_INDEX" to "Local").forEach{(value,label)->
                                     FilterChip(selected=policy.sourceMode==value,onClick={policy=policy.copy(sourceMode=value)},enabled=!busy && !sourceLocked,label={Text(label)})
@@ -129,7 +128,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                             ControlSwitch(tr("Importer les brouillons", "Import draft annotations"),policy.importAnnotations,enabled=!sourceLocked){policy=policy.copy(importAnnotations=it)}
                             Text(if(stored.sourceIndexReady)tr("Index prêt · ${stored.localSourceLabel}", "Index ready · ${stored.localSourceLabel}") else tr("Index local non préparé (inutile en mode Viewer)", "Local index not prepared (not required in Viewer mode)"),style=MaterialTheme.typography.labelMedium)
                         }
-                        StudioSection(stringResource(R.string.controls_collaboration),tr("Évite que plusieurs personnes téléchargent et traitent les mêmes cas. Les réservations sont stockées dans le dépôt HF de destination et expirent si un appareil est abandonné.", "Prevents collaborators from downloading and processing the same samples. Reservations are stored in the destination HF repository and expire if a device is abandoned."),Icons.Default.Groups) {
+                        StudioSection(stringResource(R.string.controls_collaboration),tr("Évite que plusieurs personnes téléchargent et traitent les mêmes cas. Les réservations sont stockées dans le dépôt HF de destination et expirent si un appareil est abandonné.", "Prevents collaborators from downloading and processing the same samples. Reservations are stored in the destination HF repository and expire if a device is abandoned."),CadrylIcons.Groups) {
                             ControlSwitch(tr("Activer les réservations partagées", "Enable shared reservations"),policy.collaborationEnabled){ enabled ->
                                 if(enabled && (policy.sourceMode=="LOCAL_INDEX" || p.hfDestRepo.isBlank())) vm.reportError(tr("Le travail partagé exige une source HF et un dépôt HF de destination", "Shared work requires an HF source and destination HF repository"))
                                 else policy=policy.copy(collaborationEnabled=enabled)
@@ -142,7 +141,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                                 Text(tr("Coordination : ${p.hfDestRepo.ifBlank { "destination HF à configurer" }} · branche ${policy.destBranch}", "Coordination: ${p.hfDestRepo.ifBlank { "configure HF destination" }} · branch ${policy.destBranch}"),style=MaterialTheme.typography.labelMedium)
                             }
                         }
-                        StudioSection(stringResource(R.string.controls_batches_network),tr("La taille du lot d’annotation est indépendante de la pagination HTTP et du nombre d’images inférées simultanément.", "Annotation batch size is independent of HTTP pagination and the number of images inferred simultaneously."),Icons.Default.Layers) {
+                        StudioSection(stringResource(R.string.controls_batches_network),tr("La taille du lot d’annotation est indépendante de la pagination HTTP et du nombre d’images inférées simultanément.", "Annotation batch size is independent of HTTP pagination and the number of images inferred simultaneously."),CadrylIcons.Layers) {
                             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){listOf(25,50,100,250,500,1000).forEach{n->FilterChip(selected=batchText==n.toString(),onClick={batchText=n.toString()},label={Text("$n")})}}
                             ControlField(tr("Cas par lot · 1 à 1 000", "Samples per batch · 1 to 1,000"),batchText,true){batchText=it}
                             ControlInt(tr("Téléchargements simultanés · 1 à 4", "Simultaneous downloads · 1 to 4"),policy.downloadConcurrency){policy=policy.copy(downloadConcurrency=it)}
@@ -158,7 +157,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                     }
                     2 -> {
                         ExportDestinationPanel(vm)
-                        StudioSection(stringResource(R.string.controls_bounded_storage),tr("Les budgets s’appliquent à l’espace utilisé par cette application, modèles et exports compris. Les sources sélectionnées restent en lecture seule.", "Budgets apply to this app's storage, including models and exports. Selected sources remain read-only."),Icons.Default.Storage) {
+                        StudioSection(stringResource(R.string.controls_bounded_storage),tr("Les budgets s’appliquent à l’espace utilisé par cette application, modèles et exports compris. Les sources sélectionnées restent en lecture seule.", "Budgets apply to this app's storage, including models and exports. Selected sources remain read-only."),CadrylIcons.Storage) {
                             ControlField(tr("Budget de l’application, Mio · 128 à 65 536", "App budget, MiB · 128 to 65,536"),budget,true){budget=it}
                             ControlInt(tr("Espace libre à conserver, Mio · 32 à 4 096", "Free storage reserve, MiB · 32 to 4,096"),policy.reserveFreeMb){policy=policy.copy(reserveFreeMb=it)}
                             ControlInt(tr("Taille maximale d’une image, Mio · 1 à 256", "Maximum image size, MiB · 1 to 256"),policy.maxImageMb){policy=policy.copy(maxImageMb=it)}
@@ -168,7 +167,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                             StudioDetails(tr("La normalisation ne redimensionne pas l’image, mais la réencode; les deux hashes et la transformation sont conservés. Une rotation avec annotations importées ambiguës ou plus de 8 mégapixels est refusée. La copie source reste intacte.", "Normalization re-encodes without resizing; both hashes and the transform are retained. Rotation with ambiguous imported annotations or images above 8 megapixels is refused. The source copy remains intact."), style =MaterialTheme.typography.bodySmall)
                             StudioDetails(tr("Une archive externe est relue et comparée avant de clôturer un lot local. La purge reste explicite. Conserver les lots peut finir par épuiser le budget.", "An external archive is read back and compared before closing a local batch. Cleanup remains explicit. Keeping batches can eventually exhaust the budget."), style =MaterialTheme.typography.bodyMedium)
                         }
-                        StudioSection(stringResource(R.string.controls_hf_publication),tr("Destination : ${p.hfDestRepo.ifBlank{"non configurée — export local disponible"}}", "Destination: ${p.hfDestRepo.ifBlank{"not configured — local export available"}}"),Icons.Default.CloudUpload) {
+                        StudioSection(stringResource(R.string.controls_hf_publication),tr("Destination : ${p.hfDestRepo.ifBlank{"non configurée — export local disponible"}}", "Destination: ${p.hfDestRepo.ifBlank{"not configured — local export available"}}"),CadrylIcons.CloudUpload) {
                             ControlField(tr("Branche de destination existante", "Existing destination branch"),policy.destBranch){policy=policy.copy(destBranch=it)}
                             ControlField(tr("Préfixe de publication", "Publication prefix"),policy.destPrefix){policy=policy.copy(destPrefix=it)}
                             ControlField(tr("Split de sortie", "Output split"),split,enabled=!sourceLocked){split=it}
@@ -182,14 +181,14 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                         }
                     }
                     3 -> {
-                        StudioSection(stringResource(R.string.controls_model_library),tr("Catalogue HF, FireViewer, modèles installés, presets et import manuel sont réunis dans Modèles. Cette page ne conserve que les réglages techniques avancés.", "HF catalog, FireViewer, installed models, presets and manual import are unified in Models. This page only keeps advanced technical settings."),Icons.Default.Memory) {
+                        StudioSection(stringResource(R.string.controls_model_library),tr("Catalogue HF, FireViewer, modèles installés, presets et import manuel sont réunis dans Modèles. Cette page ne conserve que les réglages techniques avancés.", "HF catalog, FireViewer, installed models, presets and manual import are unified in Models. This page only keeps advanced technical settings."),CadrylIcons.Memory) {
                             Button(onClick={vm.navigateTo(Screen.Models)},enabled=!busy){Text(stringResource(R.string.controls_open_models))}
                             Text(tr("Cette page conserve les outils avancés de contrat, diagnostic et correction adaptative.", "This page keeps advanced contract, diagnostic and adaptive correction tools."),style=MaterialTheme.typography.bodySmall)
                         }
                         StudioSection(stringResource(R.string.controls_contract_preprocessing),
                             tr("Édition technique du contrat actif. Les presets se choisissent dans Modèles afin d’éviter deux chemins de configuration concurrents.",
                                 "Technical editing of the active contract. Presets are selected in Models to avoid two competing configuration paths."),
-                            Icons.Default.Tune) {
+                            CadrylIcons.Tune) {
                             OutlinedButton(onClick={vm.navigateTo(Screen.Models)},enabled=!busy,modifier=Modifier.fillMaxWidth()) {
                                 Text(tr("Ouvrir les presets modèles", "Open model presets"))
                             }
@@ -202,7 +201,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                             },enabled=!busy){Text(stringResource(R.string.controls_validate_contract))}
                             StudioDetails(tr("Le runtime embarqué utilise Interpreter CPU. Le mode local_http contacte uniquement localhost / 127.0.0.1; son serveur et son modèle doivent déjà fonctionner sur l’appareil. Pas de VLM embarqué ni de GPU/NPU simulé.", "The bundled runtime uses CPU Interpreter. local_http only contacts localhost / 127.0.0.1; its server and model must already run on the device. No bundled VLM or simulated GPU/NPU."), style =MaterialTheme.typography.bodySmall)
                         }
-                        StudioSection(stringResource(R.string.controls_dry_run),tr("Utilise la première image disponible du lot, ou l’image active. La durée affichée est celle de cet essai, pas un benchmark garanti.", "Uses the first available image in the batch or the active image. The displayed duration is one trial, not a guaranteed benchmark."),Icons.Default.Science) {
+                        StudioSection(stringResource(R.string.controls_dry_run),tr("Utilise la première image disponible du lot, ou l’image active. La durée affichée est celle de cet essai, pas un benchmark garanti.", "Uses the first available image in the batch or the active image. The displayed duration is one trial, not a guaranteed benchmark."),CadrylIcons.Science) {
                             Button(onClick=vm::dryRunActiveModel,enabled=!busy){Text(stringResource(R.string.controls_test_image))}
                             if(diagnostics.isNotBlank()) SelectionContainer { Text(diagnostics,style=MaterialTheme.typography.bodySmall.copy(fontFamily=FontFamily.Monospace)) }
                             dryRun?.let{result->
@@ -213,7 +212,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                             OutlinedButton(onClick={vm.refreshInferenceReceipts()},enabled=!busy){Text(stringResource(R.string.controls_show_receipts))}
                             if(receipts.isNotBlank())SelectionContainer{Text(receipts,style=MaterialTheme.typography.bodySmall.copy(fontFamily=FontFamily.Monospace))}
                         }
-                        StudioSection(stringResource(R.string.controls_measure_device),tr("Trois passages de chauffe, puis plusieurs essais sur la même image. Les annotations restent intactes. La mesure de mémoire concerne ce processus, pas un serveur HTTP distinct.", "Three warmup runs, then repeated trials on the same image. Annotations remain intact. Memory measurements cover this process, not a separate HTTP server."),Icons.Default.Speed) {
+                        StudioSection(stringResource(R.string.controls_measure_device),tr("Trois passages de chauffe, puis plusieurs essais sur la même image. Les annotations restent intactes. La mesure de mémoire concerne ce processus, pas un serveur HTTP distinct.", "Three warmup runs, then repeated trials on the same image. Annotations remain intact. Memory measurements cover this process, not a separate HTTP server."),CadrylIcons.Speed) {
                             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { listOf(5,10,30).forEach{n ->
                                 FilterChip(selected=benchmarkRuns==n,onClick={benchmarkRuns=n},label={Text(tr("$n essais", "$n trials"))},enabled=!busy)
                             } }
@@ -223,7 +222,7 @@ fun StudioControlsScreen(vm:MainViewModel, section: Int = 0) {
                                 SelectionContainer { Text(report.take(14000),style=MaterialTheme.typography.bodySmall.copy(fontFamily=FontFamily.Monospace)) }
                             }
                         }
-                        StudioSection(stringResource(R.string.controls_adaptive_points),tr("Option locale, indépendante du modèle visuel. Seuls les déplacements humains explicites et validés sont éligibles.", "Local option, independent of the visual model. Only explicit, approved human movements are eligible."),Icons.Default.Adjust) {
+                        StudioSection(stringResource(R.string.controls_adaptive_points),tr("Option locale, indépendante du modèle visuel. Seuls les déplacements humains explicites et validés sont éligibles.", "Local option, independent of the visual model. Only explicit, approved human movements are eligible."),CadrylIcons.Adjust) {
                             ControlSwitch(tr("Appliquer le correcteur lors des prochaines préannotations", "Apply the corrector to future preannotations"),policy.adaptiveCorrection){policy=policy.copy(adaptiveCorrection=it)}
                             Button(onClick={vm.saveProcessingSettings(policy.copy(batchSize=batchText.toIntOrNull() ?: -1),budget.toLongOrNull() ?: -1,idColumn,split)},enabled=!busy){Text(stringResource(R.string.controls_save_corrector))}
                             OutlinedButton(onClick=vm::trainCorrectionsFromBatch,enabled=!busy){Text(stringResource(R.string.controls_train_corrections))}

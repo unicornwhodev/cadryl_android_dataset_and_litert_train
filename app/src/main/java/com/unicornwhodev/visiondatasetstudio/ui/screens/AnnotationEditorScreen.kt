@@ -4,8 +4,16 @@ import com.unicornwhodev.visiondatasetstudio.core.i18n.tr
 import com.unicornwhodev.visiondatasetstudio.R
 
 import android.graphics.Paint
+import android.text.TextPaint
+import android.text.TextUtils
+import androidx.core.content.res.ResourcesCompat
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.CircleShape
+import com.unicornwhodev.visiondatasetstudio.ui.theme.StudioGraphite
 import com.unicornwhodev.visiondatasetstudio.ui.components.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -15,9 +23,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
@@ -38,6 +45,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -47,6 +55,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.unicornwhodev.visiondatasetstudio.core.geometry.ImageViewport
 import com.unicornwhodev.visiondatasetstudio.core.geometry.ViewPoint
@@ -67,11 +76,15 @@ import kotlin.math.hypot
 /** Compact visible controls with a full 48 dp touch target. */
 @Composable
 private fun EditorCommand(icon: ImageVector, description: String, onClick: () -> Unit,
-                          modifier: Modifier = Modifier, enabled: Boolean = true, selected: Boolean? = null, accent: Boolean = false) {
+                          modifier: Modifier = Modifier, enabled: Boolean = true, selected: Boolean? = null, accent: Boolean = false, outlined: Boolean = false) {
     val background by animateColorAsState(when { !enabled -> Color.Transparent; accent -> MaterialTheme.colorScheme.primary; selected == true -> MaterialTheme.colorScheme.primaryContainer; else -> Color.Transparent }, label = "editor command")
-    val tint = when { !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = .38f); accent -> MaterialTheme.colorScheme.onPrimary; selected == true -> MaterialTheme.colorScheme.primary; else -> MaterialTheme.colorScheme.onSurfaceVariant }
+    val tint = when { !enabled -> LocalContentColor.current.copy(alpha = .38f); accent -> MaterialTheme.colorScheme.onPrimary; selected == true -> MaterialTheme.colorScheme.primary; else -> LocalContentColor.current }
     IconButton(onClick = onClick, enabled = enabled, modifier = modifier.size(48.dp).semantics { if (selected != null) this.selected = selected }) {
-        Box(Modifier.size(28.dp).clip(RoundedCornerShape(5.dp)).background(background), contentAlignment = Alignment.Center) {
+        val container = if(outlined) Modifier.size(40.dp).clip(RoundedCornerShape(8.dp))
+            .background(LocalContentColor.current.copy(alpha=.035f))
+            .border(1.dp,LocalContentColor.current.copy(alpha=if(enabled) .20f else .10f),RoundedCornerShape(8.dp))
+            else Modifier.size(28.dp).clip(RoundedCornerShape(5.dp)).background(background)
+        Box(container,contentAlignment=Alignment.Center) {
             Icon(icon, description, Modifier.size(20.dp), tint = tint)
         }
     }
@@ -79,6 +92,42 @@ private fun EditorCommand(icon: ImageVector, description: String, onClick: () ->
 
 /** Selection and creation are separate tools: moving an existing target never creates another. */
 enum class EditorTool { SELECT, BOX, POINT, MASK, ERASE, POLYGON, LASSO, FILL, SAM_POINT, PAN_ZOOM }
+private val EditorTool.icon: ImageVector get() = when(this) {
+    EditorTool.SELECT -> CadrylIcons.NearMe; EditorTool.BOX -> CadrylIcons.CropSquare
+    EditorTool.POINT, EditorTool.SAM_POINT -> CadrylIcons.MyLocation; EditorTool.MASK -> CadrylIcons.Brush
+    EditorTool.ERASE -> CadrylIcons.AutoFixOff; EditorTool.POLYGON -> CadrylIcons.ChangeHistory
+    EditorTool.LASSO -> CadrylIcons.Gesture; EditorTool.FILL -> CadrylIcons.FormatColorFill
+    EditorTool.PAN_ZOOM -> CadrylIcons.PanTool
+}
+private val EditorTool.title: String get() = when(this) {
+    EditorTool.SELECT -> tr("Sélection", "Select"); EditorTool.BOX -> tr("Boîte", "Box")
+    EditorTool.POINT -> tr("Point", "Point"); EditorTool.MASK -> tr("Masque", "Mask")
+    EditorTool.ERASE -> tr("Gomme", "Eraser"); EditorTool.POLYGON -> tr("Polygone", "Polygon")
+    EditorTool.LASSO -> "Lasso"; EditorTool.FILL -> tr("Remplir", "Fill")
+    EditorTool.SAM_POINT -> "SAM"; EditorTool.PAN_ZOOM -> tr("Déplacer", "Pan")
+}
+private val EditorTool.description: String get() = when(this) {
+    EditorTool.SELECT -> tr("Sélectionner et déplacer", "Select and move"); EditorTool.BOX -> tr("Dessiner une boîte", "Draw a box")
+    EditorTool.POINT -> tr("Placer un point", "Place a point"); EditorTool.MASK -> tr("Peindre le masque", "Paint mask")
+    EditorTool.ERASE -> tr("Effacer le masque", "Erase mask"); EditorTool.POLYGON -> tr("Polygone · double-tap pour fermer", "Polygon · double-tap to close")
+    EditorTool.LASSO -> "Lasso"; EditorTool.FILL -> tr("Remplir une zone", "Fill an area")
+    EditorTool.SAM_POINT -> tr("Pointer pour SAM", "Point for SAM"); EditorTool.PAN_ZOOM -> tr("Déplacer et zoomer l’image", "Pan and zoom the image")
+}
+
+@Composable
+private fun ToolShelfItem(icon: ImageVector, title: String, description: String, selected: Boolean,
+                          enabled: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Surface(onClick=onClick,enabled=enabled,color=if(selected) MaterialTheme.colorScheme.primary else Color.Transparent,
+        contentColor=if(selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+        shape=if(selected) CutCornerShape(8.dp) else RoundedCornerShape(8.dp),
+        modifier=modifier.semantics { this.selected=selected; contentDescription=description }) {
+        Column(Modifier.heightIn(min=60.dp).padding(horizontal=3.dp,vertical=8.dp),horizontalAlignment=Alignment.CenterHorizontally,
+            verticalArrangement=Arrangement.spacedBy(5.dp)) {
+            Icon(icon,null,Modifier.size(24.dp))
+            Text(title,style=MaterialTheme.typography.labelSmall,maxLines=1,overflow=TextOverflow.Ellipsis)
+        }
+    }
+}
 private enum class EditorTab(private val titleText: () -> String) {
     REGIONS({ tr("Régions", "Regions") }),
     CAPTION({ tr("Légendes", "Captions") }),
@@ -143,8 +192,11 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
     var reason by remember { mutableStateOf("") }
     var more by remember { mutableStateOf(false) }
     var labelMenu by remember { mutableStateOf(false) }
+    var quickClassMenu by remember { mutableStateOf(false) }
+    var toolDrawer by remember { mutableStateOf(false) }
     val position = samples.indexOfFirst { it.sampleId == sampleId }.let { if (it < 0) 1 else it + 1 }
     val wideCommands = LocalConfiguration.current.screenWidthDp >= 600
+    val compactHeight = LocalConfiguration.current.screenHeightDp < 480
     val locked = busy || editing
     val update: (SampleAnnotations) -> Unit = viewModel::updateAnnotations
     val regionTab = tab == EditorTab.REGIONS || tab == EditorTab.GROUNDING
@@ -160,25 +212,49 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
         project?.modelConfigJson?.let { json -> runCatching { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(json) }.getOrNull() }
             ?.let { ModelCapabilities.action(it,project?.activeTasksCsv.orEmpty()) } ?: ModelAction.NONE
     }
+    val availableTools = buildList {
+        if(boxAllowed || pointAllowed || maskAllowed) add(EditorTool.SELECT)
+        if(boxAllowed) add(EditorTool.BOX)
+        if(pointAllowed) add(EditorTool.POINT)
+        if(maskAllowed) addAll(listOf(EditorTool.MASK, EditorTool.POLYGON, EditorTool.LASSO, EditorTool.ERASE, EditorTool.FILL))
+        if(samModel) add(EditorTool.SAM_POINT)
+        add(EditorTool.PAN_ZOOM)
+    }
 
     val inspectorState = rememberSaveableStateHolder()
     var propertiesOpen by rememberSaveable { mutableStateOf(false) }
+    val chooseTool: (EditorTool) -> Unit = { next ->
+        tool=next; toolDrawer=false; propertiesOpen=false
+        if(next!=EditorTool.PAN_ZOOM && EditorTab.REGIONS in tabs) tab=EditorTab.REGIONS
+    }
+    val openReview: () -> Unit = {
+        tab=when {
+            a.tags.any{!it.isHumanVerified} && EditorTab.TAGS in tabs -> EditorTab.TAGS
+            a.captions.any{!it.isHumanVerified} && EditorTab.CAPTION in tabs -> EditorTab.CAPTION
+            a.vqaList.any{!it.isHumanVerified} && EditorTab.VQA in tabs -> EditorTab.VQA
+            a.counts.any{!it.isHumanVerified} && EditorTab.COUNTING in tabs -> EditorTab.COUNTING
+            a.groundings.any{!it.isHumanVerified} && EditorTab.GROUNDING in tabs -> EditorTab.GROUNDING
+            else -> tabs.first()
+        }; propertiesOpen=true
+    }
     val inspector: @Composable (Modifier) -> Unit = { modifier ->
         Column(modifier.background(MaterialTheme.colorScheme.surface)) {
             Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(start = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("Annotations", Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                EditorCommand(Icons.Default.Close, tr("Fermer les propriétés", "Close properties"), onClick = { propertiesOpen = false })
+                if (!workflow?.instructions.isNullOrBlank()) EditorCommand(CadrylIcons.Assignment,
+                    tr("Consignes du workflow", "Workflow instructions"), { showWorkflowInstructions = true })
+                EditorCommand(CadrylIcons.Close, tr("Fermer les propriétés", "Close properties"), onClick = { propertiesOpen = false })
             }
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp)) {
                 tabs.forEach { t -> TextButton(onClick = { tab = t }, colors = ButtonDefaults.textButtonColors(contentColor = if (tab == t) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)) { Text(t.title, style = MaterialTheme.typography.labelMedium) } }
             }
             if (regionTab) Box(Modifier.padding(horizontal = 8.dp)) {
-                TextButton(onClick = { labelMenu = true }) { Text(tr("Classe · $label", "Class · $label"), style = MaterialTheme.typography.labelMedium); Icon(Icons.Default.ArrowDropDown, null, Modifier.size(18.dp)) }
+                TextButton(onClick = { labelMenu = true }) { Text(tr("Classe · $label", "Class · $label"), style = MaterialTheme.typography.labelMedium); Icon(CadrylIcons.ArrowDropDown, null, Modifier.size(18.dp)) }
                 DropdownMenu(expanded = labelMenu, onDismissRequest = { labelMenu = false }) {
                     classes.forEach { cls -> DropdownMenuItem(text = { Text(cls) }, onClick = { label = cls; labelMenu = false }) }
                 }
             }
-            StudioAction(stringResource(R.string.editor_similar_images),viewModel::findSimilarImages,icon=Icons.Default.ImageSearch,enabled=!locked,modifier=Modifier.padding(horizontal=12.dp))
+            StudioAction(stringResource(R.string.editor_similar_images),viewModel::findSimilarImages,icon=CadrylIcons.ImageSearch,enabled=!locked,modifier=Modifier.padding(horizontal=12.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Box(Modifier.weight(1f)) {
                 inspectorState.SaveableStateProvider("$sampleId:${tab.name}") {
@@ -202,22 +278,52 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
     }
     Scaffold(contentWindowInsets = WindowInsets(0), modifier = Modifier.imePadding(), topBar = {
         Column {
-            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-                EditorCommand(Icons.AutoMirrored.Filled.ArrowBack, tr("Revenir au lot après enregistrement", "Return to batch after saving"), onClick = viewModel::back, enabled = !locked)
-                Column(Modifier.weight(1f)) {
-                    Text(sample?.assetId ?: tr("Image", "Image"), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelLarge)
-                    Text("$position / ${samples.size.coerceAtLeast(1)}  ·  " + if (saving == tr("Enregistré sur cet appareil", "Saved on this device")) tr("Enregistré", "Saved") else saving, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.labelSmall, color = if (saving.startsWith(tr("Échec", "Failed"))) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+            StudioBrandBar()
+            if(!compactHeight) Row(Modifier.fillMaxWidth().heightIn(min=44.dp).padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically) {
+                TextButton(onClick={viewModel.navigateTo(Screen.Controls)},enabled=!locked,modifier=Modifier.weight(1f)) {
+                    Text(project?.name ?: tr("Projet","Project"),Modifier.weight(1f),maxLines=1,overflow=TextOverflow.Ellipsis,
+                        style=MaterialTheme.typography.titleMedium,color=MaterialTheme.colorScheme.onSurface)
+                    Icon(CadrylIcons.ArrowDropDown,null,Modifier.size(18.dp))
                 }
-                if(wideCommands) {
-                    EditorCommand(Icons.Default.ChevronLeft, tr("Image précédente", "Previous image"), onClick = { viewModel.moveSample(-1) }, enabled = position > 1 && !locked)
-                    EditorCommand(Icons.Default.ChevronRight, tr("Image suivante", "Next image"), onClick = { viewModel.moveSample(1) }, enabled = position < samples.size && !locked)
-                    VerticalDivider(Modifier.height(18.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                EditorCommand(CadrylIcons.GridView,tr("Revenir au lot après enregistrement","Return to batch after saving"),viewModel::back,enabled=!locked)
+                Text("$position / ${samples.size.coerceAtLeast(1)}",style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            HorizontalDivider(Modifier.padding(horizontal=20.dp),color=MaterialTheme.colorScheme.outlineVariant)
+            Row(Modifier.fillMaxWidth().heightIn(min=48.dp).padding(horizontal=4.dp),verticalAlignment=Alignment.CenterVertically) {
+                EditorCommand(CadrylIcons.ChevronLeft,tr("Image précédente","Previous image"),{viewModel.moveSample(-1)},enabled=position>1 && !locked)
+                Text(sample?.assetId ?: tr("Image","Image"),Modifier.weight(1f),maxLines=1,overflow=TextOverflow.Ellipsis,style=MaterialTheme.typography.titleSmall)
+                if(saving==tr("Enregistré sur cet appareil","Saved on this device")) Icon(CadrylIcons.CheckCircle,tr("Enregistré","Saved"),Modifier.size(18.dp),tint=MaterialTheme.colorScheme.secondary)
+                EditorCommand(CadrylIcons.ChevronRight,tr("Image suivante","Next image"),{viewModel.moveSample(1)},enabled=position<samples.size && !locked)
+            }
+        }
+    }, bottomBar = {
+        if(compactHeight) Surface(color=StudioGraphite,contentColor=Color(0xFFF3F1E9)) {
+            Row(Modifier.fillMaxWidth().heightIn(min=56.dp).padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically,
+                horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                val approveCompact: @Composable () -> Unit = {
+                Button(onClick=viewModel::validateCurrentAndNext,enabled=!locked && !saving.startsWith(tr("Échec","Failed")),
+                    shape=CutCornerShape(8.dp),modifier=Modifier.testTag("validate_next_button")) { Text(tr("Valider","Approve"));Spacer(Modifier.width(8.dp));Icon(CadrylIcons.Check,null) }
                 }
-                EditorCommand(Icons.AutoMirrored.Filled.Undo, tr("Annuler la dernière modification", "Undo last change"), onClick = viewModel::undo, enabled = canUndo && !locked, modifier = Modifier.testTag("undo_button"))
-                EditorCommand(Icons.AutoMirrored.Filled.Redo, tr("Rétablir", "Redo"), onClick = viewModel::redo, enabled = canRedo && !locked, modifier = Modifier.testTag("redo_button"))
+                if(prefs.leftHanded) approveCompact()
+                TextButton(onClick={toolDrawer=true},enabled=!locked,colors=ButtonDefaults.textButtonColors(contentColor=LocalContentColor.current)) {
+                    Icon(tool.icon,null,Modifier.size(22.dp));Spacer(Modifier.width(6.dp));Text(tool.title);Icon(CadrylIcons.ArrowDropDown,null,Modifier.size(18.dp))
+                }
+                OutlinedButton(onClick={propertiesOpen=!propertiesOpen},enabled=!locked,
+                    modifier=Modifier.testTag("editor_annotations"),colors=ButtonDefaults.outlinedButtonColors(contentColor=LocalContentColor.current),
+                    border=BorderStroke(1.dp,Color(0xFF53615A)),shape=RoundedCornerShape(8.dp)) {
+                    Icon(CadrylIcons.Layers,tr("Annotations et propriétés","Annotations and properties"),Modifier.size(22.dp))
+                    Spacer(Modifier.width(6.dp));Text(if(regionTab) label else tab.title)
+                }
+                EditorCommand(CadrylIcons.Undo,tr("Annuler la dernière modification","Undo last change"),viewModel::undo,enabled=canUndo && !locked,modifier=Modifier.testTag("undo_button"))
+                EditorCommand(CadrylIcons.Redo,tr("Rétablir","Redo"),viewModel::redo,enabled=canRedo && !locked,modifier=Modifier.testTag("redo_button"))
+                if(hasUnreviewed) TextButton(onClick=openReview,modifier=Modifier.testTag("annotation_proposals"),colors=ButtonDefaults.textButtonColors(contentColor=Color(0xFFFFAB8C))) {
+                    Text(tr("$reviewCount à relire","$reviewCount to review"))
+                }
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick=viewModel::deferCurrent,enabled=!locked,modifier=Modifier.testTag("defer_button"),
+                    colors=ButtonDefaults.textButtonColors(contentColor=LocalContentColor.current)) { Text(tr("Passer","Skip")) }
                 Box {
-                    EditorCommand(Icons.Default.MoreVert, tr("Actions du cas", "Sample actions"), onClick = { more = true })
+                    EditorCommand(CadrylIcons.MoreVert,tr("Actions du cas","Sample actions"),{more=true})
                     DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_zoom_in)) }, onClick = { zoom = (zoom * 1.25f).coerceAtMost(12f); more = false })
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_zoom_out)) }, onClick = { zoom = (zoom / 1.25f).coerceAtLeast(1f); more = false })
@@ -232,7 +338,7 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_previous_image)) }, enabled = position > 1 && !locked, onClick = { viewModel.moveSample(-1); more = false })
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_next_image)) }, enabled = position < samples.size && !locked, onClick = { viewModel.moveSample(1); more = false })
-                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_defer_image)) }, enabled = !locked, onClick = { viewModel.deferCurrent(); more = false }, modifier = Modifier.testTag("defer_button"))
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_defer_image)) }, enabled = !locked, onClick = { viewModel.deferCurrent(); more = false }, modifier = Modifier.testTag("defer_menu_button"))
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_reject_reason)) }, enabled = !locked, onClick = { rejectDialog = true; more = false })
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_retry_save)) }, onClick = { viewModel.retrySave(); more = false })
@@ -240,47 +346,141 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_customize_tools)) }, onClick = { viewModel.navigateTo(Screen.Preferences); more = false })
                     }
                 }
+                if(!prefs.leftHanded) approveCompact()
             }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        }
-    }, bottomBar = {
-        Surface(color = MaterialTheme.colorScheme.surface) {
-            Column {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                BoxWithConstraints(Modifier.fillMaxWidth()) {
-                    val roomy = maxWidth >= 600.dp
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        val validate: @Composable () -> Unit = {
-                            EditorCommand(Icons.Default.Check, if (prefs.autoAdvance) tr("Valider et passer à l’image suivante", "Approve and move to the next image") else tr("Valider l’image", "Approve image"),
-                                onClick = viewModel::validateCurrentAndNext, enabled = !locked && !saving.startsWith(tr("Échec", "Failed")), accent = true, modifier = Modifier.testTag("validate_next_button"))
+        } else
+        Column {
+            if(availableTools.size>1) Surface(Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=8.dp),
+                shape=RoundedCornerShape(16.dp),color=MaterialTheme.colorScheme.surface,shadowElevation=3.dp) {
+                Row(Modifier.padding(6.dp),horizontalArrangement=Arrangement.spacedBy(3.dp)) {
+                    availableTools.filter { it in setOf(EditorTool.SELECT,EditorTool.BOX,EditorTool.POINT,EditorTool.MASK) }.forEach { t ->
+                        ToolShelfItem(t.icon,t.title,t.description,tool==t,!locked,Modifier.weight(1f)) { chooseTool(t) }
+                    }
+                    ToolShelfItem(CadrylIcons.MoreVert,tr("Plus","More"),tr("Tous les outils d’annotation","All annotation tools"),
+                        tool !in setOf(EditorTool.SELECT,EditorTool.BOX,EditorTool.POINT,EditorTool.MASK),!locked,Modifier.weight(1f)) { toolDrawer=true }
+                }
+            }
+            Surface(color=StudioGraphite,contentColor=Color(0xFFF3F1E9),shape=RoundedCornerShape(topStart=20.dp,topEnd=20.dp)) {
+                Column(Modifier.padding(horizontal=16.dp).padding(top=8.dp,bottom=12.dp)) {
+                    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                        if(regionTab) Box(Modifier.weight(1f)) {
+                            TextButton(onClick={quickClassMenu=true},enabled=!locked,contentPadding=PaddingValues(0.dp),
+                                colors=ButtonDefaults.textButtonColors(contentColor=LocalContentColor.current)) {
+                                val ordinal=classes.indexOf(label)+1
+                                Surface(Modifier.size(32.dp),shape=CutCornerShape(6.dp),
+                                    color=MaterialTheme.colorScheme.primary,contentColor=MaterialTheme.colorScheme.onPrimary) {
+                                    Box(contentAlignment=Alignment.Center) {
+                                        Text(if(ordinal>0) ordinal.toString().padStart(2,'0') else "—",style=MaterialTheme.typography.labelLarge)
+                                    }
+                                }
+                                Spacer(Modifier.width(10.dp))
+                                Column(Modifier.weight(1f),horizontalAlignment=Alignment.Start) {
+                                    Text(tr("Classe","Class"),style=MaterialTheme.typography.labelSmall,color=Color(0xFFBBC5BE))
+                                    Text(label,style=MaterialTheme.typography.titleMedium,maxLines=1,overflow=TextOverflow.Ellipsis)
+                                }
+                                Icon(CadrylIcons.ArrowDropDown,null,Modifier.size(18.dp))
+                            }
+                            DropdownMenu(quickClassMenu,{quickClassMenu=false}) {
+                                classes.forEach { cls -> DropdownMenuItem(text={Text(cls)},onClick={label=cls;quickClassMenu=false}) }
+                            }
+                        } else Text(tab.title,Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
+                        EditorCommand(CadrylIcons.Undo,tr("Annuler la dernière modification","Undo last change"),viewModel::undo,enabled=canUndo && !locked,modifier=Modifier.testTag("undo_button"),outlined=true)
+                        EditorCommand(CadrylIcons.Redo,tr("Rétablir","Redo"),viewModel::redo,enabled=canRedo && !locked,modifier=Modifier.testTag("redo_button"),outlined=true)
+                        OutlinedButton(onClick={propertiesOpen=!propertiesOpen},enabled=!locked,
+                            modifier=Modifier.testTag("editor_annotations"),border=BorderStroke(1.dp,Color(0xFF53615A)),
+                            colors=ButtonDefaults.outlinedButtonColors(contentColor=LocalContentColor.current),shape=RoundedCornerShape(8.dp),
+                            contentPadding=PaddingValues(horizontal=10.dp,vertical=8.dp)) {
+                            Icon(CadrylIcons.Layers,tr("Annotations et propriétés","Annotations and properties"),Modifier.size(22.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(if(wideCommands) "Annotations · ${a.boxes.size+a.points.size+a.masks.size}" else "${a.boxes.size+a.points.size+a.masks.size}")
                         }
-                        if (prefs.leftHanded) validate()
-                        Row(Modifier.weight(1f).horizontalScroll(rememberScrollState())) {
-                        listOf(EditorTool.SELECT, EditorTool.BOX, EditorTool.POINT, EditorTool.MASK, EditorTool.ERASE,EditorTool.POLYGON,EditorTool.LASSO,EditorTool.FILL, EditorTool.PAN_ZOOM)
-                            .filter { (it != EditorTool.BOX || boxAllowed) && (it != EditorTool.POINT || pointAllowed) && (it !in setOf(EditorTool.MASK,EditorTool.ERASE,EditorTool.POLYGON,EditorTool.LASSO,EditorTool.FILL) || maskAllowed) && (it != EditorTool.SELECT || boxAllowed || pointAllowed || maskAllowed) }
-                            .forEach { t ->
-                                val icon = when(t) { EditorTool.SELECT -> Icons.Default.NearMe; EditorTool.BOX -> Icons.Default.CropSquare; EditorTool.POINT, EditorTool.SAM_POINT -> Icons.Default.MyLocation; EditorTool.MASK -> Icons.Default.Brush; EditorTool.ERASE -> Icons.Default.AutoFixOff;EditorTool.POLYGON->Icons.Default.ChangeHistory;EditorTool.LASSO->Icons.Default.Gesture;EditorTool.FILL->Icons.Default.FormatColorFill; EditorTool.PAN_ZOOM -> Icons.Default.PanTool }
-                                val description = when(t) { EditorTool.SELECT -> tr("Sélectionner et déplacer", "Select and move"); EditorTool.BOX -> tr("Dessiner une boîte", "Draw a box"); EditorTool.POINT -> tr("Placer un point", "Place a point"); EditorTool.SAM_POINT -> tr("Pointer pour SAM", "Point for SAM"); EditorTool.MASK -> tr("Peindre le masque", "Paint mask"); EditorTool.ERASE -> tr("Effacer le masque", "Erase mask");EditorTool.POLYGON->tr("Polygone · double-tap pour fermer", "Polygon · double-tap to close");EditorTool.LASSO->"Lasso";EditorTool.FILL->tr("Remplir une zone", "Fill an area"); EditorTool.PAN_ZOOM -> tr("Déplacer et zoomer l’image", "Pan and zoom the image") }
-                                EditorCommand(icon, description, selected = tool == t, enabled = !locked, onClick = {
-                                    tool = t
-                                    if (t != EditorTool.PAN_ZOOM && EditorTab.REGIONS in tabs) tab = EditorTab.REGIONS
-                                })
+                    }
+                    HorizontalDivider(color=Color(0xFF46534D))
+                    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                        Surface(shape=RoundedCornerShape(8.dp),color=Color.White.copy(alpha=.025f),
+                            contentColor=LocalContentColor.current,border=BorderStroke(1.dp,Color(0xFF46534D))) {
+                            Row(verticalAlignment=Alignment.CenterVertically) {
+                                EditorCommand(CadrylIcons.Remove,tr("Zoom arrière","Zoom out"),{zoom=(zoom/1.25f).coerceAtLeast(1f)})
+                                VerticalDivider(Modifier.height(28.dp),color=Color(0xFF46534D))
+                                TextButton(onClick={zoom=1f;pan=Offset.Zero},modifier=Modifier.testTag("editor_fit_image"),
+                                    colors=ButtonDefaults.textButtonColors(contentColor=LocalContentColor.current)) {
+                                    Text("${(zoom*100).toInt()} %",style=MaterialTheme.typography.labelLarge)
+                                }
+                                VerticalDivider(Modifier.height(28.dp),color=Color(0xFF46534D))
+                                EditorCommand(CadrylIcons.Add,tr("Zoom avant","Zoom in"),{zoom=(zoom*1.25f).coerceAtMost(12f)})
                             }
                         }
-                        if (roomy) {
-                            EditorCommand(Icons.Default.Remove, tr("Zoom arrière", "Zoom out"), onClick = { zoom = (zoom / 1.25f).coerceAtLeast(1f) })
-                            TextButton(onClick = { zoom = 1f; pan = Offset.Zero }) { Text("${(zoom * 100).toInt()} %", style = MaterialTheme.typography.labelMedium) }
-                            EditorCommand(Icons.Default.Add, tr("Zoom avant", "Zoom in"), onClick = { zoom = (zoom * 1.25f).coerceAtMost(12f) })
-                            Spacer(Modifier.weight(1f))
+                        Spacer(Modifier.width(8.dp))
+                        val failed=saving.startsWith(tr("Échec","Failed"))
+                        TextButton(onClick={if(failed)viewModel.retrySave()},enabled=failed,
+                            colors=ButtonDefaults.textButtonColors(contentColor=Color(0xFFFFB4AB),disabledContentColor=Color(0xFFBBC5BE)),
+                            modifier=Modifier.weight(1f)) {
+                            if(saving==tr("Enregistré sur cet appareil","Saved on this device")) Surface(Modifier.size(20.dp),
+                                shape=CircleShape,color=Color(0xFFB9C9B7),contentColor=StudioGraphite) {
+                                Box(contentAlignment=Alignment.Center) { Icon(CadrylIcons.Check,null,Modifier.size(15.dp)) }
+                            } else Icon(if(failed) CadrylIcons.ErrorOutline else CadrylIcons.Sync,null,Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(if(saving==tr("Enregistré sur cet appareil","Saved on this device")) tr("Enregistré","Saved") else saving,
+                                maxLines=1,overflow=TextOverflow.Ellipsis,style=MaterialTheme.typography.labelSmall)
                         }
-                        EditorCommand(Icons.Default.Tune, tr("Annotations et propriétés", "Annotations and properties"), onClick = { propertiesOpen = !propertiesOpen }, selected = propertiesOpen)
-                        if (!prefs.leftHanded) validate()
                     }
-                }
-                if(tool in setOf(EditorTool.MASK,EditorTool.ERASE)) Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically) {
-                    Text(if(tool==EditorTool.MASK)tr("Pinceau", "Brush") else tr("Gomme", "Eraser"),style=MaterialTheme.typography.labelMedium)
-                    Slider(value=if(tool==EditorTool.MASK)brushSize else eraserSize,onValueChange={if(tool==EditorTool.MASK)brushSize=it else eraserSize=it},valueRange=0.005f..0.1f,modifier=Modifier.weight(1f))
-                    Text("${(((if(tool==EditorTool.MASK)brushSize else eraserSize)*100)).toInt()} %",style=MaterialTheme.typography.labelMedium)
+                    if(tool in setOf(EditorTool.MASK,EditorTool.ERASE)) Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                        Text(if(tool==EditorTool.MASK)tr("Pinceau","Brush") else tr("Gomme","Eraser"),style=MaterialTheme.typography.labelSmall)
+                        Slider(value=if(tool==EditorTool.MASK)brushSize else eraserSize,onValueChange={if(tool==EditorTool.MASK)brushSize=it else eraserSize=it},valueRange=.005f.. .1f,modifier=Modifier.weight(1f))
+                        Text("${((if(tool==EditorTool.MASK)brushSize else eraserSize)*100).toInt()} %",style=MaterialTheme.typography.labelSmall)
+                    }
+                    if(hasModel || hasUnreviewed) Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                        TextButton(onClick=openReview,modifier=Modifier.weight(1f).testTag("annotation_proposals"),
+                            colors=ButtonDefaults.textButtonColors(contentColor=Color(0xFFFFAB8C))) {
+                            Icon(CadrylIcons.AutoAwesome,null,Modifier.size(18.dp));Spacer(Modifier.width(6.dp))
+                            Text(if(hasUnreviewed) tr("$reviewCount à relire","$reviewCount to review") else tr("Assistance IA","AI assistance"),style=MaterialTheme.typography.labelSmall)
+                        }
+                        OutlinedButton(onClick={if(modelAction==ModelAction.NONE)viewModel.navigateTo(Screen.Models) else viewModel.runLiteRtOnCurrentSample(samPoint?.let{listOf(it.x,it.y)}.orEmpty())},
+                            enabled=!locked && (!samModel || samPoint!=null),colors=ButtonDefaults.outlinedButtonColors(contentColor=LocalContentColor.current),
+                            border=BorderStroke(1.dp,Color(0xFF53615A)),shape=RoundedCornerShape(8.dp)) {
+                            Icon(CadrylIcons.AutoAwesome,null,Modifier.size(18.dp));Spacer(Modifier.width(6.dp))
+                            Text(if(modelAction==ModelAction.NONE)tr("Modèle","Model") else tr("Suggérer","Suggest"),style=MaterialTheme.typography.labelLarge)
+                        }
+                    }
+                    HorizontalDivider(color=Color(0xFF46534D))
+                    Row(Modifier.fillMaxWidth().padding(top=8.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                        val approve: @Composable () -> Unit = {
+                            Button(onClick=viewModel::validateCurrentAndNext,enabled=!locked && !saving.startsWith(tr("Échec","Failed")),
+                                modifier=Modifier.weight(1.2f).heightIn(min=48.dp).testTag("validate_next_button")
+                                    .semantics {contentDescription=if(prefs.autoAdvance)tr("Valider et passer à l’image suivante","Approve and move to the next image") else tr("Valider l’image","Approve image")},
+                                shape=CutCornerShape(8.dp)) {
+                                Text(tr("Valider","Approve"));Spacer(Modifier.width(12.dp));Icon(CadrylIcons.ArrowForward,null,Modifier.size(24.dp))
+                            }
+                        }
+                        if(prefs.leftHanded) approve()
+                        TextButton(onClick=viewModel::deferCurrent,enabled=!locked,modifier=Modifier.weight(.65f).testTag("defer_button"),
+                            colors=ButtonDefaults.textButtonColors(contentColor=LocalContentColor.current)) { Text(tr("Passer","Skip")) }
+                        Box {
+                            EditorCommand(CadrylIcons.MoreVert,tr("Actions du cas","Sample actions"),{more=true},outlined=true)
+                            DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_zoom_in)) }, onClick = { zoom = (zoom * 1.25f).coerceAtMost(12f); more = false })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_zoom_out)) }, onClick = { zoom = (zoom / 1.25f).coerceAtLeast(1f); more = false })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_fit_image)) }, onClick = { zoom = 1f; pan = Offset.Zero; more = false })
+                        if(maskAllowed) DropdownMenuItem(text = { Text(stringResource(R.string.editor_new_mask)) }, enabled = !locked, onClick = { selected = null; tool = EditorTool.MASK; more = false; propertiesOpen = false })
+                        if(samModel) {
+                            DropdownMenuItem(text = { Text(stringResource(R.string.editor_sam_point)) }, enabled = !locked, onClick = { tool = EditorTool.SAM_POINT; more = false; propertiesOpen = false })
+                            DropdownMenuItem(text = { Text(stringResource(R.string.editor_segment_point)) }, enabled = samPoint != null && !locked,
+                                onClick = { viewModel.runLiteRtOnCurrentSample(samPoint!!.let { listOf(it.x,it.y) }); more = false })
+                            DropdownMenuItem(text = { Text(stringResource(R.string.editor_clear_sam)) }, enabled = samPoint != null && !locked, onClick = { samPoint = null; more = false })
+                        }
+                        HorizontalDivider()
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_previous_image)) }, enabled = position > 1 && !locked, onClick = { viewModel.moveSample(-1); more = false })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_next_image)) }, enabled = position < samples.size && !locked, onClick = { viewModel.moveSample(1); more = false })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_defer_image)) }, enabled = !locked, onClick = { viewModel.deferCurrent(); more = false }, modifier = Modifier.testTag("defer_menu_button"))
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_reject_reason)) }, enabled = !locked, onClick = { rejectDialog = true; more = false })
+                        HorizontalDivider()
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_retry_save)) }, onClick = { viewModel.retrySave(); more = false })
+                        DropdownMenuItem(text = { Text(tr("Marquer les éléments à relire comme relus", "Mark review items as reviewed")) }, enabled = hasUnreviewed && !locked, onClick = { acceptDialog = true; more = false })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_customize_tools)) }, onClick = { viewModel.navigateTo(Screen.Preferences); more = false })
+                    }
+                        }
+                        if(!prefs.leftHanded) approve()
+                    }
                 }
             }
         }
@@ -295,34 +495,12 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                                 if (StudioTask.POINTING in tasks && next.points.size > 1 && next.points.size > a.points.size) viewModel.reportError(tr("Mode Point unique : déplacez le point existant ou activez Points multiples.", "Single-point mode: move the existing point or enable Multiple points.")) else update(next)
                             }, brushFraction=if(tool==EditorTool.ERASE)eraserSize else brushSize,showLabels = prefs.showCanvasLabels, promptPoint = samPoint, onPromptSelected = { samPoint = it })
                     }
-                    if(hasUnreviewed || !workflow?.instructions.isNullOrBlank()) Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically) {
-                        if(hasUnreviewed) TextButton(onClick={
-                            tab=when {
-                                a.tags.any{!it.isHumanVerified} && EditorTab.TAGS in tabs->EditorTab.TAGS
-                                a.captions.any{!it.isHumanVerified} && EditorTab.CAPTION in tabs->EditorTab.CAPTION
-                                a.vqaList.any{!it.isHumanVerified} && EditorTab.VQA in tabs->EditorTab.VQA
-                                a.counts.any{!it.isHumanVerified} && EditorTab.COUNTING in tabs->EditorTab.COUNTING
-                                a.groundings.any{!it.isHumanVerified} && EditorTab.GROUNDING in tabs->EditorTab.GROUNDING
-                                else->tabs.first()
-                            };propertiesOpen=true
-                        },modifier=Modifier.testTag("annotation_proposals")) {
-                            Icon(if(aiProposalCount>0) Icons.Default.AutoAwesome else Icons.Default.Description,null,Modifier.size(16.dp));Spacer(Modifier.width(6.dp))
-                            Text(when {
-                                aiProposalCount>0 && importedDraftCount>0 -> tr("$aiProposalCount suggestion(s) IA · $importedDraftCount brouillon(s) importé(s)",
-                                    "$aiProposalCount AI suggestion(s) · $importedDraftCount imported draft(s)")
-                                aiProposalCount>0 -> tr("$aiProposalCount suggestion(s) IA à relire", "$aiProposalCount AI suggestion(s) to review")
-                                else -> tr("$importedDraftCount brouillon(s) importé(s) à relire", "$importedDraftCount imported draft(s) to review")
-                            },style=MaterialTheme.typography.labelMedium)
-                        }
-                        Spacer(Modifier.weight(1f))
-                        if(!workflow?.instructions.isNullOrBlank()) IconButton(onClick={showWorkflowInstructions=true}) { Icon(Icons.Default.Assignment,tr("Consignes du workflow", "Workflow instructions"),Modifier.size(18.dp)) }
+                    if(!propertiesOpen && !workflow?.instructions.isNullOrBlank()) TextButton(onClick={showWorkflowInstructions=true}) {
+                        Icon(CadrylIcons.Assignment,tr("Consignes du workflow","Workflow instructions"),Modifier.size(18.dp));Spacer(Modifier.width(6.dp))
+                        Text(tr("Consignes du workflow","Workflow instructions"),style=MaterialTheme.typography.labelSmall)
                     }
-                    Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 12.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(if(tool==EditorTool.SAM_POINT) tr("SAM · pointez l’objet", "SAM · point to the object") else tr("$label · ${a.masks.size + a.boxes.size + a.points.size} régions", "$label · ${a.masks.size + a.boxes.size + a.points.size} regions"), Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        if(wideCommands) Text("${sample?.imageWidth ?: 0} × ${sample?.imageHeight ?: 0}  ·  ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("${(zoom * 100).toInt()} %", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+
+
                 }
                 if (wide && propertiesOpen) {
                     VerticalDivider()
@@ -333,6 +511,16 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface,
                 dragHandle = null) {
                 inspector(Modifier.fillMaxWidth().fillMaxHeight(.8f))
+            }
+        }
+    }
+    if(toolDrawer) ModalBottomSheet(onDismissRequest={toolDrawer=false},sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=24.dp)) {
+            Text(tr("Outils d’annotation","Annotation tools"),style=MaterialTheme.typography.titleLarge)
+            availableTools.forEach { t ->
+                ListItem(headlineContent={Text(t.title)},supportingContent={Text(t.description,style=MaterialTheme.typography.bodySmall)},
+                    leadingContent={Icon(t.icon,null)},trailingContent={if(tool==t)Icon(CadrylIcons.Check,null)},
+                    modifier=Modifier.clickable(enabled=!locked){chooseTool(t)})
             }
         }
     }
@@ -361,6 +549,15 @@ fun InteractiveAnnotationCanvas(sample: SampleEntity?, annotations: SampleAnnota
     promptPoint: ViewPoint? = null, onPromptSelected: (ViewPoint) -> Unit = {}) {
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
+    val context = LocalContext.current
+    val labelTypeface = remember(context) { ResourcesCompat.getFont(context, R.font.barlow_semibold) }
+    val labelPaint = remember(density.density, density.fontScale, labelTypeface) {
+        TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+            textSize = with(density) { 12.sp.toPx() }
+            typeface = labelTypeface
+            color = android.graphics.Color.WHITE
+        }
+    }
     val radius = with(density) { 24.dp.toPx() }
     val viewport = remember(canvasSize, sample?.imageWidth, sample?.imageHeight, scale, offset) {
         ImageViewport(canvasSize.width.toFloat(), canvasSize.height.toFloat(), (sample?.imageWidth ?: 0).toFloat(), (sample?.imageHeight ?: 0).toFloat(), scale, offset.x, offset.y)
@@ -405,7 +602,8 @@ fun InteractiveAnnotationCanvas(sample: SampleEntity?, annotations: SampleAnnota
     val drawn = draft ?: annotations
     val maskImages=remember(drawn.masks) { drawn.masks.map { m ->
         val pixels=com.unicornwhodev.visiondatasetstudio.domain.inference.MaskCodec.decode(m)
-        m to android.graphics.Bitmap.createBitmap(IntArray(pixels.size) { if(pixels[it]) 0x669BE4BE else 0 },m.width,m.height,android.graphics.Bitmap.Config.ARGB_8888)
+        val tint = if (m.isHumanVerified) 0x66D85836 else 0x66617C99
+        m to android.graphics.Bitmap.createBitmap(IntArray(pixels.size) { if(pixels[it]) tint else 0 },m.width,m.height,android.graphics.Bitmap.Config.ARGB_8888)
     } }
     DisposableEffect(maskImages) { onDispose { maskImages.forEach { it.second.recycle() } } }
     Box(Modifier.fillMaxSize().clipToBounds().onSizeChanged { canvasSize = it }
@@ -496,37 +694,53 @@ fun InteractiveAnnotationCanvas(sample: SampleEntity?, annotations: SampleAnnota
         if (sample?.localImagePath != null) AsyncImage(model = File(sample.localImagePath), contentDescription = null, contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize().graphicsLayer { scaleX=scale; scaleY=scale; translationX=offset.x; translationY=offset.y })
         Canvas(Modifier.fillMaxSize()) {
-            val human = Color(0xFF9BE4BE); val proposed = Color(0xFFC3B4FA); val selected = Color(0xFFFFD980)
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { textSize=12.dp.toPx(); color=android.graphics.Color.WHITE; setShadowLayer(3f,0f,1f,android.graphics.Color.BLACK) }
+            val human = Color(0xFFD85836); val proposed = Color(0xFF617C99)
+            fun label(text: String, anchor: Offset, verified: Boolean) {
+                val paddingX = 8.dp.toPx(); val paddingY = 4.dp.toPx()
+                val visible = TextUtils.ellipsize(text.take(40), labelPaint,
+                    (size.width - 2 * paddingX).coerceAtLeast(1f), TextUtils.TruncateAt.END).toString()
+                val metrics = labelPaint.fontMetrics
+                val width = labelPaint.measureText(visible) + 2 * paddingX
+                val height = metrics.descent - metrics.ascent + 2 * paddingY
+                val left = (anchor.x + 5.dp.toPx()).coerceIn(0f, (size.width - width).coerceAtLeast(0f))
+                val top = (anchor.y - height).coerceAtLeast(0f)
+                drawRoundRect(if (verified) Color(0xFFB94222) else Color(0xFF415975),
+                    Offset(left, top), Size(width, height), CornerRadius(4.dp.toPx()))
+                drawContext.canvas.nativeCanvas.drawText(visible, left + paddingX,
+                    top + paddingY - metrics.ascent, labelPaint)
+            }
             if(viewport.isValid) {
                 val first=viewport.toScreen(0f,0f);val last=viewport.toScreen(1f,1f)
                 maskImages.forEach { (_,bitmap) -> drawContext.canvas.nativeCanvas.drawBitmap(bitmap,null,android.graphics.RectF(first.x,first.y,last.x,last.y),null) }
                 promptPoint?.let { point ->
                     val screen=viewport.toScreen(point.x,point.y)
                     val at=Offset(screen.x,screen.y)
-                    drawCircle(Color(0xFF74DFFF),10.dp.toPx(),at,style=Stroke(2.dp.toPx()))
-                    drawCircle(Color(0xFF74DFFF),3.dp.toPx(),at)
-                    drawContext.canvas.nativeCanvas.drawText("SAM",at.x+14.dp.toPx(),at.y-8.dp.toPx(),paint)
+                    drawCircle(Color(0xFF617C99),10.dp.toPx(),at,style=Stroke(2.dp.toPx()))
+                    drawCircle(Color(0xFF617C99),3.dp.toPx(),at)
+                    if (showLabels) label("SAM", at + Offset(14.dp.toPx(), 0f), false)
                 }
             }
             drawn.boxes.forEach { b ->
-                val isSelected=b.id==selectedTargetId; val color=if(isSelected) selected else if(b.isHumanVerified) human else proposed
+                val isSelected=b.id==selectedTargetId; val color=if(b.isHumanVerified) human else proposed
                 val p1=viewport.toScreen(b.xmin,b.ymin); val p2=viewport.toScreen(b.xmax,b.ymax)
                 if(viewport.isValid && p2.x>p1.x && p2.y>p1.y) {
-                    if(isSelected) drawRect(color.copy(alpha=.10f),Offset(p1.x,p1.y),Size(p2.x-p1.x,p2.y-p1.y))
-                    drawRect(color,Offset(p1.x,p1.y),Size(p2.x-p1.x,p2.y-p1.y),style=Stroke(2.dp.toPx(),pathEffect=if(!b.isHumanVerified) PathEffect.dashPathEffect(floatArrayOf(10f,8f)) else null))
-                    if(isSelected) listOf(p1,ViewPoint(p2.x,p1.y),ViewPoint(p1.x,p2.y),p2).forEach { drawCircle(color,5.dp.toPx(),Offset(it.x,it.y)) }
-                    if(showLabels) drawContext.canvas.nativeCanvas.drawText(b.label.take(40),p1.x+5.dp.toPx(),maxOf(16.dp.toPx(),p1.y-5.dp.toPx()),paint)
+                    if(isSelected) drawRect(color.copy(alpha=.04f),Offset(p1.x,p1.y),Size(p2.x-p1.x,p2.y-p1.y))
+                    drawRect(color,Offset(p1.x,p1.y),Size(p2.x-p1.x,p2.y-p1.y),style=Stroke((if(isSelected) 2.5.dp else 2.dp).toPx(),pathEffect=if(!b.isHumanVerified) PathEffect.dashPathEffect(floatArrayOf(10f,8f)) else null))
+                    if(isSelected) listOf(p1,ViewPoint(p2.x,p1.y),ViewPoint(p1.x,p2.y),p2).forEach {
+                        val half = 3.5.dp.toPx()
+                        drawRect(color, Offset(it.x - half, it.y - half), Size(half * 2, half * 2))
+                    }
+                    if(showLabels) label(b.label,Offset(p1.x,p1.y),b.isHumanVerified)
                 }
             }
             drawn.points.filter { it.canProvideCoordinates }.forEach { p ->
-                val screen=viewport.toScreen(p.x,p.y); val c=if(p.id==selectedTargetId) selected else if(p.isHumanVerified) human else proposed
+                val screen=viewport.toScreen(p.x,p.y); val c=if(p.isHumanVerified) human else proposed
                 if(viewport.isValid) {
                     val at=Offset(screen.x,screen.y)
-                    drawCircle(Color.Black.copy(alpha=.7f),9.dp.toPx(),at); drawCircle(c,5.dp.toPx(),at)
+                    drawCircle(Color.Black.copy(alpha=.7f),(if(p.id==selectedTargetId) 10.dp else 9.dp).toPx(),at); drawCircle(c,5.dp.toPx(),at)
                     drawLine(c,at-Offset(13.dp.toPx(),0f),at+Offset(13.dp.toPx(),0f),1.dp.toPx())
                     drawLine(c,at-Offset(0f,13.dp.toPx()),at+Offset(0f,13.dp.toPx()),1.dp.toPx())
-                    if(showLabels) drawContext.canvas.nativeCanvas.drawText(p.label.take(40),screen.x+14.dp.toPx(),screen.y-8.dp.toPx(),paint)
+                    if(showLabels) label(p.label,at+Offset(14.dp.toPx(),0f),p.isHumanVerified)
                 }
             }
         }
@@ -542,7 +756,7 @@ private fun RegionInspector(a: SampleAnnotations, classes: List<String>, selecte
         if(mask!=null) {
             Row(verticalAlignment=Alignment.CenterVertically) {
                 Text(tr("Masque · ${mask.width} × ${mask.height}", "Mask · ${mask.width} × ${mask.height}"),Modifier.weight(1f),style=MaterialTheme.typography.titleSmall)
-                IconButton(onClick={onUpdate(withoutTarget(a,mask.id));onSelect(null)}) { Icon(Icons.Default.DeleteOutline,tr("Supprimer le masque", "Delete mask")) }
+                IconButton(onClick={onUpdate(withoutTarget(a,mask.id));onSelect(null)}) { Icon(CadrylIcons.DeleteOutline,tr("Supprimer le masque", "Delete mask")) }
             }
             Row(Modifier.horizontalScroll(rememberScrollState())) { classes.forEach { cls ->
                 FilterChip(selected=mask.label==cls,onClick={onUpdate(a.copy(masks=a.masks.map { if(it.id==mask.id) it.copy(label=cls,isHumanVerified=true) else it }))},label={Text(cls)})
@@ -566,17 +780,17 @@ private fun RegionInspector(a: SampleAnnotations, classes: List<String>, selecte
                     ModelAction.INSPECT->stringResource(com.unicornwhodev.visiondatasetstudio.R.string.editor_action_inspect)
                     ModelAction.NONE->stringResource(com.unicornwhodev.visiondatasetstudio.R.string.editor_action_model)
                 }
-                StudioAction(actionLabel, onInfer, icon=Icons.Default.Memory, enabled=!locked && modelAction!=ModelAction.INSPECT)
-                IconButton(onClick=onPaste,enabled=canPaste&&!locked){Icon(Icons.Default.ContentPaste,tr("Coller une boîte ou un point", "Paste a box or point"))}
+                StudioAction(actionLabel, onInfer, icon=CadrylIcons.Memory, enabled=!locked && modelAction!=ModelAction.INSPECT)
+                IconButton(onClick=onPaste,enabled=canPaste&&!locked){Icon(CadrylIcons.ContentPaste,tr("Coller une boîte ou un point", "Paste a box or point"))}
             }
             if (a.masks.isEmpty() && a.boxes.isEmpty() && a.points.isEmpty()) Text(tr("Choisissez un outil de dessin.", "Choose a drawing tool."), style=MaterialTheme.typography.bodySmall)
         } else if(mask==null) {
             Row(verticalAlignment=Alignment.CenterVertically) {
                 Text(if(box!=null) tr("Boîte sélectionnée", "Selected box") else tr("Point sélectionné", "Selected point"),Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
-                IconButton(onClick={ onUpdate(withoutTarget(a, selected!!)); onSelect(null) }) { Icon(Icons.Default.DeleteOutline,tr("Supprimer la région sélectionnée", "Delete selected region")) }
-                IconButton(onClick={onDuplicate(selected!!)},enabled=!locked){Icon(Icons.Default.CopyAll,tr("Dupliquer", "Duplicate"))}
-                IconButton(onClick={onCopy(selected!!)},enabled=!locked){Icon(Icons.Default.ContentCopy,tr("Copier", "Copy"))}
-                IconButton(onClick={onSelect(null)}) { Icon(Icons.Default.Close,tr("Désélectionner", "Deselect")) }
+                IconButton(onClick={ onUpdate(withoutTarget(a, selected!!)); onSelect(null) }) { Icon(CadrylIcons.DeleteOutline,tr("Supprimer la région sélectionnée", "Delete selected region")) }
+                IconButton(onClick={onDuplicate(selected!!)},enabled=!locked){Icon(CadrylIcons.CopyAll,tr("Dupliquer", "Duplicate"))}
+                IconButton(onClick={onCopy(selected!!)},enabled=!locked){Icon(CadrylIcons.ContentCopy,tr("Copier", "Copy"))}
+                IconButton(onClick={onSelect(null)}) { Icon(CadrylIcons.Close,tr("Désélectionner", "Deselect")) }
             }
             Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                 classes.forEach { label -> FilterChip(selected=(box?.label ?: point?.label)==label,onClick={
@@ -594,7 +808,7 @@ private fun RegionInspector(a: SampleAnnotations, classes: List<String>, selecte
                 FilterChip(selected=point.effectiveLocalizationState==PointLocalizationState.UNCERTAIN,onClick={state(PointLocalizationState.UNCERTAIN)},label={Text(stringResource(R.string.point_uncertain))})
             }
             Row(horizontalArrangement=Arrangement.spacedBy(4.dp),verticalAlignment=Alignment.CenterVertically) {
-                listOf(Icons.Default.KeyboardArrowLeft to (-.002f to 0f),Icons.Default.KeyboardArrowUp to (0f to -.002f),Icons.Default.KeyboardArrowDown to (0f to .002f),Icons.Default.KeyboardArrowRight to (.002f to 0f)).forEachIndexed { i,(icon,d) ->
+                listOf(CadrylIcons.KeyboardArrowLeft to (-.002f to 0f),CadrylIcons.KeyboardArrowUp to (0f to -.002f),CadrylIcons.KeyboardArrowDown to (0f to .002f),CadrylIcons.KeyboardArrowRight to (.002f to 0f)).forEachIndexed { i,(icon,d) ->
                     OutlinedIconButton(onClick={
                         if(point!=null) onUpdate(a.copy(points=a.points.map { if(it.id==point.id) it.copy(x=(it.x+d.first).coerceIn(0f,1f),y=(it.y+d.second).coerceIn(0f,1f),isHumanVerified=true) else it }))
                         if(box!=null) { val dx=d.first.coerceIn(-box.xmin,1f-box.xmax); val dy=d.second.coerceIn(-box.ymin,1f-box.ymax); onUpdate(a.copy(boxes=a.boxes.map { if(it.id==box.id) it.copy(xmin=it.xmin+dx,xmax=it.xmax+dx,ymin=it.ymin+dy,ymax=it.ymax+dy,isHumanVerified=true) else it })) }
@@ -609,9 +823,9 @@ private fun RegionInspector(a: SampleAnnotations, classes: List<String>, selecte
         selected?.takeIf{box!=null||point!=null||mask!=null}?.let { targetId ->
             InstanceLinkEditor(a,targetId,onUpdate,locked)
         }
-        a.masks.forEachIndexed { i,m -> RegionRow(tr("Masque ${i+1}", "Mask ${i+1}"),m.label,m.id==selected,m.isHumanVerified,m.sourceProvenance,Icons.Default.Brush) { onSelect(m.id) } }
-        a.boxes.forEachIndexed { i,b -> RegionRow(tr("Boîte ${i+1}", "Box ${i+1}"),b.label,b.id==selected,b.isHumanVerified,b.sourceProvenance,Icons.Default.CropSquare) { onSelect(b.id) } }
-        a.points.forEachIndexed { i,p -> RegionRow("Point ${i+1}",p.label,p.id==selected,p.isHumanVerified,p.sourceProvenance,Icons.Default.MyLocation) { onSelect(p.id) } }
+        a.masks.forEachIndexed { i,m -> RegionRow(tr("Masque ${i+1}", "Mask ${i+1}"),m.label,m.id==selected,m.isHumanVerified,m.sourceProvenance,CadrylIcons.Brush) { onSelect(m.id) } }
+        a.boxes.forEachIndexed { i,b -> RegionRow(tr("Boîte ${i+1}", "Box ${i+1}"),b.label,b.id==selected,b.isHumanVerified,b.sourceProvenance,CadrylIcons.CropSquare) { onSelect(b.id) } }
+        a.points.forEachIndexed { i,p -> RegionRow("Point ${i+1}",p.label,p.id==selected,p.isHumanVerified,p.sourceProvenance,CadrylIcons.MyLocation) { onSelect(p.id) } }
     }
 }
 
@@ -660,7 +874,7 @@ private fun RegionRow(title:String, label:String, selected:Boolean, verified:Boo
             Text(label,style=MaterialTheme.typography.labelMedium,maxLines=1,overflow=TextOverflow.Ellipsis)
             Text("$title · $reviewLabel",style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Icon(if(verified) Icons.Default.Check else Icons.Default.AutoAwesome,reviewLabel,Modifier.size(14.dp),tint=if(verified) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
+        Icon(if(verified) CadrylIcons.Check else CadrylIcons.AutoAwesome,reviewLabel,Modifier.size(14.dp),tint=if(verified) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
     }
 }
 
@@ -707,7 +921,7 @@ fun TagsEditorTab(a: SampleAnnotations, classes: List<String>, onUpdate: (Sample
                 val target=a.tags.firstOrNull { it.label==label }
                 val selected=target!=null
                 FilterChip(selected=selected,
-                    leadingIcon=target?.let { value -> { Icon(if(value.isHumanVerified)Icons.Default.Check else Icons.Default.AutoAwesome,
+                    leadingIcon=target?.let { value -> { Icon(if(value.isHumanVerified)CadrylIcons.Check else CadrylIcons.AutoAwesome,
                         reviewStatusLabel(value.isHumanVerified,value.sourceProvenance),Modifier.size(16.dp)) } },
                     onClick={onUpdate(a.copy(tags=if(selected) a.tags.filterNot { it.label==label } else a.tags+TagTarget(newId(),label,isHumanVerified=true)))},
                     label={Text(label)})
@@ -726,7 +940,7 @@ fun VqaEditorTab(a: SampleAnnotations, onUpdate: (SampleAnnotations) -> Unit) {
             fun write(v: VqaTarget) { onUpdate(a.copy(vqaList=a.vqaList.map { if(it.id==q.id) v else it })) }
             OutlinedCard {
                 Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                    Row(verticalAlignment=Alignment.CenterVertically) { Text("Question ${i+1}",Modifier.weight(1f));IconButton(onClick={onUpdate(a.copy(vqaList=a.vqaList.filterNot { it.id==q.id }))}){Icon(Icons.Default.DeleteOutline,tr("Supprimer la question ${i+1}", "Delete question ${i+1}"))} }
+                    Row(verticalAlignment=Alignment.CenterVertically) { Text("Question ${i+1}",Modifier.weight(1f));IconButton(onClick={onUpdate(a.copy(vqaList=a.vqaList.filterNot { it.id==q.id }))}){Icon(CadrylIcons.DeleteOutline,tr("Supprimer la question ${i+1}", "Delete question ${i+1}"))} }
                     Text(reviewStatusLabel(q.isHumanVerified,q.sourceProvenance),style=MaterialTheme.typography.labelSmall,
                         color=if(q.isHumanVerified)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
                     OutlinedTextField(q.question,{write(q.copy(question=it,isHumanVerified=true))},label={Text(stringResource(R.string.editor_question))},modifier=Modifier.fillMaxWidth())
@@ -771,10 +985,10 @@ fun CountingEditorTab(a: SampleAnnotations, classes: List<String>, onUpdate: (Sa
                         color=if(c.isHumanVerified)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
                     FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)) { classes.forEach { label -> FilterChip(selected=c.label==label,onClick={write(c.copy(label=label,isHumanVerified=true))},label={Text(label)}) } }
                     Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-                        OutlinedIconButton(onClick={write(c.copy(count=(c.count-1).coerceAtLeast(0),isHumanVerified=true))}){Icon(Icons.Default.Remove,tr("Diminuer le compte", "Decrease count"))}
+                        OutlinedIconButton(onClick={write(c.copy(count=(c.count-1).coerceAtLeast(0),isHumanVerified=true))}){Icon(CadrylIcons.Remove,tr("Diminuer le compte", "Decrease count"))}
                         Text("${c.count}",style=MaterialTheme.typography.headlineMedium)
-                        OutlinedIconButton(onClick={write(c.copy(count=c.count+1,isHumanVerified=true))}){Icon(Icons.Default.Add,tr("Augmenter le compte", "Increase count"))}
-                        Spacer(Modifier.weight(1f));IconButton(onClick={onUpdate(a.copy(counts=a.counts.filterNot{it.id==c.id}))}){Icon(Icons.Default.DeleteOutline,tr("Supprimer ce comptage", "Delete this count"))}
+                        OutlinedIconButton(onClick={write(c.copy(count=c.count+1,isHumanVerified=true))}){Icon(CadrylIcons.Add,tr("Augmenter le compte", "Increase count"))}
+                        Spacer(Modifier.weight(1f));IconButton(onClick={onUpdate(a.copy(counts=a.counts.filterNot{it.id==c.id}))}){Icon(CadrylIcons.DeleteOutline,tr("Supprimer ce comptage", "Delete this count"))}
                     }
                     Row(verticalAlignment=Alignment.CenterVertically){Checkbox(c.isExhaustive,{write(c.copy(isExhaustive=it,isHumanVerified=true))});Text(tr("Toutes les instances ont été comptées", "All instances have been counted"),style=MaterialTheme.typography.bodySmall)}
                     TextButton(onClick={val ids=a.boxes.filter{it.label==c.label}.map{it.id};write(c.copy(count=ids.size,linkedInstanceIds=ids,isHumanVerified=true))}){Text(stringResource(R.string.editor_count_boxes))}

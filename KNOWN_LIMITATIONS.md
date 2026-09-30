@@ -42,7 +42,7 @@ sont des conditions de la future RC finale ; des captures seules ne les clôture
 
 rc8 utilise la clé durable. Les anciennes rc4/rc5 Debug portent d’autres certificats et ne peuvent pas être mises à jour directement. Garde leurs données. La clé actuelle et sa copie ont été vérifiées sur deux disques du même PC ; une sauvegarde hors machine reste à faire.
 
-Les workflows GitHub Actions ont été retirés à la demande du propriétaire. La recette reste locale. Les inventaires actuels comptent 103 artefacts du runtime public ; la revue des notices natives transitives reste ouverte. [Signature](docs/SIGNING.md) · [Licences](LICENSING_STATUS.md) · [Priorités](docs/ROADMAP.md).
+Les workflows GitHub Actions ont été retirés à la demande du propriétaire. La recette reste locale. Les inventaires actuels comptent 102 artefacts du runtime de base ; la revue des notices natives transitives reste ouverte. [Signature](docs/SIGNING.md) · [Licences](LICENSING_STATUS.md) · [Priorités](docs/ROADMAP.md).
 
 La préparation suivante vérifie l’absence des SDK AdMob/UMP/Billing dans les
 APK publics. La revue des captures à 200 % relève des

@@ -5,6 +5,7 @@ import hashlib, json, re, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 APP_ID = 'com.unicornwhodev.visiondatasetstudio'
+CLASS_NAMESPACE = APP_ID
 
 def resolve(base: Path) -> tuple[Path, Path]:
     base = base.resolve()

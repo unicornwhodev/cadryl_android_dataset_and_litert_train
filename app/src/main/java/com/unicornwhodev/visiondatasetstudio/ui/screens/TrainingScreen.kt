@@ -7,8 +7,7 @@ import com.unicornwhodev.visiondatasetstudio.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -53,7 +52,7 @@ fun TrainingScreen(vm:MainViewModel) {
     Scaffold(contentWindowInsets=WindowInsets(0),topBar={WorkspaceTopBar(vm, stringResource(R.string.screen_training),stringResource(R.string.subtitle_on_device),onBack={vm.navigateTo(Screen.Models)})}) { inset ->
         Box(Modifier.fillMaxSize().padding(inset),contentAlignment=Alignment.TopCenter) {
             Column(Modifier.widthIn(max=760.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
-                Row(verticalAlignment=Alignment.CenterVertically){Icon(Icons.Default.PhonelinkSetup,null,Modifier.size(24.dp));Spacer(Modifier.width(12.dp));Column{
+                Row(verticalAlignment=Alignment.CenterVertically){Icon(CadrylIcons.PhonelinkSetup,null,Modifier.size(24.dp));Spacer(Modifier.width(12.dp));Column{
                     Text(stringResource(if(config?.training!=null)R.string.training_trainable else R.string.training_inference_only),style=MaterialTheme.typography.titleMedium)
                     Text(when(config?.training?.scope) {
                         "classification_head_only","pretrained_classification_head_only" -> stringResource(R.string.training_scope_classification)
@@ -65,21 +64,21 @@ fun TrainingScreen(vm:MainViewModel) {
                         else -> stringResource(R.string.training_scope_converter)
                     },style=MaterialTheme.typography.bodySmall)
                 }}
-                if(config?.training==null) StudioSection(tr("Préparer l’apprentissage","Prepare training"),icon=Icons.Default.ModelTraining) {
+                if(config?.training==null) StudioSection(tr("Préparer l’apprentissage","Prepare training"),icon=CadrylIcons.ModelTraining) {
                     Text(tr("Choisissez un modèle entraînable. L’apprentissage utilise une copie et conserve le modèle original.",
                         "Choose a trainable model. Training uses a copy and preserves your original model."),style=MaterialTheme.typography.bodyMedium)
-                    StudioAction(tr("Choisir un modèle","Choose a model"),{vm.navigateTo(Screen.Models)},icon=Icons.Default.Memory,primary=true,enabled=!busy,modifier=Modifier.fillMaxWidth())
+                    StudioAction(tr("Choisir un modèle","Choose a model"),{vm.navigateTo(Screen.Models)},icon=CadrylIcons.Memory,primary=true,enabled=!busy,modifier=Modifier.fillMaxWidth())
                     TextButton(onClick={vm.navigateTo(Screen.ModelSettings)},enabled=!busy) { Text(tr("Vérifier le contrat du modèle","Check the model contract")) }
                 }
                 if(config?.training!=null) {
                 Text(stringResource(R.string.training_model_versions),style=MaterialTheme.typography.bodyMedium)
                 Text(stringResource(R.string.training_batch_only,number),style=MaterialTheme.typography.bodyMedium)
                 Row(verticalAlignment=Alignment.CenterVertically){Text(stringResource(R.string.training_epochs),Modifier.weight(1f));listOf(1,3,10).forEach{n->FilterChip(selected=epochs==n,onClick={epochs=n},enabled=!active && config?.training!=null,label={Text("$n")});Spacer(Modifier.width(6.dp))}}
-                StudioAction(stringResource(R.string.training_start),{withTrainingNotification{vm.startDeviceTraining(epochs)}},icon=Icons.Default.ModelTraining,primary=true,enabled=!busy && !active && preflight?.canStart==true)
+                StudioAction(stringResource(R.string.training_start),{withTrainingNotification{vm.startDeviceTraining(epochs)}},icon=CadrylIcons.ModelTraining,primary=true,enabled=!busy && !active && preflight?.canStart==true)
                 preflight?.let { state ->
                     Text(stringResource(if(state.canStart)R.string.training_ready else R.string.training_blocked),style=MaterialTheme.typography.titleSmall,color=if(state.canStart)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
                     state.checks.forEach { check -> Row(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalAlignment=Alignment.Top) {
-                        Icon(if(check.passed)Icons.Default.CheckCircle else Icons.Default.Cancel,null,Modifier.size(17.dp),tint=if(check.passed)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
+                        Icon(if(check.passed)CadrylIcons.CheckCircle else CadrylIcons.Cancel,null,Modifier.size(17.dp),tint=if(check.passed)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
                         Column { Text(check.label,style=MaterialTheme.typography.labelMedium);Text(check.detail,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant) }
                     } }
                     state.error?.let{Text(it,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.error)}
@@ -94,17 +93,17 @@ fun TrainingScreen(vm:MainViewModel) {
                     if(state.validationLoss!=null)Text(stringResource(R.string.training_loss,state.initialLoss ?: 0.0,state.validationLoss),style=MaterialTheme.typography.bodySmall)
                     if(state.initialWeightProbe!=null && state.finalWeightProbe!=null)Text(stringResource(if(state.initialWeightProbe!=state.finalWeightProbe)R.string.training_weights_changed else R.string.training_weights_unchanged),style=MaterialTheme.typography.bodySmall)
                     state.error?.let{Text(it,color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.bodySmall)}
-                    if(active)StudioAction(stringResource(R.string.training_stop),vm::cancelDeviceTraining,icon=Icons.Default.Stop)
+                    if(active)StudioAction(stringResource(R.string.training_stop),vm::cancelDeviceTraining,icon=CadrylIcons.Stop)
                     if(state.phase in setOf("failed","cancelled")) {
                         StudioAction(stringResource(R.string.training_resume),{withTrainingNotification{vm.resumeDeviceTraining()}},enabled=!busy)
-                        StudioAction(stringResource(R.string.training_abandon),{abandonRunId=state.id},icon=Icons.Default.Close,enabled=!busy)
+                        StudioAction(stringResource(R.string.training_abandon),{abandonRunId=state.id},icon=CadrylIcons.Close,enabled=!busy)
                     }
-                    if(state.phase=="completed")StudioAction(stringResource(R.string.training_activate),vm::activateTrainedModel,icon=Icons.Default.Check,primary=true,enabled=!busy)
+                    if(state.phase=="completed")StudioAction(stringResource(R.string.training_activate),vm::activateTrainedModel,icon=CadrylIcons.Check,primary=true,enabled=!busy)
                 }
                 StudioDisclosure(stringResource(R.string.training_details)) {
                     Text(stringResource(R.string.training_details_dataset),style=MaterialTheme.typography.bodySmall)
                     Text(stringResource(R.string.training_details_runtime),style=MaterialTheme.typography.bodySmall)
-                    StudioAction(stringResource(R.string.training_contract),{vm.navigateTo(Screen.Controls)},icon=Icons.Default.Code)
+                    StudioAction(stringResource(R.string.training_contract),{vm.navigateTo(Screen.Controls)},icon=CadrylIcons.Code)
                 }
             }
         }

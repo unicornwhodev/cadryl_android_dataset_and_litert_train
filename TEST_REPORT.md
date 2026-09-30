@@ -4,6 +4,21 @@
 
 Ce rapport distingue le candidat actuel des campagnes précédentes. Pour chaque résultat, les reçus gardent le build, les APK et l’appareil concernés.
 
+## Studio avec lynx — sources du 30 septembre 2026
+
+Refonte porcelaine/graphite/vermillon, lynx original, Barlow et Phosphor Duotone. Les outils d’annotation, modèles, apprentissage et exports sont conservés. La reprise d’un lot sauvegardé initialise désormais le résultat de benchmark avant les coroutines du constructeur ; un nouveau test exerce huit reprises sur Room.
+
+Builds réels : 118 JVM réussis, 114 Python réussis, lint 0 erreur / 88 avertissements, 101 fichiers KSP. Les mêmes APK Debug passent 63/63 sur l’émulateur dédié ; la Release ARM64 minifiée et signée passe 63/63 sur Oppo. Le pilote indépendant passe 5/5. Les deux matrices physiques conservent 288 captures. Les tables installées sont identiques avant/après remplacement ; aucun contenu utilisateur n’est exporté.
+
+Les premiers essais ont retenu un défaut de démarrage et des accès retirés par R8 dans le nouveau test ; ils ne sont pas qualifiés. Les règles de conservation ciblent les méthodes utilisées par la recette, sans désactiver l’optimisation. Le fournisseur de preuves résout l’UID du vrai targetPackage depuis le manifeste de l’APK de test.
+
+[APK et reçus exacts](docs/STUDIO_UI_EVIDENCE.json) · [Revue visuelle native](design-qa.md). Ces preuves concernent la refonte dans les sources ; les anciennes releases publiées gardent leurs APK et leurs reçus. L’acceptation humaine finale reste ouverte.
+
+Les builds sont ensuite reproduits avec les fichiers LF canoniques du dépôt.
+Les APK applicative et de test restent identiques octet par octet aux APK
+qualifiées, en Debug et en Release. Les 327 entrées compilées correspondent aux
+blobs Git préparés pour le commit. [Manifeste compilé](docs/studio/source-manifest.json).
+
 ## Release publique 0.0.1 — 30 septembre 2026
 
 117 tests JVM, 113 tests Python, lint zéro erreur / 83 avertissements, 101 fichiers KSP. Les nouvelles APK passent 62/62 sur émulateur en Debug et sur téléphone ARM64 en Release minifiée signée. Le pilote UI indépendant passe 4/4 ; les matrices portrait/paysage produisent 288 captures. Toutes les tables installées sont conservées lors de la mise à jour, sans exporter leur contenu. Les SDK commerciaux sont absents des DEX et manifestes publics.

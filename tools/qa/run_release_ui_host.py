@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify four real Release UI scenarios using a fresh shell UI tree per action.
+"""Verify real Release UI scenarios using a fresh shell UI tree per action.
 
 This is separate from AndroidJUnitRunner. No private app API, database writes,
 test activity, service, freezing exemption, data reset or external publication.
@@ -13,6 +13,7 @@ import re
 import subprocess
 import time
 import xml.etree.ElementTree as ET
+from resolve_apks import CLASS_NAMESPACE
 from run_device_qualification import APP_ID
 from adb_transport import prefix
 
@@ -110,11 +111,9 @@ def main():
     def restart():
         run('shell', 'input', 'keyevent', 'KEYCODE_HOME')
         run('shell', 'am', 'force-stop', APP_ID)
-        run('shell', 'am', 'start', '-W', '-n', APP_ID + '/.MainActivity')
-        # The RC8 first-run home screen can expose "Studio" twice (the active
-        # workspace tab and the bottom navigation item). Assert the unique
-        # page heading instead of relying on either navigation label.
-        find(r'Vos images\. Votre dataset\.|Your images\. Your dataset\.|Continuez votre lot|Continue your batch|Votre lot est relu|Your batch is reviewed')
+        run('shell', 'am', 'start', '-W', '-n', APP_ID + '/' + CLASS_NAMESPACE + '.MainActivity')
+        # Assert the primary home action or empty-state title after a restart.
+        find(r'Importer vos images|Import your images|Reprendre l’annotation|Continue annotating|Ouvrir le lot|Open batch')
 
     def passed(name):
         state['passed'].append(name)
@@ -146,16 +145,22 @@ def main():
         state['abi'] = run('shell', 'getprop', 'ro.product.cpu.abi').strip()
         state['page_size'] = int(run('shell', 'getconf', 'PAGE_SIZE').strip())
         restart()
-        find(r'Vos images\. Votre dataset\.|Your images\. Your dataset\.|Continuez votre lot|Continue your batch|Votre lot est relu|Your batch is reviewed')
+        find(r'Importer vos images|Import your images|Reprendre l’annotation|Continue annotating|Ouvrir le lot|Open batch')
         passed('home_renders')
+        click('Outils|Tools')
         click('Modèles|Models')
         click('Importer|Import')
         find(r'Choisir un \.tflite|Choose a \.tflite file')
-        click('Export')
+        click('Outils|Tools')
+        click('Exporter|Export')
         find('Archive locale|Local archive', scroll=True)
-        click('Qualité|Quality')
+        click('Outils|Tools')
+        click('Qualité du projet|Project quality')
         find('Stockage|Storage')
-        passed('model_import_export_quality_navigation')
+        click('Outils|Tools')
+        click('Apprentissage|Training')
+        find('Préparer l’apprentissage|Prepare training')
+        passed('model_import_export_quality_training_navigation')
         restart()
         click('Gérer les projets|Manage projects', 'content-desc')
         root, _ = find('Nom du nouveau projet|New project name', scroll=True)
@@ -174,6 +179,10 @@ def main():
                 break
         else:
             raise AssertionError('Created project not displayed outside input')
+        run('shell', 'input', 'keyevent', 'KEYCODE_BACK')
+        find('Importer vos images|Import your images')
+        find(re.escape(name))
+        passed('project_switch_returns_to_home')
         restart()
         find(re.escape(name))
         passed('created_project_survives_process_restart')

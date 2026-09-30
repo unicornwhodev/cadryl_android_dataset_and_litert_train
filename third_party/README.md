@@ -1,6 +1,6 @@
 # Runtime dependency notices
 
-Generated on 2026-09-30 UTC from the resolved `releaseRuntimeClasspath`: 103 artifacts
+Generated on 2026-09-30 UTC from the resolved `releaseRuntimeClasspath`: 102 artifacts
 in the default source edition, without Play Billing, AdMob or UMP.
 `runtime-dependencies.json` records artifact hashes, license declarations and their
 POM provenance (including inherited metadata). `NOTICES.runtime.txt` retains the
@@ -49,3 +49,7 @@ This inventory does not establish legal clearance. Native libraries can include
 additional third-party components whose notices are not recoverable from their
 Maven POM. That transitive native review remains open. Preserve the project's
 existing LICENSE and NOTICE and the original license terms of each dependency.
+
+## Native UI assets
+
+The Cadryl lynx selected by the owner, Phosphor Duotone artwork (MIT), and Barlow fonts (OFL-1.1) are recorded in [design](design/NOTICES.design.txt). Upstream commits, licences and file hashes are retained; the app reads these notices offline. No icon SDK or font download is required at runtime.

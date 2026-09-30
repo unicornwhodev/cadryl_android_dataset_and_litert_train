@@ -810,11 +810,6 @@ androidx.compose.material:material-icons-core-android:1.7.0
 Declared license: The Apache Software License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ==============================================================================
-androidx.compose.material:material-icons-extended-android:1.7.0
-==============================================================================
-Declared license: The Apache Software License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-==============================================================================
 androidx.compose.material:material-ripple-android:1.7.0
 ==============================================================================
 Declared license: The Apache Software License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.txt)

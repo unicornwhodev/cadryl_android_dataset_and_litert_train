@@ -1,8 +1,7 @@
 package com.unicornwhodev.visiondatasetstudio.ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,7 +18,7 @@ fun ModelCompatibilityPanel(config: ModelConfig?, tasks: String, classes: String
     }
     val check = remember(config, tasks, classes) { ModelClassCompatibility.inspect(config, tasks, classes) }
     Column(Modifier.fillMaxWidth().testTag("class_compatibility")) {
-        StatusPill(check.summary, if (check.canAssist) Icons.Default.CheckCircleOutline else Icons.Default.Info)
+        StatusPill(check.summary, if (check.canAssist) CadrylIcons.CheckCircleOutline else CadrylIcons.Info)
         if (check.checked && check.missing.isNotEmpty()) {
             Text(tr("À annoter à la main : ", "Annotate manually: ") + check.missing.take(8).joinToString() +
                 if (check.missing.size > 8) tr("… (${check.missing.size} classes)", "… (${check.missing.size} classes)") else "",

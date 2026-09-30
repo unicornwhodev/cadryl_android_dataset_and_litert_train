@@ -12,9 +12,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -151,17 +149,17 @@ fun SetupScreen(viewModel: MainViewModel) {
                                 label = { Text(tr("Sur Hugging Face", "On Hugging Face")) })
                         }
                         if (sourceKind == "local") {
-                        StudioSection(stringResource(R.string.setup_local_images), stringResource(R.string.setup_index_help), Icons.Default.FolderOpen) {
+                        StudioSection(stringResource(R.string.setup_local_images), stringResource(R.string.setup_index_help), CadrylIcons.FolderOpen) {
                             val localPolicy = com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings.read(p)
                             if (localPolicy.sourceMode == "LOCAL_INDEX" && localPolicy.sourceIndexReady) Text(localPolicy.localSourceLabel.ifBlank { stringResource(R.string.setup_folder_indexed) }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                             OutlinedButton(onClick = { chooseFolder.launch(null) }, enabled = !busy && batches.isEmpty(), shape = MaterialTheme.shapes.small, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                                Icon(Icons.Default.FolderOpen, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.setup_choose_folder))
+                                Icon(CadrylIcons.FolderOpen, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.setup_choose_folder))
                             }
                         }
                         } else {
-                        StudioSection(stringResource(R.string.setup_hf_dataset), icon = Icons.Default.CloudDownload) {
+                        StudioSection(stringResource(R.string.setup_hf_dataset), icon = CadrylIcons.CloudDownload) {
                             if(policy.sourceMode=="HF_MANIFEST" && policy.sourceIndexReady && source==p.hfSourceRepo) {
-                                StatusPill(tr("Manifeste HF indexé · révision épinglée", "HF manifest indexed · revision pinned"),Icons.Default.CheckCircleOutline)
+                                StatusPill(tr("Manifeste HF indexé · révision épinglée", "HF manifest indexed · revision pinned"),CadrylIcons.CheckCircleOutline)
                                 Text(tr("Ce projet utilise le manifeste JSONL configuré dans Source avancée. L’assistant conserve ce mode tant que la source n’est pas remplacée.",
                                     "This project uses the JSONL manifest configured in Advanced source. Guided setup keeps this mode until the source is replaced."),
                                     style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
@@ -173,12 +171,12 @@ fun SetupScreen(viewModel: MainViewModel) {
                                 isError = source.isNotBlank() && !sourceOk, supportingText = { Text(stringResource(R.string.setup_dataset_url_help)) },
                                 enabled = !busy && batches.isEmpty(), singleLine = true, modifier = Modifier.fillMaxWidth().testTag("source_repo_input"))
                             FilledTonalButton(onClick = { viewModel.inspectSourceDataset(source, config, split) }, enabled = sourceOk && source.isNotBlank() && !busy, modifier = Modifier.fillMaxWidth()) {
-                                Icon(Icons.Default.Search, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.setup_inspect_source))
+                                Icon(CadrylIcons.Search, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.setup_inspect_source))
                             }
                             if (inspection.isInspected && inspection.repoId == StudioWorkflow.normalizeRepo(source)) {
                                 val previewUsable=com.unicornwhodev.visiondatasetstudio.data.source.SourceImageColumn.usableCount(inspection.selectedImageColumn,inspection.previewRows)
                                 StatusPill(tr("$previewUsable/${inspection.previewRows.size} lignes d’aperçu avec image exploitable",
-                                    "$previewUsable/${inspection.previewRows.size} preview rows have a usable image"), Icons.Default.CheckCircleOutline)
+                                    "$previewUsable/${inspection.previewRows.size} preview rows have a usable image"), CadrylIcons.CheckCircleOutline)
                                 if(inspection.viewerPartial) {
                                     val partialMessage=when {
                                         viewerCoverageContract -> tr("HF signale une vue partielle, mais /splits annonce $viewerExpectedRows lignes. Cadryl exigera une pagination continue jusqu’à ce total et interrompra l’import au premier trou.",
@@ -218,11 +216,11 @@ fun SetupScreen(viewModel: MainViewModel) {
                             }
                             if (batches.isNotEmpty()) StudioDetails(stringResource(R.string.setup_provenance_locked), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        StudioDisclosure(stringResource(R.string.setup_hf_login), Icons.Default.Key) {
+                        StudioDisclosure(stringResource(R.string.setup_hf_login), CadrylIcons.Key) {
                             Text(if (auth?.isValid == true) stringResource(R.string.setup_connected,auth?.username.orEmpty()) else stringResource(R.string.setup_public_read), style = MaterialTheme.typography.bodyMedium)
                             OutlinedTextField(token, { token = it }, label = { Text(stringResource(R.string.setup_hf_token)) }, placeholder = { Text("hf_…") }, singleLine = true,
                                 visualTransformation = if (showToken) VisualTransformation.None else PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth().testTag("token_input"),
-                                trailingIcon = { IconButton(onClick = { showToken = !showToken }) { Icon(if (showToken) Icons.Default.VisibilityOff else Icons.Default.Visibility, tr("Afficher ou masquer le jeton", "Show or hide token")) } })
+                                trailingIcon = { IconButton(onClick = { showToken = !showToken }) { Icon(if (showToken) CadrylIcons.VisibilityOff else CadrylIcons.Visibility, tr("Afficher ou masquer le jeton", "Show or hide token")) } })
                             Button(onClick = { viewModel.saveToken(token); token = "" }, enabled = token.isNotBlank() && !busy) { Text(stringResource(R.string.setup_connect)) }
                             if (auth?.error != null) Text(auth?.error ?: "", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(stringResource(R.string.setup_token_security), style = MaterialTheme.typography.bodySmall)
@@ -247,7 +245,7 @@ fun SetupScreen(viewModel: MainViewModel) {
                                 }
                             }
                         }
-                        StudioDisclosure(tr("Autres outils et combinaisons", "More tools & combinations"), Icons.Default.Tune) {
+                        StudioDisclosure(tr("Autres outils et combinaisons", "More tools & combinations"), CadrylIcons.Tune) {
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 StudioTask.entries.forEach { task -> FilterChip(selected = task in tasks, enabled = !busy, onClick = { tasksCsv = StudioWorkflow.tasksCsv(StudioWorkflow.toggleTask(tasks, task)) }, label = { Text(task.title) }) }
                             }
@@ -255,7 +253,7 @@ fun SetupScreen(viewModel: MainViewModel) {
                         Text(tr("Outils choisis : ", "Selected tools: ") + tasks.joinToString { it.title }, style = MaterialTheme.typography.bodySmall)
                         if (ProjectVocabulary.requiredFor(tasks)) {
                             StudioSection(tr("Quelles classes rechercher ?", "Which classes should you look for?"),
-                                tr("Une classe est le nom d’un objet ou d’une catégorie.", "A class is the name of an object or category."), Icons.Default.Label) {
+                                tr("Une classe est le nom d’un objet ou d’une catégorie.", "A class is the name of an object or category."), CadrylIcons.Label) {
                                 ClassVocabularyEditor(classes, { classes = it }, !busy && !frozen, modelLabels)
                                 if (!classesOk) Text(tr("Ajoutez une classe ou choisissez-la dans la liste du modèle pour continuer.", "Add a class or choose one from the model's list to continue."), style=MaterialTheme.typography.bodySmall)
                             }
@@ -266,7 +264,7 @@ fun SetupScreen(viewModel: MainViewModel) {
                         Text(tr("Cette étape est facultative. Sans modèle, Cadryl fonctionne entièrement en annotation manuelle.",
                             "This step is optional. Without a model, Cadryl works entirely with manual annotation."), style=MaterialTheme.typography.bodyMedium)
 
-                        StudioSection(tr("Mode de traitement", "Processing mode"), icon=Icons.Default.AutoAwesome) {
+                        StudioSection(tr("Mode de traitement", "Processing mode"), icon=CadrylIcons.AutoAwesome) {
                             Row(Modifier.fillMaxWidth().selectable(selected=!assistance || !canAutomate,onClick={assistance=false},enabled=!busy).padding(vertical=6.dp),
                                 verticalAlignment=Alignment.CenterVertically) {
                                 RadioButton(selected=!assistance || !canAutomate,onClick=null)
@@ -290,7 +288,7 @@ fun SetupScreen(viewModel: MainViewModel) {
                         }
 
                         if(models.isNotEmpty()) {
-                            StudioSection(tr("Modèles installés", "Installed models"), tr("Choisissez le modèle utilisé pour les propositions.", "Choose the model used for suggestions."), Icons.Default.Memory) {
+                            StudioSection(tr("Modèles installés", "Installed models"), tr("Choisissez le modèle utilisé pour les propositions.", "Choose the model used for suggestions."), CadrylIcons.Memory) {
                                 setupModels.take(4).forEach { profile ->
                                     val cfg=remember(profile.configJson){runCatching{StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(profile.configJson)}.getOrNull()}
                                     val selectedProfile=if(profile.modelPath.isNotBlank()) p.modelPath==profile.modelPath && p.modelConfigJson==profile.configJson
@@ -333,7 +331,7 @@ fun SetupScreen(viewModel: MainViewModel) {
                             "No active model. Continue manually or open the catalog."),style=MaterialTheme.typography.bodySmall)
 
                         OutlinedButton(onClick={viewModel.navigateTo(Screen.Models)},enabled=!busy,modifier=Modifier.fillMaxWidth()) {
-                            Icon(Icons.Default.Memory,null);Spacer(Modifier.width(8.dp));Text(tr("Parcourir modèles et presets", "Browse models and presets"))
+                            Icon(CadrylIcons.Memory,null);Spacer(Modifier.width(8.dp));Text(tr("Parcourir modèles et presets", "Browse models and presets"))
                         }
                     }
                     3 -> {
@@ -342,29 +340,29 @@ fun SetupScreen(viewModel: MainViewModel) {
                         val sourceReady=!prepare || sourceReadyToPrepare
                         StudioSection(tr("État de préparation", "Readiness"),
                             tr("Chaque bloc doit être clair avant de créer le premier lot.", "Each block should be clear before creating the first batch."),
-                            Icons.Default.FactCheck) {
+                            CadrylIcons.FactCheck) {
                             StatusPill(
                                 if(sourceReady) tr("Source prête", "Source ready") else tr("Source à vérifier", "Source needs review"),
-                                if(sourceReady) Icons.Default.CheckCircleOutline else Icons.Default.ErrorOutline,
+                                if(sourceReady) CadrylIcons.CheckCircleOutline else CadrylIcons.ErrorOutline,
                                 attention=!sourceReady)
                             StatusPill(
                                 if(classesOk) tr("Annotations configurées", "Annotations configured") else tr("Classes manquantes", "Missing classes"),
-                                if(classesOk) Icons.Default.CheckCircleOutline else Icons.Default.ErrorOutline,
+                                if(classesOk) CadrylIcons.CheckCircleOutline else CadrylIcons.ErrorOutline,
                                 attention=!classesOk)
                             StatusPill(
                                 if(assistance && canAutomate) tr("Aide IA prête · propositions à relire", "AI assistance ready · suggestions require review")
                                 else tr("Mode manuel prêt", "Manual mode ready"),
-                                if(!assistance || canAutomate) Icons.Default.CheckCircleOutline else Icons.Default.ErrorOutline,
+                                if(!assistance || canAutomate) CadrylIcons.CheckCircleOutline else CadrylIcons.ErrorOutline,
                                 attention=assistance && !canAutomate)
                             StatusPill(
                                 if(budgetOk) tr("Stockage : $budget Mio", "Storage: $budget MiB") else tr("Budget stockage invalide", "Invalid storage budget"),
-                                if(budgetOk) Icons.Default.CheckCircleOutline else Icons.Default.ErrorOutline,
+                                if(budgetOk) CadrylIcons.CheckCircleOutline else CadrylIcons.ErrorOutline,
                                 attention=!budgetOk)
                             if(!sourceReady) TextButton(onClick={step=0},enabled=!busy){Text(tr("Corriger la source", "Fix source"))}
                             if(!classesOk) TextButton(onClick={step=1},enabled=!busy){Text(tr("Corriger les annotations", "Fix annotations"))}
                             if(assistance && !canAutomate) TextButton(onClick={step=2},enabled=!busy){Text(tr("Corriger le modèle", "Fix model"))}
                         }
-                        StudioSection(name, icon = Icons.Default.CheckCircleOutline) {
+                        StudioSection(name, icon = CadrylIcons.CheckCircleOutline) {
                             Text(if (sourceKind == "local") policy.localSourceLabel.ifBlank { tr("Dossier local", "Local folder") } else source)
                             Text(tasks.joinToString { it.title })
                             val count = ProjectVocabulary.parse(classes).size
@@ -391,7 +389,7 @@ fun SetupScreen(viewModel: MainViewModel) {
                             tr("Aide IA : activée · toutes les propositions restent à relire.", "AI assistance: enabled · every suggestion still requires review.")
                             else tr("Aide IA : désactivée · annotation manuelle.", "AI assistance: disabled · manual annotation."),
                             style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                        StudioSection(tr("Et ensuite ?", "What happens next?"), icon = Icons.Default.ArrowForward) {
+                        StudioSection(tr("Et ensuite ?", "What happens next?"), icon = CadrylIcons.ArrowForward) {
                             Text(tr("1. Ouvrez une image du lot.\n2. Annotez puis validez chaque image.\n3. Dans Exporter, enregistrez votre archive ou publiez sur Hugging Face.",
                                 "1. Open an image from the batch.\n2. Annotate and approve each image.\n3. In Export, save your archive or publish on Hugging Face."))
                         }
@@ -399,7 +397,7 @@ fun SetupScreen(viewModel: MainViewModel) {
                             Checkbox(prepare, { prepare = it }, enabled = !busy, modifier = Modifier.testTag("setup_prepare"))
                             Text(stringResource(R.string.setup_prepare_next), style = MaterialTheme.typography.bodyMedium)
                         }
-                        StudioDisclosure(tr("Stockage avancé", "Advanced storage"), Icons.Default.Storage) {
+                        StudioDisclosure(tr("Stockage avancé", "Advanced storage"), CadrylIcons.Storage) {
                             OutlinedTextField(budget, { budget = it.filter(Char::isDigit).take(5) }, label = { Text(stringResource(R.string.setup_local_budget)) }, supportingText = { Text(stringResource(R.string.setup_budget_help)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                             StudioDetails(stringResource(R.string.setup_network_safety), style = MaterialTheme.typography.bodySmall)
                         }

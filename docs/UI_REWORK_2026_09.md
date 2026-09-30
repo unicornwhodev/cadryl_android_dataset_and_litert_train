@@ -23,14 +23,14 @@ Ces dossiers ignorés restent des preuves locales, non des données à publier.
 Captures seules : clavier, TalkBack, gestuelle complète, tous les états réseau et
 la validation humaine de la qualité finale restent à contrôler.
 
-## Structure retenue
+## Première structure — historique
 
 - Atelier : une prochaine action, avancement réel du lot, aperçu, outils du projet.
 - Lot : recherche, filtres distincts, images et statut de chaque cas.
 - Modèles : catalogue, import, contrats et entraînement conservés.
 - Export : formats descriptifs, archive locale et publication, preuves et confirmations.
 - Composants communs : espaces réguliers, cartes de section, typographie,
-  surfaces cyan/violet, sélection animée et navigation cohérente.
+  surfaces cyan/violet dans cette première itération, sélection animée et navigation cohérente.
 
 ## Périmètre fonctionnel conservé
 
@@ -86,3 +86,35 @@ conservent leurs empreintes. Ces scénarios et captures ne remplacent pas la
 recette de tous les états ni l’acceptation visuelle du propriétaire.
 Les reçus du candidat et la portée de chaque reprise sont liés dans
 [les preuves de préparation](FINAL01_EVIDENCE.json).
+
+## Nouvelle direction du studio
+
+Le propriétaire a retenu le lynx fourni et demandé une interface plus sobre,
+avec une identité propre. La nouvelle UI native utilise un fond porcelaine,
+une console graphite, des accents vermillon, Barlow et une seule famille
+d’icônes Phosphor Duotone. Les sources et licences des assets sont conservées
+dans `third_party/design/`. Le logo est repris sans modification de ses pixels.
+
+- Outils regroupe images, modèles, apprentissage, export, qualité et réglages.
+- L’action principale de l’accueil reste visible pendant le défilement.
+- L’éditeur conserve sélection, boîte, point et masque à portée immédiate ;
+  Plus ouvre polygone, lasso, remplissage, gomme, SAM et déplacement.
+- Classe, annuler/rétablir, zoom, enregistrement, report et validation restent
+  dans la console. Les propositions IA affichent un accès à leur relecture.
+- Les propriétés donnent accès aux régions, légendes, tags, liens texte/région,
+  VQA, comptage et qualité selon les tâches du projet. Les consignes du workflow
+  sont aussi accessibles dans ce panneau.
+- Le paysage utilise une barre compacte. Le changement de projet conserve
+  un retour à l’accueil et les confirmations métier restent présentes.
+
+Les imports, exports, modèles et apprentissage restent les services existants.
+La publication, la suppression et la purge gardent leurs confirmations et
+leurs protections de données. L’édition publique garde son identité Android
+et se compile sans SDK publicitaire, abonnement ni backend.
+
+Cette évolution des sources a sa propre recette. Les résultats historiques
+ci-dessus et les APK déjà publiées ne qualifient pas automatiquement la refonte.
+Les essais intermédiaires ayant échoué sont conservés ; ils ne sont pas promus
+en succès. La revue humaine du propriétaire reste distincte des tests.
+
+[Parcours du studio actuel](STUDIO_UI_2026_09.md) · [Comparaison visuelle](../design-qa.md).

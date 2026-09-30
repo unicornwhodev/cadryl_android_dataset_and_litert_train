@@ -1,5 +1,6 @@
 package com.unicornwhodev.visiondatasetstudio.ui.screens
 
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import com.unicornwhodev.visiondatasetstudio.core.i18n.tr
 import androidx.compose.ui.res.stringResource
 import com.unicornwhodev.visiondatasetstudio.R
@@ -9,9 +10,6 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,7 +38,7 @@ fun StudioPreferencesScreen(viewModel: MainViewModel) {
     Scaffold(contentWindowInsets = WindowInsets(0), topBar = { StudioTopBar(stringResource(R.string.screen_preferences), onBack = viewModel::back) }) { inset ->
         Box(Modifier.fillMaxSize().padding(inset), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 800.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                StudioSection(stringResource(R.string.prefs_appearance), tr("Réglages enregistrés automatiquement sur cet appareil.", "Settings are saved automatically on this device."), Icons.Default.Palette) {
+                StudioSection(stringResource(R.string.prefs_appearance), tr("Réglages enregistrés automatiquement sur cet appareil.", "Settings are saved automatically on this device."), CadrylIcons.Palette) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         ThemeMode.entries.forEach { theme -> FilterChip(selected = prefs.theme == theme, onClick = { viewModel.updatePreferences(prefs.copy(theme = theme)) }, label = { Text(when(theme) { ThemeMode.SYSTEM -> tr("Système", "System"); ThemeMode.LIGHT -> tr("Clair", "Light"); ThemeMode.DARK -> tr("Sombre", "Dark") }) }) }
                     }
@@ -50,7 +48,7 @@ fun StudioPreferencesScreen(viewModel: MainViewModel) {
                     }
                     PreferenceToggle(tr("Repères sur l’image", "Image labels"), tr("Classes visibles.", "Show classes."), prefs.showCanvasLabels) { viewModel.updatePreferences(prefs.copy(showCanvasLabels = it)) }
                 }
-                StudioSection(stringResource(R.string.prefs_gestures), icon = Icons.Default.TouchApp) {
+                StudioSection(stringResource(R.string.prefs_gestures), icon = CadrylIcons.TouchApp) {
                     PreferenceToggle(tr("Passer à l’image suivante", "Move to the next image"), tr("Après validation.", "After approval."), prefs.autoAdvance) { viewModel.updatePreferences(prefs.copy(autoAdvance = it)) }
                     PreferenceToggle(tr("Mode gaucher", "Left-handed mode"), tr("Valider à gauche.", "Approve on the left."), prefs.leftHanded) { viewModel.updatePreferences(prefs.copy(leftHanded = it)) }
                     PreferenceToggle(tr("Afficher les conseils", "Show guidance"), tr("Repères dans l’atelier.", "Guidance in the studio."), prefs.showGuidance) { viewModel.updatePreferences(prefs.copy(showGuidance = it)) }
@@ -59,14 +57,14 @@ fun StudioPreferencesScreen(viewModel: MainViewModel) {
                         listOf("fr" to tr("Français", "French"), "en" to tr("Anglais", "English")).forEach { (code, label) -> FilterChip(selected = prefs.captionLanguage == code, onClick = { viewModel.updatePreferences(prefs.copy(captionLanguage = code)) }, label = { Text(label) }) }
                     }
                 }
-                StudioSection(stringResource(R.string.prefs_tools), tr("Qualité reste toujours accessible. Masquer un outil n’efface rien.", "Quality remains accessible. Hiding a tool does not erase data."), Icons.Default.Widgets) {
+                StudioSection(stringResource(R.string.prefs_tools), tr("Qualité reste toujours accessible. Masquer un outil n’efface rien.", "Quality remains accessible. Hiding a tool does not erase data."), CadrylIcons.Widgets) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         StudioTask.entries.forEach { task -> FilterChip(selected = task in chosenTasks, onClick = { chosenTasks = StudioWorkflow.toggleTask(chosenTasks, task) }, label = { Text(task.title) }) }
                     }
                     Button(onClick = { viewModel.updateTasks(chosenTasks) }, enabled = !busy && chosenTasks != StudioWorkflow.parseTasks(project?.activeTasksCsv ?: "DETECTION")) { Text(stringResource(R.string.common_apply)) }
                 }
                 StudioDetails(tr("L’adaptation est explicite : aucun apprentissage caché de vos décisions, aucune modification automatique des classes ou des annotations.", "Adaptation is explicit: no hidden learning from decisions or automatic changes to classes or annotations."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                StudioSection(tr("Didacticiel", "Tutorial"),icon=Icons.Default.AutoAwesome) {
+                StudioSection(tr("Didacticiel", "Tutorial"),icon=CadrylIcons.AutoAwesome) {
                     Text(tr("Quatre étapes interactives, sans modifier vos projets.", "Four interactive steps without changing your projects."))
                     OutlinedButton(onClick=viewModel::replayTutorial,modifier=Modifier.testTag("tutorial_replay")) {
                         Text(tr("Relancer le didacticiel", "Replay tutorial"))

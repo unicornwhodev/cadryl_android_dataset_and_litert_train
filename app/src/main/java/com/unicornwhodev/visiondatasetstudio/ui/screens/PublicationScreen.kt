@@ -14,8 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -77,7 +76,7 @@ fun PublicationScreen(viewModel: MainViewModel) {
                 MetricTile("$validated", tr("Validés", "Approved"), Modifier.weight(1f)); MetricTile("$unfinished", tr("À terminer", "Unfinished"), Modifier.weight(1f)); MetricTile("$rejected", tr("Rejetés", "Rejected"), Modifier.weight(1f))
             }
             if(samples.isNotEmpty() && rejected==samples.size && batch?.status !in setOf("VERIFIED","PURGED")) OutlinedButton(onClick={confirmRejected=true},enabled=!busy,modifier=Modifier.fillMaxWidth()){Text(stringResource(R.string.publication_close_rejections))}
-            StudioSection(stringResource(R.string.publication_local_archive), tr("Sans publication, avec choix de l’emplacement Android.", "Choose an Android destination without publishing."), Icons.Default.FolderZip) {
+            StudioSection(stringResource(R.string.publication_local_archive), tr("Sans publication, avec choix de l’emplacement Android.", "Choose an Android destination without publishing."), CadrylIcons.FolderZip) {
                 Text(tr("ZIP · Images et annotations JSONL", "ZIP · Images and JSONL annotations"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 ExportToggle("WebDataset TAR", tr("Lecture par shards. Demande de l’espace supplémentaire.", "Read by shards. Requires additional storage."), tar, !busy && !formatsLocked) { viewModel.saveExportFormats(it, coco, yolo, vl) }
                 ExportToggle("COCO", tr("Boîtes et masques. Points et légendes restent dans le JSONL complet.", "Boxes and masks. Points and captions remain in the full JSONL."), coco, !busy && !formatsLocked) { viewModel.saveExportFormats(tar, it, yolo, vl) }
@@ -93,7 +92,7 @@ fun PublicationScreen(viewModel: MainViewModel) {
                 }
                 if (available == 0 && samples.isNotEmpty()) Text(tr("Validez au moins une image pour préparer une archive.", "Approve at least one image to prepare an archive."), style = MaterialTheme.typography.bodySmall)
                 Button(onClick = { viewModel.exportActiveBatchToLocalZip(tar, true, coco, yolo, vl) }, enabled = !busy && formatsReady && available > 0 && batch?.status !in com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety.lockedStates, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) {
-                    Icon(Icons.Default.Archive, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(tr("Créer l’archive · $available", "Create archive · $available"))
+                    Icon(CadrylIcons.Archive, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(tr("Créer l’archive · $available", "Create archive · $available"))
                 }
                 if (batch?.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT")) {
                     Text(tr("Un envoi est en attente. Vous pouvez sauvegarder son paquet sans modifier la publication.", "An upload is pending. You can save its package without changing the publication."), style = MaterialTheme.typography.bodySmall)
@@ -107,16 +106,16 @@ fun PublicationScreen(viewModel: MainViewModel) {
                 }
                 StudioDetails(tr("Pour clôturer le lot local, tous les cas doivent être validés ou rejetés. Les cas rejetés ou différés ne sont pas inclus. Un export local ne déclenche aucune suppression.", "To close the local batch, every sample must be approved or rejected. Rejected or deferred samples are excluded. Local export never triggers deletion."), style = MaterialTheme.typography.bodySmall)
             }
-            if(batch?.status in setOf("VERIFIED","PURGING","PURGED","EMPTY","DISCARDED")) StudioSection(stringResource(R.string.publication_batch_next), icon = Icons.Default.SkipNext) {
+            if(batch?.status in setOf("VERIFIED","PURGING","PURGED","EMPTY","DISCARDED")) StudioSection(stringResource(R.string.publication_batch_next), icon = CadrylIcons.SkipNext) {
                 if (batch != null && batch.status in setOf("VERIFIED","PURGING")) {
-                    StatusPill(if(batch.verificationKind=="local")tr("Archive externe vérifiée", "External archive verified") else if(batch.verificationKind=="rejection_only")tr("Rejets explicitement confirmés", "Rejections explicitly confirmed") else tr("Contenus distants vérifiés", "Remote contents verified"), Icons.Default.VerifiedUser)
+                    StatusPill(if(batch.verificationKind=="local")tr("Archive externe vérifiée", "External archive verified") else if(batch.verificationKind=="rejection_only")tr("Rejets explicitement confirmés", "Rejections explicitly confirmed") else tr("Contenus distants vérifiés", "Remote contents verified"), CadrylIcons.VerifiedUser)
                     if(learningRequired && !learningDone) TextButton(onClick={viewModel.navigateTo(Screen.Training)}){Text(stringResource(R.string.publication_finish_training))}
                     OutlinedButton(onClick = { confirmPurge = true }, enabled = !busy && (!learningRequired || learningDone), modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) { Text(if(batch?.status=="PURGING") tr("Reprendre le nettoyage", "Resume cleanup") else tr("Libérer le stockage", "Free storage")) }
                 }
                 if (batch?.status in setOf("PURGED","EMPTY","DISCARDED") || (batch?.status=="VERIFIED" && policy?.keepVerifiedBatches==true && (!learningRequired || learningDone))) Button(onClick = { viewModel.nextBatch() }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) { Text(stringResource(R.string.publication_next_batch)) }
                 if(batch?.status=="EMPTY") Text(tr("Fin de source · aucune nouvelle image", "End of source · no new images"),style=MaterialTheme.typography.bodySmall)
             }
-            StudioDisclosure(stringResource(R.string.publication_hf), Icons.Default.CloudUpload, initiallyExpanded = batch?.status in setOf("PUBLISHING", "CONFLICT", "VERIFIED", "PURGING")) {
+            StudioDisclosure(stringResource(R.string.publication_hf), CadrylIcons.CloudUpload, initiallyExpanded = batch?.status in setOf("PUBLISHING", "CONFLICT", "VERIFIED", "PURGING")) {
                 Text((batch?.remoteRepoId ?: project?.hfDestRepo)?.ifBlank { tr("Destination à configurer", "Configure destination") } ?: tr("Destination à configurer", "Configure destination"), style = MaterialTheme.typography.bodyMedium)
                 TextButton(onClick = { viewModel.navigateTo(Screen.TransferSettings) },enabled=!busy){Text(stringResource(R.string.publication_transfer_options))}
                 if (project?.hfDestRepo.isNullOrBlank()) OutlinedButton(onClick = { viewModel.navigateTo(Screen.TransferSettings) }) { Text(stringResource(R.string.publication_configure_destination)) }
@@ -128,7 +127,7 @@ fun PublicationScreen(viewModel: MainViewModel) {
                 batch?.hfCommitSha?.let { sha -> SelectionContainer { Text("Commit : $sha", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace) } }
                 StudioDetails(tr("L’application doit rester ouverte pendant le transfert. Une coupure ne supprime pas les originaux. Le premier essai doit utiliser un dépôt privé de test.", "Keep the app open during transfer. An interruption does not delete originals. Use a private test repository for the first trial."), style = MaterialTheme.typography.bodySmall)
             }
-            TextButton(onClick = { showPreview = !showPreview }) { Icon(Icons.Default.DataObject, null); Spacer(Modifier.width(8.dp)); Text(if (showPreview) tr("Masquer l’aperçu", "Hide preview") else tr("Aperçu des données", "Data preview")) }
+            TextButton(onClick = { showPreview = !showPreview }) { Icon(CadrylIcons.DataObject, null); Spacer(Modifier.width(8.dp)); Text(if (showPreview) tr("Masquer l’aperçu", "Hide preview") else tr("Aperçu des données", "Data preview")) }
             if (showPreview) StudioSection(stringResource(R.string.publication_preview), tr("La sortie complète peut contenir davantage d’annotations.", "The full output may contain more annotations.")) {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { DatasetExportFormat.entries.forEach { format ->
                     val label=stringResource(when(format){DatasetExportFormat.CANONICAL_JSONL->R.string.export_format_canonical;DatasetExportFormat.COCO->R.string.export_format_coco;DatasetExportFormat.YOLO->R.string.export_format_yolo;DatasetExportFormat.VISION_LANGUAGE->R.string.export_format_vl})
@@ -142,25 +141,26 @@ fun PublicationScreen(viewModel: MainViewModel) {
     }
     if(confirmIsolate) AlertDialog(onDismissRequest={confirmIsolate=false},title={Text(stringResource(R.string.publication_isolate_title))},text={Text(stringResource(R.string.publication_isolate_body))},confirmButton={TextButton(onClick={confirmIsolate=false;viewModel.isolateConflict()}){Text(stringResource(R.string.publication_create_isolated_path))}},dismissButton={TextButton(onClick={confirmIsolate=false}){Text(stringResource(R.string.common_cancel))}})
     if(confirmRejected)AlertDialog(onDismissRequest={confirmRejected=false},title={Text(stringResource(R.string.publication_close_all_title))},text={Text(stringResource(R.string.publication_close_all_body))},confirmButton={TextButton(onClick={confirmRejected=false;viewModel.closeAllRejectedBatch()}){Text(stringResource(R.string.publication_close_rejections))}},dismissButton={TextButton(onClick={confirmRejected=false}){Text(stringResource(R.string.common_cancel))}})
-    if (confirmPublish) AlertDialog(onDismissRequest = { confirmPublish = false }, icon = { Icon(Icons.Default.CloudUpload, null) }, title = { Text(tr("Publier $validated cas ?", "Publish $validated samples?")) },
+    if (confirmPublish) AlertDialog(onDismissRequest = { confirmPublish = false }, icon = { Icon(CadrylIcons.CloudUpload, null) }, title = { Text(tr("Publier $validated cas ?", "Publish $validated samples?")) },
         text = { Text(tr("Destination : ${batch?.remoteRepoId ?: project?.hfDestRepo}. Vérifiez les droits de redistribution des images. La vérification relit les fichiers et consomme du réseau. Aucune suppression locale automatique.", "Destination: ${batch?.remoteRepoId ?: project?.hfDestRepo}. Check image redistribution rights. Verification reads files back and uses network data. No automatic local deletion.")) },
         confirmButton = { Button(onClick = { confirmPublish = false; viewModel.publishActiveBatch() }) { Text(stringResource(R.string.publication_publish)) } }, dismissButton = { TextButton(onClick = { confirmPublish = false }) { Text(stringResource(R.string.common_cancel)) } })
-    if (confirmPurge) AlertDialog(onDismissRequest = { confirmPurge = false }, icon = { Icon(Icons.Default.DeleteOutline, null) }, title = { Text(stringResource(R.string.publication_purge_title)) },
+    if (confirmPurge) AlertDialog(onDismissRequest = { confirmPurge = false }, icon = { Icon(CadrylIcons.DeleteOutline, null) }, title = { Text(stringResource(R.string.publication_purge_title)) },
         text = { Text(tr("Les $validated images validées disposent d’une copie vérifiée (${batch?.verificationKind ?: "aucune"}). Les $rejected images rejetées, non publiées, seront aussi supprimées de cet appareil. Les annotations et décisions restent dans l’historique. Cette suppression n’est pas annulable.", "The $validated approved images have a verified copy (${batch?.verificationKind ?: "none"}). The $rejected rejected, unpublished images will also be deleted from this device. Annotations and decisions remain in history. Deletion cannot be undone.")) },
         confirmButton = { Button(onClick = { confirmPurge = false; viewModel.purgeActiveBatch() }) { Text(stringResource(R.string.publication_confirm_delete)) } }, dismissButton = { TextButton(onClick = { confirmPurge = false }) { Text(stringResource(R.string.common_keep)) } })
 }
 
 @Composable
 private fun ExportToggle(title: String, hint: String, selected: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
-    Surface(shape=MaterialTheme.shapes.medium,color=if(selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha=.25f) else MaterialTheme.colorScheme.surfaceContainerLow,
-        border=BorderStroke(1.dp,if(selected) MaterialTheme.colorScheme.primary.copy(alpha=.4f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha=.35f))) {
-        Row(Modifier.fillMaxWidth().toggleable(value=selected,enabled=enabled,role=Role.Checkbox,onValueChange=onChange).padding(start=14.dp,end=8.dp,top=8.dp,bottom=8.dp),
-            verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-            Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+    var showHint by remember { mutableStateOf(false) }
+    Column {
+        Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
+            Row(Modifier.weight(1f).toggleable(value=selected,enabled=enabled,role=Role.Checkbox,onValueChange=onChange),verticalAlignment=Alignment.CenterVertically) {
+                Checkbox(selected,onCheckedChange=null,enabled=enabled)
                 Text(title,style=MaterialTheme.typography.titleSmall)
-                Text(hint,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Checkbox(selected,onCheckedChange=null,enabled=enabled)
+            IconButton(onClick={showHint=!showHint}) { Icon(CadrylIcons.Info,tr("Détails de $title","Details for $title"),Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant) }
         }
+        if(showHint) Text(hint,Modifier.padding(start=48.dp,bottom=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant)
     }
 }

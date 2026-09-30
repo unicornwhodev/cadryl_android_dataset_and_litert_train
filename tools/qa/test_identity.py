@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Static source identity guards. Not Android compilation or manifest-merger validation."""
 from pathlib import Path
-import json, re, subprocess, tomllib, unittest, xml.etree.ElementTree as ET
+import hashlib, json, re, subprocess, tomllib, unittest, xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[2]
 PACKAGE='com.unicornwhodev.visiondatasetstudio'
 NS='{http://schemas.android.com/apk/res/android}'
@@ -16,8 +16,25 @@ class IdentityTests(unittest.TestCase):
         for path in files:
             package=re.search(r'^package\s+([\w.]+)',path.read_text(encoding='utf-8'),re.M)
             self.assertIsNotNone(package,path)
-            self.assertTrue(package[1]==PACKAGE or package[1].startswith(PACKAGE+'.'),path)
+            owned = package[1]==PACKAGE or package[1].startswith(PACKAGE+'.')
+            if not owned:
+                # Retain the licensed upstream namespace only for the exact recorded vendor files.
+                relative = path.relative_to(ROOT).as_posix()
+                manifest = json.loads((ROOT/'third_party/design/manifest.json').read_text())
+                self.assertTrue(relative.startswith('app/src/main/java/com/adamglin/'),path)
+                self.assertTrue(package[1]=='com.adamglin' or package[1].startswith('com.adamglin.'),path)
+                self.assertIn(relative,manifest['files'])
+                self.assertEqual(manifest['files'][relative]['sha256'],hashlib.sha256(path.read_bytes()).hexdigest(),path)
             self.assertEqual(path.parent.relative_to(Path(*path.parts[:path.parts.index('java')+1])).as_posix(),package[1].replace('.','/'),path)
+    def test_vendored_design_assets_are_hashed_and_licensed(self):
+        manifest=json.loads((ROOT/'third_party/design/manifest.json').read_text())
+        self.assertEqual('d83bea0a9ed83c38c91cb56e927381e1b2943db8',manifest['icon_commit'])
+        for relative,receipt in manifest['files'].items():
+            path=(ROOT/relative).resolve()
+            self.assertTrue(path.is_relative_to(ROOT.resolve()))
+            self.assertEqual(receipt['sha256'],hashlib.sha256(path.read_bytes()).hexdigest(),relative)
+        for name in ('LICENSE.compose-phosphor-icon','LICENSE.phosphor','OFL.barlow.txt','NOTICES.design.txt'):
+            self.assertTrue((ROOT/'third_party/design'/name).is_file())
     def test_no_template_namespaces_in_sources(self):
         for path in ROOT.rglob('*'):
             if not path.is_file() or any(part in {'test-results','dist','.git','.gradle','.kotlin','build','__pycache__'} for part in path.relative_to(ROOT).parts):continue
@@ -59,7 +76,10 @@ class IdentityTests(unittest.TestCase):
         for name in ['capture_device_metrics.sh','resolve_apks.py']:
             self.assertIn(PACKAGE,(ROOT/'tools/qa'/name).read_text(encoding='utf-8'))
         self.assertIn('run_device_qualification.py',(ROOT/'tools/qa/run_device_qualification.sh').read_text(encoding='utf-8'))
-        self.assertIn('from resolve_apks import APP_ID, ROOT, resolve',(ROOT/'tools/qa/run_device_qualification.py').read_text(encoding='utf-8'))
+        self.assertIn('from resolve_apks import CLASS_NAMESPACE, APP_ID, ROOT, resolve',(ROOT/'tools/qa/run_device_qualification.py').read_text(encoding='utf-8'))
+        from resolve_apks import CLASS_NAMESPACE, APP_ID
+        self.assertEqual(PACKAGE,CLASS_NAMESPACE)
+        self.assertEqual(PACKAGE,APP_ID)
     def test_no_private_weights_or_signing_keys(self):
         for path in ROOT.rglob('*'):
             if any(p in {'dist','.gradle','build'} for p in path.relative_to(ROOT).parts):continue

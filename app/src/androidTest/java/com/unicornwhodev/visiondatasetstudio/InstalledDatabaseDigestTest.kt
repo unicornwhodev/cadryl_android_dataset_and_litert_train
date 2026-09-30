@@ -51,7 +51,7 @@ class InstalledDatabaseDigestTest {
             receipt.put("tables",rows)
         }
         requireNotNull(instrumentation.targetContext.contentResolver.openOutputStream(android.net.Uri.parse(
-            "content://com.unicornwhodev.visiondatasetstudio.test.qa-evidence/installed-database-digest.json"),"w"))
+            "content://${instrumentation.context.packageName}.qa-evidence/installed-database-digest.json"),"w"))
             .use { it.write(receipt.toString(2).toByteArray(Charsets.UTF_8)) }
         instrumentation.sendStatus(0,Bundle().apply { putString("installed_database_digest",receipt.toString()) })
     }

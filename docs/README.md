@@ -1,6 +1,8 @@
 # La documentation de Cadryl
 
-[Le projet](../README.md) · [English](en/README.md)
+[Le projet](../README.md)
+
+Studio actuel : [Guide des outils](STUDIO_UI_2026_09.md) · [Revue visuelle](../design-qa.md) · [Preuves de la refonte](STUDIO_UI_EVIDENCE.json). · [English](en/README.md)
 
 Pour découvrir l’app, pars du **[premier lot](GETTING_STARTED.md)**. Tu peux aller de l’import à l’export sans configurer de modèle.
 

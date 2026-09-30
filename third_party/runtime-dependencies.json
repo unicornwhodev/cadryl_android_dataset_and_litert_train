@@ -1,5 +1,5 @@
 {
-  "artifacts": 103,
+  "artifacts": 102,
   "missing_license_metadata": [],
   "legal_clearance": false,
   "native_transitive_notices_reviewed": false,
@@ -307,24 +307,6 @@
         {
           "file": "material-icons-core-android-1.7.0.pom",
           "sha256": "6cb561a1df57cb70dac549b4a78d9d84bfc403fe49bbe5eeb8f0c8ab2ab79ee4"
-        }
-      ],
-      "declared_licenses": [
-        {
-          "name": "The Apache Software License, Version 2.0",
-          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
-          "distribution": "repo"
-        }
-      ],
-      "embedded_notices": []
-    },
-    {
-      "coordinate": "androidx.compose.material:material-icons-extended-android:1.7.0",
-      "artifact_sha256": "f1d65c63eb202563f89e5c5ca1794d057e1f423740d850f25e5904102ed2c1e4",
-      "pom_provenance": [
-        {
-          "file": "material-icons-extended-android-1.7.0.pom",
-          "sha256": "88eea49c83e6f1f3aa770450f6771dc1fd77a750d7b0c358c521443b69310dfe"
         }
       ],
       "declared_licenses": [

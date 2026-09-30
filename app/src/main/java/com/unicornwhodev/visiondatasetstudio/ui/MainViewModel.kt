@@ -181,6 +181,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val initializationJob: Job
     private val moshi = com.unicornwhodev.visiondatasetstudio.data.json.StudioJson.moshi
 
+    // Main.immediate can resume a cached Room query while the constructor runs.
+    // Every state touched by startup must exist before launching those coroutines.
+    private val _benchmarkReport=MutableStateFlow<String?>(null)
+    val benchmarkReport:StateFlow<String?> = _benchmarkReport
+
     init {
         viewModelScope.launch(Dispatchers.IO) { runCatching { projectMaintenance.resumePending() }.onFailure { reportError(tr("Reprise du nettoyage local requise : ${it.message}", "Local cleanup needs to resume: ${it.message}")) } }
         // A single writer prevents an older keystroke from overwriting a newer edit.
@@ -924,8 +929,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             liteRtEngine.lastResult?.let{withContext(Dispatchers.IO){InferenceReceiptStore(getApplication<Application>().filesDir).write(p.id,s.sampleId,s.batchNumber,it)}}
         } finally { liteRtEngine.close() }
     }
-    private val _benchmarkReport=MutableStateFlow<String?>(null)
-    val benchmarkReport:StateFlow<String?> = _benchmarkReport
     fun benchmarkActiveModel(repetitions:Int=10)=operation {
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
         val config=modelConfig(p)
@@ -1208,8 +1211,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         preferenceStore.activeProjectId=id;_activeProjectId.value=id
         loadBatch(db.batchDao().getBatchSync(id,preferenceStore.lastBatch)?.batchNumber ?: db.batchDao().getLatestBatchSync(id)?.batchNumber ?: 1)
         _operationProgress.value=null
-        navigation.reset(Screen.Controls)
-        _currentScreen.value=Screen.Controls
+        navigation.reset(Screen.Home)
+        navigation.navigate(Screen.Controls)
+        _currentScreen.value=navigation.current
     }
     fun selectProject(id:Long)=operation { switchProject(id) }
     fun createProject(name:String)=operation {

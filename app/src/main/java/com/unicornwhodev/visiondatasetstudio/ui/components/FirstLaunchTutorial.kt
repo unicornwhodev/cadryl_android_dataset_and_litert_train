@@ -5,8 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.unicornwhodev.visiondatasetstudio.ui.icons.CadrylIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,7 +29,7 @@ fun FirstLaunchTutorial(initiallyDisableNextLaunch: Boolean, saveError: Boolean,
     var verified by rememberSaveable { mutableStateOf(false) }
     var disableNextLaunch by rememberSaveable { mutableStateOf(initiallyDisableNextLaunch) }
     val ready = when(step) { 0 -> source>=0; 1 -> marked; 2 -> assistance>=0; else -> format>=0 && verified }
-    StudioSection(tr("Découvrir Cadryl · ${step+1}/4", "Discover Cadryl · ${step+1}/4"),icon=Icons.Default.AutoAwesome,
+    StudioSection(tr("Découvrir Cadryl · ${step+1}/4", "Discover Cadryl · ${step+1}/4"),icon=CadrylIcons.AutoAwesome,
         modifier=Modifier.testTag("tutorial_card")) {
         Text(tr("Exemple interactif · vos projets restent inchangés.", "Interactive example · your projects stay unchanged."),
             style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
@@ -40,8 +39,8 @@ fun FirstLaunchTutorial(initiallyDisableNextLaunch: Boolean, saveError: Boolean,
                 when(current) {
                     0 -> {
                         Text(tr("1. Choisir ses images", "1. Choose your images"),style=MaterialTheme.typography.titleMedium)
-                        Text(tr("Touchez une source. Un dossier suffit pour travailler sans compte ni backend Cadryl.",
-                            "Tap a source. A folder is enough to work without an account or Cadryl backend."))
+                        Text(tr("Choisissez une source pour essayer.",
+                            "Choose a source to try."))
                         FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                             FilterChip(source==0,{source=0},label={Text(tr("Dossier sur l’appareil", "Device folder"))},modifier=Modifier.testTag("tutorial_source_local"))
                             FilterChip(source==1,{source=1},label={Text(tr("HF, facultatif", "HF, optional"))},modifier=Modifier.testTag("tutorial_source_hf"))
@@ -57,7 +56,7 @@ fun FirstLaunchTutorial(initiallyDisableNextLaunch: Boolean, saveError: Boolean,
                             color=MaterialTheme.colorScheme.surfaceContainerHigh,
                             border=if(marked)BorderStroke(2.dp,MaterialTheme.colorScheme.primary) else null) {
                             Column(horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
-                                Icon(if(marked)Icons.Default.CheckCircle else Icons.Default.Image,
+                                Icon(if(marked)CadrylIcons.CheckCircle else CadrylIcons.Image,
                                     tr("Image d’exemple", "Example image"),Modifier.size(30.dp),tint=MaterialTheme.colorScheme.primary)
                                 Text(if(marked)tr("Annotation d’exemple ajoutée", "Example annotation added") else tr("Touchez pour essayer", "Tap to try"))
                             }
@@ -72,8 +71,8 @@ fun FirstLaunchTutorial(initiallyDisableNextLaunch: Boolean, saveError: Boolean,
                             FilterChip(assistance==0,{assistance=0},label={Text(tr("À la main", "Manual"))},modifier=Modifier.testTag("tutorial_mode_manual"))
                             FilterChip(assistance==1,{assistance=1},label={Text(tr("Avec un modèle", "With a model"))},modifier=Modifier.testTag("tutorial_mode_model"))
                         }
-                        Text(tr("Dans Modèles : importer, vérifier le contrat, essayer l’inférence. Un modèle compatible peut entraîner une copie sur vos annotations relues ; l’original est conservé.",
-                            "In Models: import, check the contract, try inference. A compatible model can train a copy using your reviewed annotations; the original is preserved."),style=MaterialTheme.typography.bodySmall)
+                        Text(tr("Importez un modèle dans Modèles. L’apprentissage travaille sur une copie ; l’original est conservé.",
+                            "Import a model in Models. Training uses a copy and preserves the original."),style=MaterialTheme.typography.bodySmall)
                     }
                     else -> {
                         Text(tr("4. Exporter une copie vérifiée", "4. Export a verified copy"),style=MaterialTheme.typography.titleMedium)

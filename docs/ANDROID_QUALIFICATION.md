@@ -10,8 +10,11 @@ La [qualification rc8 des 29–30 septembre](RC8_QUALIFICATION_2026_09.md) passe
 
 Les sources actuelles ajoutent le didacticiel et les correctifs de l’audit final.
 Leurs builds et essais sont consignés dans le [nouvel audit](FINAL_AUDIT_2026_09.md).
-Les comptes de la RC8 ci-dessus restent ceux des APK publiquées. La suite préparée
-compte maintenant 62 tests ; elle inclut les icônes réelles de la variante choisie.
+Les comptes de la RC8 ci-dessus restent ceux des APK publiquées. La suite du
+studio actuel compte 63 tests, dont la reprise répétée d’un lot Room sauvegardé.
+Elle passe en Debug sur l’émulateur dédié et en Release minifiée signée sur Oppo ;
+le pilote indépendant passe 5/5. [APK et reçus](STUDIO_UI_EVIDENCE.json) ·
+[Revue visuelle du studio](../design-qa.md).
 
 JDK 21, Gradle 9.3.1, SDK 36 et bibliothèques déclarées dans le projet. Préparer [Flex](FLEX_16K.md), [Graphics Path](GRAPHICS_PATH_16K.md) et [LiteRT](LITERT_16K_STATUS.md), puis exécuter `python -X utf8 tools/build_android.py` sous Windows ou `bash tools/build_android.sh` sous Linux. Corriger les erreurs réelles sans supprimer des tests, rétrograder silencieusement les formats ou ajouter un fallback destructif.
 

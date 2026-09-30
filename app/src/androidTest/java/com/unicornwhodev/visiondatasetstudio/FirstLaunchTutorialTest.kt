@@ -66,7 +66,7 @@ class FirstLaunchTutorialTest {
         rule.onNodeWithTag("home_more").performClick()
         rule.onNodeWithTag("home_settings").performClick()
         rule.onNodeWithTag("tutorial_replay").performScrollTo().performClick()
-        rule.waitUntil(10000) { rule.onAllNodesWithTag("nav_Home").fetchSemanticsNodes().isNotEmpty() }
+        rule.waitUntil(10000) { rule.onAllNodesWithTag("route_Home").fetchSemanticsNodes().isNotEmpty() }
         click("tutorial_source_hf")
         assertFalse(prefs.getBoolean("tutorial_on_launch", true))
     }

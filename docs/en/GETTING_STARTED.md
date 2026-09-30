@@ -20,7 +20,7 @@ The qualification ZIP also contains test APKs and an x86_64 build. The Flex, Gra
 
 ## 1. Create a project
 
-Create a project through **Studio → Projects**, then open **Setup**. Follow four configuration steps:
+Create a project through **Tools → Projects**, then open **Setup**. Follow four configuration steps:
 
 1. **Images**: choose a folder on this device or a Hugging Face dataset. For HF, inspect the source to check access and its image column.
 2. **Task**: choose boxes, image labels or captions. Add the classes you need. With a selected model, search its classes and tap to add exact names. Names are not translated automatically.
@@ -37,7 +37,7 @@ Retry failed acquisitions or exclude them with a reason. A failed download never
 
 ## 3. Add a model if it helps
 
-In **Models**, import a compatible file or choose an authorised Hugging Face source. [Charlbi’s conversions](https://huggingface.co/Charlbi/Lite_rt_prepared_for_android_dataset_builder) have individual contracts and test results. Keep every required graph, processor and tokenizer in a bundle.
+In **Tools → Models**, import a compatible file or choose an authorised Hugging Face source. [Charlbi’s conversions](https://huggingface.co/Charlbi/Lite_rt_prepared_for_android_dataset_builder) have individual contracts and test results. Keep every required graph, processor and tokenizer in a bundle.
 
 In **Models → Settings**, check supported tasks and classes, then try one image. Input dimensions are checked against the actual file before saving. Fixed vocabularies show matching classes; models with free text outputs cannot guarantee a closed vocabulary. TinyCLIP can use project classes as text candidates, while SAM needs a mask label.
 

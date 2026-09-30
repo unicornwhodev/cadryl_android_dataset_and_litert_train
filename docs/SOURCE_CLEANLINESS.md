@@ -1,5 +1,24 @@
 # Sources, licence et nettoyage — 30 septembre 2026
 
+## Studio actuel avec lynx
+
+L’index préparé contient 1 116 fichiers. Gitleaks 8.24.2 relève 97 correspondances,
+toutes classées après vérification : empreintes de sources ou de certificats
+publics, aucun secret confirmé et aucun cas non résolu. Le nouveau manifeste
+de compilation est comparé aux blobs Git ; ses octets de reçu sont préservés.
+Aucune clé AI Studio au format connu, information personnelle de l’éditeur ou
+numéro de téléphone dans les Markdown n’est trouvé dans l’arbre public vérifié.
+Aucun SDK commercial dans les sources applicatives publiques, aucun workflow
+GitHub Actions, aucune APK, fixture de travail ou clé de signature ajoutée.
+
+Les 327 fichiers compilés correspondent au build réel. Barlow et Phosphor
+conservent leurs licences et empreintes épinglées ; le lynx original garde son
+empreinte approuvée. Les logs bruts, corpus et captures de recette restent
+dans les dossiers ignorés. Les tests de régression restent dans les sources.
+[Preuves du studio](STUDIO_UI_EVIDENCE.json).
+
+## Séparation publique précédente
+
 Le code du projet reste sous Apache-2.0. Les composants tiers conservent leurs
 propres licences et notices ; aucune licence Google n’est remplacée par Apache-2.0.
 
