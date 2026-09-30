@@ -118,8 +118,14 @@
   },
   "publication": {
     "tag": "v4.2.0-rc8",
-    "status": "prepared",
-    "release": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc8"
+    "status": "published-verified",
+    "release": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc8",
+    "source_commit": "e588101aa72e7c78ef1043d664fd3147431e895c",
+    "verified_at": "2026-09-30T00:06:02.929264+00:00",
+    "assets_verified": 9,
+    "receipt": "docs/RC8_PUBLICATION_RECEIPT.json",
+    "oci_digest": "sha256:a821261717db166e0c402de274a249ab489475e9745c01b2950ab83c675cbe8f",
+    "package_visibility": "private"
   },
   "extended": {
     "real_private_hf_publication": "passed-debug-avd",

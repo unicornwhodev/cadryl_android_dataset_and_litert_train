@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "product": "Cadryl",
+  "version": "4.2.0-rc8",
+  "tag": "v4.2.0-rc8",
+  "source_commit": "e588101aa72e7c78ef1043d664fd3147431e895c",
+  "tag_commit_verified": true,
+  "verified_at": "2026-09-30T00:06:02.929264+00:00",
+  "github": {
+    "url": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v4.2.0-rc8",
+    "release_id": 399612395,
+    "draft": false,
+    "prerelease": true,
+    "published_at": "2026-09-30T00:05:03Z",
+    "downloaded_bytes_verified": true,
+    "api_digests_verified": true,
+    "assets": [
+      {
+        "name": "PACKAGE.json",
+        "bytes": 38070,
+        "sha256": "44f41ea106328da34130f3303554c01183a67e4778faa995175fa6effc836c01",
+        "asset_id": 599541900
+      },
+      {
+        "name": "PUBLICATION_CHECKS.json",
+        "bytes": 2174,
+        "sha256": "ae76b5f07a77d88dbf2d0f6196f80146cc9370da2d097b7fd7e04f73e14b5bce",
+        "asset_id": 599541899
+      },
+      {
+        "name": "SHA256SUMS",
+        "bytes": 816,
+        "sha256": "ab8baf5ee988bce92c8aa804a8cc371afafd71f265dfe540aa9b3d44d863e754",
+        "asset_id": 599541896
+      },
+      {
+        "name": "vision-dataset-studio-4.2.0-rc8-qualification.zip",
+        "bytes": 83996596,
+        "sha256": "9cc42de20be2985c00dcf5a87cad7075f81b86dfc24938503dd9cc1c064921ab",
+        "asset_id": 599541902
+      },
+      {
+        "name": "vision-dataset-studio-flex-2.16.1-vds16k1.zip",
+        "bytes": 97989245,
+        "sha256": "4d199f5fbf46be977f37f6cdf972cd102e9b01d3bb0c3fc435ed1c4ab59b4514",
+        "asset_id": 599541901
+      },
+      {
+        "name": "vision-dataset-studio-graphics-1.0.1-vds16k1.zip",
+        "bytes": 102266,
+        "sha256": "6f0dc5d39a25ea2f18becdb3fe6a8fceb0720f22cdedb62341455d7c9e327415",
+        "asset_id": 599541915
+      },
+      {
+        "name": "vision-dataset-studio-litert-2.2.0-vds16k2.zip",
+        "bytes": 9012117,
+        "sha256": "0e75368b19828a3a0c141e71369576aaf4acfbcd89bd62b06e20e4903992a7b8",
+        "asset_id": 599541919
+      },
+      {
+        "name": "vision-dataset-studio-x86_64.apk",
+        "bytes": 118084050,
+        "sha256": "e5b9e18c4887e95c3d664be90c2b478ad11da7c1b2396abd0874e95c42295163",
+        "asset_id": 599541921
+      },
+      {
+        "name": "vision-dataset-studio.apk",
+        "bytes": 101753310,
+        "sha256": "f4f87ce602b71de297b3fd91d4dbfcb0707744b51c06c743e4878e6793b441e1",
+        "asset_id": 599541951
+      }
+    ]
+  },
+  "oci": {
+    "reference": "ghcr.io/unicornwhodev/vision-dataset-studio-qualification:v4.2.0-rc8",
+    "manifest_digest": "sha256:a821261717db166e0c402de274a249ab489475e9745c01b2950ab83c675cbe8f",
+    "remote_manifest_verified": true,
+    "downloaded_layers_verified": [
+      "vision-dataset-studio.apk",
+      "vision-dataset-studio-x86_64.apk",
+      "vision-dataset-studio-4.2.0-rc8-qualification.zip",
+      "vision-dataset-studio-flex-2.16.1-vds16k1.zip",
+      "vision-dataset-studio-graphics-1.0.1-vds16k1.zip",
+      "vision-dataset-studio-litert-2.2.0-vds16k2.zip",
+      "PACKAGE.json",
+      "PUBLICATION_CHECKS.json",
+      "SHA256SUMS"
+    ],
+    "visibility": "private",
+    "runnable_container": false
+  },
+  "qualification": {
+    "physical_arm_4k_core_passed": true,
+    "physical_arm_16k_qualified": false,
+    "stable_release": false,
+    "remaining": [
+      "Physical ARM 16 KB",
+      "Real complete/partial Viewer flow",
+      "Model accuracy and multi-model/background endurance",
+      "Remote CI",
+      "Native transitive notices"
+    ]
+  }
+}
