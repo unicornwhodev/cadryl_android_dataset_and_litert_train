@@ -21,3 +21,13 @@ et noms des auteurs tiers restent présents pour respecter leurs licences.
 Les nouveaux packages contiennent une synthèse contrôlée et les empreintes
 des preuves locales. Ils ne contiennent ni numéro de téléphone personnel,
 identifiant ADB, base utilisateur ni journaux bruts de la machine de build.
+
+## Cache du fournisseur
+
+Les branches et tags publics ont été vérifiés après réécriture. GitHub conserve
+encore des vues d'anciens commits et références de PR qui exposent l'ancien email
+de commit. Une demande de purge est préparée en privé ; elle n'est pas envoyée
+sans autorisation de contact. Le nettoyage des sources distribuées est terminé,
+mais la suppression de ces copies côté fournisseur n'est pas confirmée.
+
+[Procédure officielle GitHub](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).

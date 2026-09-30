@@ -90,6 +90,14 @@
     ],
     "owned_commit_email_removed": true,
     "personal_account_paths_removed": true,
-    "original_git_bundle_private": true
+    "original_git_bundle_private": true,
+    "scope": "Published main branch and release tag refs; provider caches and pull refs are separate"
+  },
+  "provider_cache": {
+    "old_commit_email_still_accessible": true,
+    "affected_pull_requests": 5,
+    "purge_confirmed": false,
+    "support_request_prepared_privately": true,
+    "support_request_sent": false
   }
 }
