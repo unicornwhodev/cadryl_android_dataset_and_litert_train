@@ -65,9 +65,17 @@
   },
   "publication": {
     "tag": "v0.0.1",
-    "status": "locally-qualified",
+    "status": "published-and-downloaded-assets-verified",
     "release": "https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/releases/tag/v0.0.1",
-    "receipt": "docs/RELEASE_001_PUBLICATION_RECEIPT.json"
+    "receipt": "docs/RELEASE_001_PUBLICATION_RECEIPT.json",
+    "source_commit": "a258114aca18f5c4b78ceec81d3b6368545777e9",
+    "verified_assets": 8,
+    "oci": {
+      "reference": "ghcr.io/unicornwhodev/vision-dataset-studio-qualification:v0.0.1",
+      "manifest_digest": "sha256:6838d1c88dec2b13c7f06c0d7a65c5201ca7880ce0e1250f840f050263a1dde8",
+      "downloaded_layers_verified": 8,
+      "visibility": "private"
+    }
   },
   "remaining": [
     "Model accuracy and broader model coverage",

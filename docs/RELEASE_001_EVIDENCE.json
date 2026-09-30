@@ -107,5 +107,20 @@
     }
   ],
   "privacy_redaction": "PRIVACY_REDACTION_2026_09.json",
-  "native_transitive_notice_review_complete": false
+  "native_transitive_notice_review_complete": false,
+  "publication_receipt": "RELEASE_001_PUBLICATION_RECEIPT.json",
+  "source_security_review": {
+    "raw_findings": 90,
+    "classifications": {
+      "public_source_file_sha256": 54,
+      "public_signing_fingerprint": 36
+    },
+    "confirmed_secrets": 0,
+    "unresolved": 0,
+    "privacy_matches": 0,
+    "compiled_files_match_index": 223,
+    "license": "Apache-2.0",
+    "license_unchanged": true,
+    "scope": "Exact staged index and staged diff"
+  }
 }
