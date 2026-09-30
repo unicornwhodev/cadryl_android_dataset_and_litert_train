@@ -1,5 +1,6 @@
 package com.unicornwhodev.visiondatasetstudio.ui.screens
 
+import com.unicornwhodev.visiondatasetstudio.core.i18n.tr
 import androidx.compose.ui.res.stringResource
 import com.unicornwhodev.visiondatasetstudio.R
 
@@ -64,6 +65,12 @@ fun TrainingScreen(vm:MainViewModel) {
                         else -> stringResource(R.string.training_scope_converter)
                     },style=MaterialTheme.typography.bodySmall)
                 }}
+                if(config?.training==null) StudioSection(tr("Préparer l’apprentissage","Prepare training"),icon=Icons.Default.ModelTraining) {
+                    Text(tr("Choisissez un modèle entraînable. L’apprentissage utilise une copie et conserve le modèle original.",
+                        "Choose a trainable model. Training uses a copy and preserves your original model."),style=MaterialTheme.typography.bodyMedium)
+                    StudioAction(tr("Choisir un modèle","Choose a model"),{vm.navigateTo(Screen.Models)},icon=Icons.Default.Memory,primary=true,enabled=!busy,modifier=Modifier.fillMaxWidth())
+                    TextButton(onClick={vm.navigateTo(Screen.ModelSettings)},enabled=!busy) { Text(tr("Vérifier le contrat du modèle","Check the model contract")) }
+                }
                 if(config?.training!=null) {
                 Text(stringResource(R.string.training_model_versions),style=MaterialTheme.typography.bodyMedium)
                 Text(stringResource(R.string.training_batch_only,number),style=MaterialTheme.typography.bodyMedium)

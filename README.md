@@ -14,6 +14,20 @@ Un projet indépendant de **Unicorn Who Dev**, auparavant nommé *Vision Dataset
 
 Pagination des sources sécurisée, restauration du lot stabilisée, guide en quatre étapes et contrats de modèles conservés. Recette HF/SAF réelle, 1 000 photos libres sur Oppo et dix minutes d’inférence sur Honor. [Détails de la version](docs/RC8_RELEASE.md).
 
+## Préparation suivante
+
+Imports transactionnels, archives relues avant remplacement, documents légaux
+hors ligne FR/EN et didacticiel interactif au premier lancement. À la fin,
+la case « Ne plus afficher au démarrage » désactive les prochains affichages ;
+les réglages permettent de relancer le guide.
+
+Ce dépôt contient uniquement l’édition publique Apache-2.0, compilable sans
+publicité, abonnement ou backend Cadryl. Les composants commerciaux ont été
+retirés. Imports, annotations, modèles, entraînement et exports sont conservés.
+[Plan de qualification](docs/FINAL_RC_0_1_PLAN.md) ·
+[Didacticiel](docs/FIRST_LAUNCH_TUTORIAL.md) ·
+[Sources Apache-2.0 et nettoyage](docs/SOURCE_CLEANLINESS.md).
+
 ## Ce qu’on peut faire
 
 - **Préparer ses images.** Dossier local ou Hugging Face, travail par petits lots, suivi des doublons et reprise du projet.
@@ -46,6 +60,10 @@ L’ARM physique 16 Ko, la qualité des modèles FireViewer, les sources Viewer 
 ## Mettre les mains dans le code
 
 L’app utilise **Kotlin, Compose, Room et LiteRT**. Le [guide de développement](docs/DEVELOPMENT_RESUME.md) explique les dépendances natives, le build Windows/Linux et les tests. L’[architecture](docs/ARCHITECTURE.md) donne les repères pour trouver le bon endroit dans le code.
+
+La [reprise de l’interface](docs/UI_REWORK_2026_09.md) simplifie le studio après rc8.
+Ses [preuves de préparation](docs/FINAL01_EVIDENCE.json) sont distinctes des APK publiquées ;
+la validation humaine de la future interface finale reste ouverte.
 
 Un bug, une idée ou une amélioration ? [Ouvre une issue](https://github.com/unicornwhodev/cadryl_android_dataset_and_litert_train/issues) avec la version, l’appareil et les étapes pour reproduire. Les contributions sont les bienvenues ; les règles utiles tiennent dans [CONTRIBUTING.md](CONTRIBUTING.md).
 

@@ -1,0 +1,358 @@
+{
+  "schema": 1,
+  "legal_clearance": false,
+  "native_transitive_review_complete": false,
+  "runtimes": {
+    "litert": {
+      "linker_inputs": [
+        {
+          "abi": "arm64-v8a",
+          "parameter_file": "execroot/litert/bazel-out/arm64-v8a-opt/bin/tflite/java/libtensorflowlite_jni.so-2.params",
+          "parameters_sha256": "d57dffdb00faf4303b759de45348d8ec741e23201d6447bdd23f3c40c76c3ad1",
+          "native_packaged_sha256": "01b2d4eeb74e19c06586ce880032efb24958bd5b55fe4f8549c2366065c99954",
+          "retained_binary_matches_packaged": true
+        },
+        {
+          "abi": "armeabi-v7a",
+          "parameter_file": "execroot/litert/bazel-out/armeabi-v7a-opt/bin/tflite/java/libtensorflowlite_jni.so-2.params",
+          "parameters_sha256": "556b7b33c36b1955c0fe63d97e3f7b9124acd0921e0e8eefa68c89436612c814",
+          "native_packaged_sha256": "a401f014cc5fc21ebb3e4bb123532037f580cc8c92c5da2069b1fde355fcccee",
+          "retained_binary_matches_packaged": true
+        },
+        {
+          "abi": "x86",
+          "parameter_file": "execroot/litert/bazel-out/x86-opt/bin/tflite/java/libtensorflowlite_jni.so-2.params",
+          "parameters_sha256": "0e942c815e94886935770a37eb5f23c3fcb9cae9742e98578018c94706335c4b",
+          "native_packaged_sha256": "990256dc126f28e9dc7d02b03653965711dc24766eec4882a613c2b1e98bd81d",
+          "retained_binary_matches_packaged": true
+        },
+        {
+          "abi": "x86_64",
+          "parameter_file": "execroot/litert/bazel-out/x86_64-opt/bin/tflite/java/libtensorflowlite_jni.so-2.params",
+          "parameters_sha256": "3e563a02a7f4ed300fc653a921a03ce066c3fa6b0af7616467b091a0999ff6b8",
+          "native_packaged_sha256": "84b06e5aa3a3e3de82dc138abc85a195ef815e537e10f36202f537254723c1c0",
+          "retained_binary_matches_packaged": true
+        }
+      ],
+      "repositories": [
+        {
+          "repository": "KleidiAI",
+          "notices": [
+            {
+              "path": "LICENSES/Apache-2.0.txt",
+              "sha256": "074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+            },
+            {
+              "path": "LICENSES/BSD-3-Clause.txt",
+              "sha256": "5a93d5831e1297ab10fe643e1a631e83be392896da14ee2951285a79012df69d"
+            }
+          ]
+        },
+        {
+          "repository": "XNNPACK",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "63f519e15726f4c4f830bd958f694c84fecb4e0a4cacc527d2696bb71ef95ada"
+            }
+          ]
+        },
+        {
+          "repository": "com_google_absl",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "c79a7fea0e3cac04cd43f20e7b648e5a0ff8fa5344e644b0ee09ca1162b62747"
+            }
+          ]
+        },
+        {
+          "repository": "cpuinfo",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "8e7e60636c3aa0cb03571a1a841ce5697f9551ff92b3c426c2561613d15ade70"
+            }
+          ]
+        },
+        {
+          "repository": "farmhash_archive",
+          "notices": [
+            {
+              "path": "COPYING",
+              "sha256": "4162dd091caae234f72d3b57e138174f733e736b2430a4c51b098b17d866fcb6"
+            }
+          ]
+        },
+        {
+          "repository": "fft2d",
+          "notices": [
+            {
+              "path": "readme.txt",
+              "sha256": "5b5e610da10394132a42d82ed6501fe1b83a1d19e1bb160c8ace10ed61708765"
+            },
+            {
+              "path": "readme2d.txt",
+              "sha256": "0b2a2082537735a2a576dbec2e8f9c1a09812eac6df6a389502a6ba860072906"
+            }
+          ]
+        },
+        {
+          "repository": "flatbuffers",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+            }
+          ]
+        },
+        {
+          "repository": "pthreadpool",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "57814a606b4d0fb087d9a534919084b6c11b58a4174cb5a4aef200187780dc3a"
+            }
+          ]
+        },
+        {
+          "repository": "ruy",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+            }
+          ]
+        }
+      ],
+      "missing_notices": []
+    },
+    "flex": {
+      "linker_inputs": [
+        {
+          "abi": "arm64-v8a",
+          "parameter_file": "execroot/org_tensorflow/bazel-out/arm64-v8a-opt/bin/tensorflow/lite/java/libtensorflowlite_flex_jni.so-2.params",
+          "parameters_sha256": "e7a08be1517146f74d1286f040df0cc4f398a4d16260230c200d80c8fd0ad8f1",
+          "native_packaged_sha256": "4702626f330cc07f361c3cc384df4772de7e84bdc7daea0bf3f61b283233bc47",
+          "retained_binary_matches_packaged": true
+        },
+        {
+          "abi": "x86_64",
+          "parameter_file": "execroot/org_tensorflow/bazel-out/x86_64-opt/bin/tensorflow/lite/java/libtensorflowlite_flex_jni.so-2.params",
+          "parameters_sha256": "a769cb13c814466149eca10afe1d5611b383b483b05d7671d3829d397406bdef",
+          "native_packaged_sha256": "f1eb0a955ccb6d5b26563abebcffc607f5a2f670665b0a38cb1b1dcfb296777b",
+          "retained_binary_matches_packaged": true
+        }
+      ],
+      "repositories": [
+        {
+          "repository": "XNNPACK",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "63f519e15726f4c4f830bd958f694c84fecb4e0a4cacc527d2696bb71ef95ada"
+            }
+          ]
+        },
+        {
+          "repository": "com_google_absl",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "c79a7fea0e3cac04cd43f20e7b648e5a0ff8fa5344e644b0ee09ca1162b62747"
+            }
+          ]
+        },
+        {
+          "repository": "com_google_protobuf",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "6e5e117324afd944dcf67f36cf329843bc1a92229a8cd9bb573d7a83130fea7d"
+            }
+          ]
+        },
+        {
+          "repository": "com_googlesource_code_re2",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "6040cda75d90b1738292a631d89934c411ef7ffd543c4d6a1b7edfc8edf29449"
+            }
+          ]
+        },
+        {
+          "repository": "cpuinfo",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "8e7e60636c3aa0cb03571a1a841ce5697f9551ff92b3c426c2561613d15ade70"
+            }
+          ]
+        },
+        {
+          "repository": "double_conversion",
+          "notices": [
+            {
+              "path": "COPYING",
+              "sha256": "4af93c12062c58058378de2397dc1c92bbff9ddfb1d583a01c84127557ce97ca"
+            },
+            {
+              "path": "LICENSE",
+              "sha256": "4af93c12062c58058378de2397dc1c92bbff9ddfb1d583a01c84127557ce97ca"
+            }
+          ]
+        },
+        {
+          "repository": "ducc",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "c0e828304809eced53ac7e8ddf52decd253b240bf9a6eabc3967e88ce7577cb4"
+            }
+          ]
+        },
+        {
+          "repository": "farmhash_archive",
+          "notices": [
+            {
+              "path": "COPYING",
+              "sha256": "4162dd091caae234f72d3b57e138174f733e736b2430a4c51b098b17d866fcb6"
+            }
+          ]
+        },
+        {
+          "repository": "fft2d",
+          "notices": [
+            {
+              "path": "readme.txt",
+              "sha256": "5b5e610da10394132a42d82ed6501fe1b83a1d19e1bb160c8ace10ed61708765"
+            },
+            {
+              "path": "readme2d.txt",
+              "sha256": "0b2a2082537735a2a576dbec2e8f9c1a09812eac6df6a389502a6ba860072906"
+            }
+          ]
+        },
+        {
+          "repository": "flatbuffers",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+            }
+          ]
+        },
+        {
+          "repository": "gif",
+          "notices": [
+            {
+              "path": "COPYING",
+              "sha256": "0c9b7990ecdca88b676db232c226548ac408b279f550d424d996f0d83591dd8e"
+            }
+          ]
+        },
+        {
+          "repository": "highwayhash",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "8c6db340475136df3c1201d458fa5755698eace76e510471ecc9d857d6083dac"
+            }
+          ]
+        },
+        {
+          "repository": "icu",
+          "notices": [
+            {
+              "path": "icu4c/LICENSE",
+              "sha256": "7915b19db903070778581ae05d8bf4ea241b34a05deb51ca4f5cbb15ea1cbba3"
+            },
+            {
+              "path": "icu4c/license.html",
+              "sha256": "c62d7697c03979f5056d28b338fafc7a1152820f7b379adf4a9d88cd37160f96"
+            }
+          ]
+        },
+        {
+          "repository": "libjpeg_turbo",
+          "notices": [
+            {
+              "path": "LICENSE.md",
+              "sha256": "ee1eaf194d5924b6360af8a6ba6a4e1554037091f7505943300cdeec65f1aebb"
+            }
+          ]
+        },
+        {
+          "repository": "local_tsl",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1"
+            }
+          ]
+        },
+        {
+          "repository": "local_xla",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1"
+            }
+          ]
+        },
+        {
+          "repository": "nsync",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+            }
+          ]
+        },
+        {
+          "repository": "png",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "dfe5a536b0e5a531f844fb9c101a3089aca60772a503893b8e15f9457e369960"
+            }
+          ]
+        },
+        {
+          "repository": "pthreadpool",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "57814a606b4d0fb087d9a534919084b6c11b58a4174cb5a4aef200187780dc3a"
+            }
+          ]
+        },
+        {
+          "repository": "ruy",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+            }
+          ]
+        },
+        {
+          "repository": "zlib",
+          "notices": [
+            {
+              "path": "LICENSE",
+              "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"
+            }
+          ]
+        }
+      ],
+      "missing_notices": []
+    }
+  },
+  "remaining": [
+    "Header-only dependencies and per-source attribution review",
+    "Official unchanged 32-bit Flex libraries",
+    "Graphics Path and DataStore native dependency closure"
+  ]
+}

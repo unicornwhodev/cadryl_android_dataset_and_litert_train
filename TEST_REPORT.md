@@ -4,6 +4,71 @@
 
 Ce rapport distingue le candidat actuel des campagnes précédentes. Pour chaque résultat, les reçus gardent le build, les APK et l’appareil concernés.
 
+## Édition publique et didacticiel — 30 septembre 2026
+
+Le dépôt ne contient plus l’implémentation commerciale. Les tests et fichiers
+correspondants sont conservés hors de cet arbre avec leurs empreintes. Les
+fonctions métier, modèles, apprentissage et exports sont conservés.
+
+Les APK réelles Debug et Release ARM64 minifiée sont construites. Les 117 tests
+JVM publics passent, sans suppression d’un test public pour obtenir ce résultat ;
+les cinq tests de politique commerciale sont sortis avec leur implémentation.
+Lint : zéro erreur, 85 avertissements ; Room/KSP : 101 fichiers générés.
+Les 104 tests Python passent. Les DEX et manifestes des deux APK ne contiennent
+pas les SDK publicitaires/facturation ni leurs permissions.
+
+Les suites Android passent 61/61 sur AVD API 36/x86_64/pages 16 Ko et sur Oppo
+API 33/ARM64/pages 4 Ko avec Release signée. Trois tests utilisent l’activité
+réelle pour vérifier le didacticiel : case cochée, case non cochée, prochain
+lancement, relance dans les réglages et report limité à la session.
+Les préférences initiales sont restaurées ; aucune base utilisateur n’est effacée.
+
+Les matrices capturent 144 cas par orientation et par dispositif (576 au total).
+Le pilote indépendant passe 4/4 sur Oppo. Toutes les tables installées sont
+identiques avant/après mise à jour ; les 1 000 images sources publiques restent
+identiques au relevé initial. Ces résultats ne certifient pas tous les états UI.
+
+[Reçus et APK exactes](docs/PUBLIC_TUTORIAL_EVIDENCE.json) ·
+[Comportement du guide](docs/FIRST_LAUNCH_TUTORIAL.md).
+La release rc8 reste inchangée ; ARM physique 16 Ko et acceptation UI finale
+restent ouverts. Les campagnes suivantes sont historiques, avant cette séparation.
+
+## Interface simplifiée après rc8 — 30 septembre 2026
+
+Une action principale sur l’accueil, moins d’onglets redondants, aides et détails
+dans la page, options du modèle repliables sans perte de saisie. Les 16 routes,
+modèles, import, inférence, apprentissage et export restent disponibles.
+[Changements UI](docs/UI_REWORK_2026_09.md).
+
+Le build source sans pub ni abonnement passe 122 tests JVM, lint 0 erreur /
+86 avertissements et 101 fichiers KSP. Les outils passent 104 tests Python ;
+le serveur local passe 10 tests synthétiques. Le build optionnel avec les SDK
+de test est aussi compilé (122 JVM, lint 0 erreur / 87 avertissements) ; annonces
+et achats réels ne sont pas qualifiés par ce build.
+
+Les suites Android passent 58/58 sur l’AVD x86_64 / API 36 / pages 16 Ko et
+58/58 sur l’Oppo ARM64 / API 33 / pages 4 Ko avec la véritable Release minifiée
+signée. Les nouvelles assertions vérifient l’accès à l’apprentissage et la
+conservation d’une saisie non enregistrée quand le panneau du modèle est replié.
+La comparaison logique des tables avant/après installation sur Oppo est identique.
+Les matrices capturent 144 cas par orientation sur chacun des deux dispositifs
+(576 captures au total). Le pilote UI indépendant passe 4/4 sur l’Oppo ; les
+1 000 empreintes des images sources publiques correspondent au relevé initial.
+Les échecs intermédiaires restent conservés et ne reçoivent aucune qualification.
+
+Les APK, reçus et campagnes exactes sont liés dans [les preuves](docs/FINAL01_EVIDENCE.json).
+La future RC finale et l’acceptation humaine de son UI restent ouvertes.
+
+## Stabilisation avant la reprise UI — 30 septembre 2026
+
+Les correctifs d’import transactionnel, de lecture UTF-8 et de vérification des ZIP, le nettoyage des ressources et la préparation légale/publicitaire sont compilés réellement : 122 tests JVM réussis, lint 0 erreur/85 avertissements et 101 fichiers KSP dans le build sans monétisation. Le build optionnel de test passe aussi 122 tests JVM, lint 0 erreur/86 avertissements. Les outils passent 102 tests Python ; le serveur de validation local passe 10 tests synthétiques distincts.
+
+La suite métier passe 56/56 sur l’AVD x86_64/API 36/pages 16 Ko en Debug et 56/56 sur l’Oppo CPH2343/API 33/pages 4 Ko en Release minifiée signée. Le pilote UI indépendant passe 4/4 sur cette Release Oppo. Les tables installées sont identiques avant/après mise à jour ; les empreintes des 1 000 images sources publiques restent identiques.
+
+L’AVD sans monétisation capture 144 cas par orientation, soit 288 captures : 16 écrans et deux documents, FR/EN, clair/sombre, texte 100/200 %. Les textes coupés à 200 % et la couverture des autres états restent à traiter avant la validation humaine. Les captures ne constituent pas une certification UI.
+
+Ces résultats ne modifient pas la release rc8 publiée. La revue UI intégrale, les annonces et achats réels, l’identité légale complète et la provenance native complète restent des contrôles séparés. [Travaux et portée](docs/FINAL01_STABILIZATION_2026_09.md) · [Conditions du candidat final](docs/FINAL_RC_0_1_PLAN.md).
+
 ## Préversion actuelle : 4.2.0-rc8
 
 30 septembre 2026 : 106 JVM, 93 Python, lint 0 erreur/148 avertissements, 101 fichiers KSP. Suites Android 53/53 en Debug/AVD 16 Ko et Release/AVD 16 Ko, Honor et Oppo ARM64/4 Ko. UI indépendante 4/4 sur Oppo et AVD.

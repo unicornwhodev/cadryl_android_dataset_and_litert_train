@@ -7,6 +7,7 @@ The source manifest and both artifact hashes remain attached to the attempt.
 import argparse
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -15,7 +16,8 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'tools'))
-from build_android import atomic_json, digest, source_manifest, verify_local_flex
+from build_android import atomic_json, digest, source_manifest, verify_local_flex,sdk_dir,sdk_tool
+from check_monetization_free_apk import audit
 from check_graphics_runtime import verify_graphics
 from check_litert_runtime import verify_litert
 
@@ -31,6 +33,9 @@ def main():
                  production_qualified=False, recipe_sha256=digest(Path(__file__)))
     atomic_json(out / 'status.json', state)
     try:
+        mode=os.environ.get('VDS_MONETIZATION_MODE','disabled')
+        if mode != 'disabled': raise ValueError('Invalid VDS_MONETIZATION_MODE')
+        state['monetization_mode']=mode
         state['flex_runtime'] = verify_local_flex(ROOT)
         state['graphics_runtime'] = verify_graphics()
         state['litert_runtime'] = verify_litert()
@@ -57,6 +62,8 @@ def main():
             state['artifacts'][kind] = dict(file=target.name, sha256=digest(target), bytes=target.stat().st_size)
             if kind == 'app':
                 state['packaged_litert'] = verify_litert(target, [args.abi])
+                if mode=='disabled':
+                    state['monetization_sdk_audit']=audit(target,sdk_tool(sdk_dir(ROOT,os.environ)/'build-tools/36.0.0','aapt'))
         for variant in ('release', 'releaseAndroidTest'):
             shutil.copyfile(ROOT / f'app/build/outputs/mapping/{variant}/mapping.txt', out / (variant + '-mapping.txt'))
         state['outcome'] = 'release_test_apks_built'

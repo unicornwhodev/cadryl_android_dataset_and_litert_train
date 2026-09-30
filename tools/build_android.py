@@ -97,11 +97,12 @@ def sdk_tool(directory: Path, name: str, platform: str | None = None) -> Path:
 
 def source_manifest(root: Path) -> dict:
     names = subprocess.check_output(['git', 'ls-files', '-c', '-o', '--exclude-standard', '-z'], cwd=root).decode('utf-8').split('\0')
-    compiled = lambda name: (name.startswith(('app/', 'gradle/', 'release-qa/')) and not name.endswith('/.gitignore')) or name in ('build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'tools/build_android.py', 'tools/gradle_bootstrap.py', 'tools/build_flex_runtime.py', 'tools/build_graphics_path.py', 'config/graphics-path-source.json', 'tools/qa/check_graphics_runtime.py', 'tools/qa/check_flex_runtime.py', 'tools/qa/check_apk_page_sizes.py', 'tools/build_litert_runtime.py', 'config/litert-source.json', 'tools/qa/check_litert_runtime.py', 'third_party/patches/cpuinfo-l2-count.patch')
+    compiled = lambda name: (name.startswith(('app/', 'gradle/', 'release-qa/')) and not name.endswith('/.gitignore')) or name in ('build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'tools/build_android.py', 'tools/gradle_bootstrap.py', 'tools/build_flex_runtime.py', 'tools/build_graphics_path.py', 'config/graphics-path-source.json', 'tools/qa/check_monetization_free_apk.py', 'tools/qa/check_graphics_runtime.py', 'tools/qa/check_flex_runtime.py', 'tools/qa/check_apk_page_sizes.py', 'tools/build_litert_runtime.py', 'config/litert-source.json', 'tools/qa/check_litert_runtime.py', 'third_party/patches/cpuinfo-l2-count.patch')
     native = root / LOCAL_MAVEN / AAR_NAME
     return {
         'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root).decode().strip(),
-        'files': {name: digest(root / name) for name in sorted(set(names)) if name and compiled(name)},
+        'files': {name: digest(root / name) for name in sorted(set(names)) if name and compiled(name) and (root / name).is_file()},
+        'deleted_tracked_files': [name for name in sorted(set(names)) if name and compiled(name) and not (root / name).exists()],
         'native_runtime': {'file': native.relative_to(root).as_posix(), 'sha256': digest(native)} if native.is_file() else None,
         'native_runtimes': {p.relative_to(ROOT).as_posix(): digest(root / p.relative_to(ROOT))
                             for p in (LITERT_AAR, GRAPHICS_AAR) if (root / p.relative_to(ROOT)).is_file()},
@@ -208,6 +209,9 @@ def main(root: Path = ROOT) -> int:
         # Use the same isolated home for bootstrap and overridden Gradle executables.
         gradle_home = Path(os.environ.get('GRADLE_USER_HOME', root / 'dist/gradle-home')).resolve()
         gradle += ['--gradle-user-home', str(gradle_home)]
+        if os.environ.get('VDS_MONETIZATION_MODE', 'disabled') != 'disabled':
+            raise Blocked('This public repository builds only the source edition.')
+        attempt.state['monetization_mode'] = 'disabled'
         attempt.state['gradle_user_home'] = str(gradle_home)
         attempt.fail_on_command('gradle-version', [*gradle, '--version'])
         version_log = (attempt.out / 'gradle-version.log').read_text(encoding='utf-8')
@@ -227,6 +231,8 @@ def main(root: Path = ROOT) -> int:
         attempt.state['phase'] = 'verify-app'; attempt.save()
         attempt.store_apk(root / 'app/build/outputs/apk/debug/app-debug.apk',
                           'vision-dataset-studio-uwd-debug.apk', 'app', APP_ID, tools)
+        from qa.check_monetization_free_apk import audit
+        attempt.state['monetization_sdk_audit']=audit(root/'app/build/outputs/apk/debug/app-debug.apk',sdk_tool(tools,'aapt'))
         attempt.state['phase'] = 'dependency-tests-lint'; attempt.save()
         checks = attempt.command('checks', [*gradle, ':app:testDebugUnitTest', ':app:lintDebug',
                    ':app:assembleDebugAndroidTest', '--continue', '--console=plain', '--stacktrace'])

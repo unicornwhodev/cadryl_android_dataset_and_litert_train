@@ -22,7 +22,7 @@ fun WorkspaceTopBar(vm: MainViewModel, title: String, eyebrow: String? = null,
     val screen by vm.currentScreen.collectAsState()
     val busy by vm.isBusy.collectAsState()
     val tabs = when (screen.workspace()) {
-        Screen.Home -> listOf(Screen.Home to tr("Atelier", "Studio"), Screen.Setup to tr("Configurer", "Setup"), Screen.Controls to tr("Projets", "Projects"))
+        Screen.Home -> emptyList()
         Screen.Models -> listOf(Screen.Models to tr("Bibliothèque", "Library"), Screen.ModelSettings to tr("Réglages", "Settings"),
             Screen.Training to tr("Apprentissage", "Training"))
         Screen.Publication -> listOf(Screen.Publication to tr("Exporter", "Export"), Screen.TransferSettings to tr("Destination et stockage", "Destination & storage"))

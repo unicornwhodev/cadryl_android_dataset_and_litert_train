@@ -18,7 +18,7 @@ conservent les reçus originaux. La signature Windows diffère de rc4 ; consulte
 | Contrôle | Résultat | Preuve locale |
 |---|---|---|
 | Build Windows Compose/Room/Moshi/LiteRT | Deux APK réelles, 99 fichiers KSP | `dist/android/runs/20260923T104142Z-befce3e3596a/` |
-| JVM / Python | 67 / 70 réussis ; 63 Python au build, 7 contrôles de packaging ajoutés | Rapports du build / [Python avant publication](../test-results/windows-rc5-release/python-tests-publication.log) |
+| JVM / Python | 67 / 70 réussis ; 63 Python au build, 7 contrôles de packaging ajoutés | Rapports du build / [Python avant publication](https://github.com/unicornwhodev/vision-dataset-studio/blob/7f3633be5ef20d24cb160aada94e1347a10ccb6f/test-results/windows-rc5-release/python-tests-publication.log) |
 | Lint | 0 erreur, 88 avertissements | Rapports du build |
 | Suite de base API 35 x86_64, 4 Ko | 39/39, zéro échec ou ignoré, UI démarrée | `test-results/model-lineage-20260923/final-api35-4k/` |
 | Suite de base API 35 x86_64, 16 Ko | 39/39, zéro échec ou ignoré, UI démarrée | `test-results/model-lineage-20260923/final-api35-16k/` |

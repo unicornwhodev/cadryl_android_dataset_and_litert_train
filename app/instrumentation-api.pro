@@ -944,7 +944,8 @@
   public static java.lang.String tr(java.lang.String,java.lang.String);
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.core.storage.DurableFiles {
-  public void replace(java.io.File,kotlin.jvm.functions.Function1);
+  public void replace(java.io.File,kotlin.jvm.functions.Function1,kotlin.jvm.functions.Function1);
+  public static void replace$default(com.unicornwhodev.visiondatasetstudio.core.storage.DurableFiles,java.io.File,kotlin.jvm.functions.Function1,kotlin.jvm.functions.Function1,int,java.lang.Object);
   com.unicornwhodev.visiondatasetstudio.core.storage.DurableFiles INSTANCE;
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.core.storage.SafArchives {
@@ -2558,6 +2559,7 @@
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.data.source.SourceCatalog {
   public <init>(android.content.Context,com.unicornwhodev.visiondatasetstudio.data.db.AppDatabase,com.unicornwhodev.visiondatasetstudio.data.hf.HfApiClient);
+  public java.lang.Object importManifest(com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity,android.net.Uri,android.net.Uri,kotlin.coroutines.Continuation);
   public java.lang.Object page(com.unicornwhodev.visiondatasetstudio.data.model.ProjectEntity,long,int,kotlin.coroutines.Continuation);
 }
 -keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.data.source.SourcePageResult {
@@ -2608,4 +2610,19 @@
 }
 -keep,allowaccessmodification class okhttp3.ResponseBody$Companion {
   public okhttp3.ResponseBody create(java.lang.String,okhttp3.MediaType);
+}
+# Exact public APIs used by the opt-in UI matrix. Production shrinking remains enabled.
+-keep,allowaccessmodification interface com.unicornwhodev.visiondatasetstudio.data.db.SourceEntryDao {
+  public java.lang.Object insert(java.util.List,kotlin.coroutines.Continuation);
+  public java.lang.Object page(long,long,int,kotlin.coroutines.Continuation);
+}
+
+# One composed component exercised directly by the draft-preservation test.
+-keep,allowaccessmodification interface androidx.compose.foundation.layout.ColumnScope {
+}
+-keep,allowaccessmodification class androidx.compose.material3.OutlinedTextFieldKt {
+  public static void OutlinedTextField(java.lang.String,kotlin.jvm.functions.Function1,androidx.compose.ui.Modifier,boolean,boolean,androidx.compose.ui.text.TextStyle,kotlin.jvm.functions.Function2,kotlin.jvm.functions.Function2,kotlin.jvm.functions.Function2,kotlin.jvm.functions.Function2,kotlin.jvm.functions.Function2,kotlin.jvm.functions.Function2,kotlin.jvm.functions.Function2,boolean,androidx.compose.ui.text.input.VisualTransformation,androidx.compose.foundation.text.KeyboardOptions,androidx.compose.foundation.text.KeyboardActions,boolean,int,int,androidx.compose.foundation.interaction.MutableInteractionSource,androidx.compose.ui.graphics.Shape,androidx.compose.material3.TextFieldColors,androidx.compose.runtime.Composer,int,int,int,int);
+}
+-keep,allowaccessmodification class com.unicornwhodev.visiondatasetstudio.ui.components.StudioComponentsKt {
+  public static void StudioDisclosure(java.lang.String,androidx.compose.ui.graphics.vector.ImageVector,boolean,boolean,kotlin.jvm.functions.Function3,androidx.compose.runtime.Composer,int,int);
 }

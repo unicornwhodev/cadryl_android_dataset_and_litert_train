@@ -16,6 +16,7 @@ import subprocess
 import time
 from run_device_qualification import APP_ID, EXCLUDED, keyguard_showing, parse_instrumentation
 from art_environment import art_crashes
+from adb_transport import prefix,server_port
 
 
 def main():
@@ -37,7 +38,7 @@ def main():
     if os.environ.get('VDS_ALLOW_TEST_INSTALL') != '1':
         parser.error('Select an authorized QA device and VDS_ALLOW_TEST_INSTALL=1.')
     args.output.mkdir(parents=True, exist_ok=False)
-    adb = ['adb', '-s', args.serial]
+    adb = prefix(args.serial)
     state = dict(outcome='running', suite='minified_release_core', production_qualified=False,
                  started_at=datetime.now(timezone.utc).isoformat(), main_sha256=args.sha256,
                  test_sha256=args.test_sha256, uses_existing_synthetic_fixtures=True,
@@ -105,7 +106,7 @@ def main():
                         classes = re.findall(r'INSTRUMENTATION_STATUS: class=(.*)', progress)
                         tests = re.findall(r'INSTRUMENTATION_STATUS: test=(.*)', progress)
                         active = (classes[-1], tests[-1]) if classes and tests else None
-                        ui = ('EnglishLocaleComposeTest', 'FunctionalUiAuditTest', 'NativePhotoInferenceUiTest', 'SegmentationCanvasTest', 'StudioComposeV4Test', 'GuidedSetupTest')
+                        ui = ('EnglishLocaleComposeTest', 'FunctionalUiAuditTest', 'NativePhotoInferenceUiTest', 'SegmentationCanvasTest', 'StudioComposeV4Test', 'GuidedSetupTest', 'FirstLaunchTutorialTest')
                         if active and active != foreground_test and active[0].split('.')[-1] not in ui:
                             run('foreground-' + str(len(seen)) + '-' + str(time.monotonic_ns()) + '.txt',
                                 'shell', 'am', 'start', '-f', '0x20000000', '-n', APP_ID + '/.MainActivity')

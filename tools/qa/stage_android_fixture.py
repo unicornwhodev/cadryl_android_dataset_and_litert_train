@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Copy an external QA fixture into a dedicated debuggable Android test installation."""
 import argparse
+from adb_transport import prefix
 import os
 from pathlib import Path
 import subprocess
@@ -14,7 +15,7 @@ a=p.parse_args()
 if os.environ.get('VDS_ALLOW_TEST_INSTALL')!='1':
     p.error('Set VDS_ALLOW_TEST_INSTALL=1 for a dedicated test device')
 if not a.source.is_dir():p.error('Missing fixture directory')
-adb=['adb','-s',a.serial]
+adb=prefix(a.serial)
 package='com.unicornwhodev.visiondatasetstudio'
 target='files/'+a.name
 subprocess.run([*adb,'shell','run-as',package,'mkdir','-p',target],check=True)

@@ -19,11 +19,12 @@ import xml.etree.ElementTree as ET
 
 from resolve_apks import APP_ID, ROOT, resolve
 from art_environment import art_crashes
+from adb_transport import prefix,server_port
 
 EXCLUDED = ('HfModelRuntimeTest', 'ConvertedModelQualificationTest',
             'NativePhotoInferenceUiTest', 'HfLivePublicationTest', 'InstalledDataPreservationTest',
             'ExternalFaultQualificationTest', 'HfInterruptedDownloadTest', 'HfFaultPublicationTest', 'PurgeProcessDeathTest',
-            'ReleaseUpdateContinuityTest', 'BackgroundTrainingPreparationTest')
+            'ReleaseUpdateContinuityTest', 'BackgroundTrainingPreparationTest', 'CompleteUiMatrixTest', 'InstalledDatabaseDigestTest')
 
 
 def parse_instrumentation(text: str) -> dict:
@@ -57,7 +58,9 @@ def parse_instrumentation(text: str) -> dict:
 def home_ui_visible(xml: str) -> bool:
     # Compact physical-device navigation can omit the literal Studio label.
     labels = {node.get('text') for node in ET.fromstring(xml).iter('node') if node.get('package') == APP_ID}
-    return 'Studio' in labels or (bool(labels & {'Modèle', 'Model'}) and bool(labels & {'Outils', 'Tools'}))
+    return 'Studio' in labels or (bool(labels & {'Modèle', 'Model'}) and bool(labels & {'Outils', 'Tools'})) or (
+        bool(labels & {'Atelier', 'Studio'}) and bool(labels & {'Modèles', 'Models'})
+        and bool(labels & {'Export', 'Exporter'}))
 
 
 def keyguard_showing(policy: str) -> bool:
@@ -85,7 +88,7 @@ def main() -> int:
             parser.error(f'Missing fixture: {folder / name}')
     out = args.output or ROOT / 'test-results' / ('device-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ-') + uuid.uuid4().hex[:8])
     out.mkdir(parents=True, exist_ok=False)
-    adb = ['adb', '-s', args.serial]
+    adb = prefix(args.serial)
     state = dict(schema=1, serial=args.serial, application_id=APP_ID,
                  started_at=datetime.now(timezone.utc).isoformat(), outcome='running',
                  suite='core', excluded_classes=list(EXCLUDED),
@@ -134,7 +137,7 @@ def main() -> int:
                                 # conditions, including after a UI test closes it.
                                 ui_classes = ('EnglishLocaleComposeTest', 'FunctionalUiAuditTest',
                                               'NativePhotoInferenceUiTest', 'SegmentationCanvasTest',
-                                              'StudioComposeV4Test', 'GuidedSetupTest')
+                                              'StudioComposeV4Test', 'GuidedSetupTest', 'FirstLaunchTutorialTest')
                                 if active and active != foreground_test and active[0].split('.')[-1] not in ui_classes:
                                     info = subprocess.run([*adb, 'shell', 'am', 'start', '-f', '0x20000000', '-n', APP_ID + '/.qa.QaPresenceActivity'], capture_output=True, text=True, timeout=15)
                                     if info.returncode or 'Error' in info.stdout + info.stderr:

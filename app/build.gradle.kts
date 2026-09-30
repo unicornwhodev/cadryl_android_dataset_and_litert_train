@@ -78,7 +78,6 @@ dependencies {
   implementation(libs.androidx.lifecycle.runtime.compose)
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.lifecycle.viewmodel.compose)
-  implementation(libs.androidx.navigation.compose)
   implementation(libs.androidx.room.ktx)
   implementation(libs.androidx.room.runtime)
   implementation(libs.coil.compose)
@@ -95,7 +94,6 @@ dependencies {
 
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
-  implementation(libs.logging.interceptor)
   implementation(libs.moshi.kotlin)
   implementation(libs.okhttp)
   implementation(libs.retrofit)
@@ -121,7 +119,9 @@ dependencies {
 
 // Checked-in generated schemas are produced by KSP; never replace them with invented hashes.
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
-kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11) } }
+kotlin {
+    compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11) }
+}
 android.sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
 android.sourceSets.getByName("test").resources.srcDir("$projectDir/schemas")
 

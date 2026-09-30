@@ -1,5 +1,8 @@
 package com.unicornwhodev.visiondatasetstudio
 import androidx.compose.ui.test.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
@@ -15,7 +18,8 @@ class StudioComposeV4Test {
         rule.onNodeWithTag("controls_shortcut").performClick()
         rule.onAllNodesWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Mes projets", "My projects")).onFirst().assertIsDisplayed()
         rule.onNodeWithTag("nav_Models").performClick()
-        rule.onNodeWithText("SSD MobileNet V1").performScrollTo().assertIsDisplayed()
+        rule.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("SSD MobileNet V1"))
+        rule.onNodeWithText("SSD MobileNet V1").assertIsDisplayed()
         rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Réglages", "Settings")).performClick()
         rule.onNodeWithTag("nav_Models").assertIsSelected()
         rule.onNodeWithText(com.unicornwhodev.visiondatasetstudio.core.i18n.tr("Contrat JSON, mesures et outils avancés", "JSON contract, benchmarks & advanced tools")).performScrollTo().performClick()
@@ -43,4 +47,30 @@ class StudioComposeV4Test {
         // The workspace command must now be immediately available on both layouts.
         rule.onNodeWithTag("home_primary").assertIsDisplayed().assertHasClickAction()
     }
+    @Test fun homeKeepsTrainingExplicitlyAccessible() {
+        rule.waitUntil(10000) { rule.onAllNodesWithTag("nav_Home").fetchSemanticsNodes().isNotEmpty() }
+        rule.onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("home_training"))
+        rule.onNodeWithTag("home_training").assertIsDisplayed().performClick()
+        rule.onNodeWithTag("route_Training").assertExists()
+        rule.onNodeWithTag("nav_Models").assertIsSelected()
+        rule.onNodeWithTag("nav_Home").performClick()
+        rule.onNodeWithTag("route_Home").assertExists()
+    }
+
+    @Test fun foldingModelOptionsKeepsUncommittedInput() {
+        rule.setStudioTestContent {
+            androidx.compose.material3.MaterialTheme {
+                com.unicornwhodev.visiondatasetstudio.ui.components.StudioDisclosure("Options",initiallyExpanded=true,keepContent=true) {
+                    var draft by remember { mutableStateOf("") }
+                    androidx.compose.material3.OutlinedTextField(draft,{draft=it},modifier=Modifier.testTag("qa_unsaved_model_input"))
+                }
+            }
+        }
+        rule.onNodeWithTag("qa_unsaved_model_input").performTextInput("unsaved model option")
+        rule.onNodeWithText("Options").performClick()
+        rule.onNodeWithTag("qa_unsaved_model_input",useUnmergedTree=true).assertIsNotDisplayed()
+        rule.onNodeWithText("Options").performClick()
+        rule.onNodeWithTag("qa_unsaved_model_input").assertTextContains("unsaved model option")
+    }
+
 }

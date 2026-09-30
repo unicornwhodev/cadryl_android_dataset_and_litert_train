@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.unicornwhodev.visiondatasetstudio.core.workflow.*
 import com.unicornwhodev.visiondatasetstudio.ui.MainViewModel
@@ -65,6 +66,13 @@ fun StudioPreferencesScreen(viewModel: MainViewModel) {
                     Button(onClick = { viewModel.updateTasks(chosenTasks) }, enabled = !busy && chosenTasks != StudioWorkflow.parseTasks(project?.activeTasksCsv ?: "DETECTION")) { Text(stringResource(R.string.common_apply)) }
                 }
                 StudioDetails(tr("L’adaptation est explicite : aucun apprentissage caché de vos décisions, aucune modification automatique des classes ou des annotations.", "Adaptation is explicit: no hidden learning from decisions or automatic changes to classes or annotations."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                StudioSection(tr("Didacticiel", "Tutorial"),icon=Icons.Default.AutoAwesome) {
+                    Text(tr("Quatre étapes interactives, sans modifier vos projets.", "Four interactive steps without changing your projects."))
+                    OutlinedButton(onClick=viewModel::replayTutorial,modifier=Modifier.testTag("tutorial_replay")) {
+                        Text(tr("Relancer le didacticiel", "Replay tutorial"))
+                    }
+                }
+                LegalPanel()
             }
         }
     }

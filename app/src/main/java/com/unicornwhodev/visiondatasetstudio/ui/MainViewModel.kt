@@ -68,6 +68,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val projectMaintenance = com.unicornwhodev.visiondatasetstudio.domain.batch.ProjectMaintenance(application,db,storageManager)
     val preferenceStore = StudioPreferenceStore(application)
     val preferences = preferenceStore.state
+    val tutorialOnLaunch = preferenceStore.tutorialOnLaunch
+    private val tutorialDismissed = MutableStateFlow(false)
+    private val tutorialReplay = MutableStateFlow(false)
+    private val _tutorialSession = MutableStateFlow(0)
+    val tutorialSession = _tutorialSession.asStateFlow()
+    val tutorialVisible = combine(tutorialOnLaunch, tutorialDismissed, tutorialReplay) { enabled, dismissed, replay ->
+        (enabled || replay) && !dismissed
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, tutorialOnLaunch.value)
+    private val _tutorialSaveError = MutableStateFlow(false)
+    val tutorialSaveError = _tutorialSaveError.asStateFlow()
+    fun finishTutorial(disableNextLaunch: Boolean) {
+        viewModelScope.launch {
+            val saved = withContext(Dispatchers.IO) { preferenceStore.setTutorialOnLaunch(!disableNextLaunch) }
+            _tutorialSaveError.value = !saved
+            if (saved) tutorialDismissed.value = true
+        }
+    }
+    fun postponeTutorial() { tutorialDismissed.value = true }
+    fun replayTutorial() {
+        _tutorialSession.value += 1
+        _tutorialSaveError.value = false
+        tutorialReplay.value = true
+        tutorialDismissed.value = false
+        navigateTo(Screen.Home)
+    }
     private val _activeProjectId = MutableStateFlow(preferenceStore.activeProjectId)
     val activeProjectId = _activeProjectId.asStateFlow()
     val projects = db.projectDao().getProjects().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -129,6 +154,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val operationProgress = _operationProgress.asStateFlow()
     private val _isBusy = MutableStateFlow(false)
     val isBusy = _isBusy.asStateFlow()
+    private val _exportInProgress = MutableStateFlow(false)
+    val exportInProgress = _exportInProgress.asStateFlow()
     private val _editorBusy = MutableStateFlow(false)
     val editorBusy = _editorBusy.asStateFlow()
     private val _saveState = MutableStateFlow(tr("Enregistré sur cet appareil", "Saved on this device"))
@@ -213,16 +240,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _inferenceReceipts.value=rows.joinToString("\n\n"){r->tr("${r.outcome.uppercase()} · ${r.sampleId ?: "benchmark"} · ${r.diagnostics.adapter}/${r.diagnostics.task}\nSHA ${r.diagnostics.modelSha256} · entrée ${r.diagnostics.inputShape} · seuil ${r.diagnostics.threshold} · ${r.diagnostics.proposalCount} proposition(s)", "${r.outcome.uppercase()} · ${r.sampleId ?: "benchmark"} · ${r.diagnostics.adapter}/${r.diagnostics.task}\nSHA ${r.diagnostics.modelSha256} · input ${r.diagnostics.inputShape} · threshold ${r.diagnostics.threshold} · ${r.diagnostics.proposalCount} proposal(s)")+(r.diagnostics.emptyReason?.let{"\n$it"}?:"")+(r.diagnostics.error?.let{tr("\nErreur : $it", "\nError: $it")}?:"")}
     }
 
-    private fun operation(block: suspend () -> Unit) {
+    private fun operation(export: Boolean = false, block: suspend () -> Unit) {
         if (_isBusy.value || _editorBusy.value) return
         _isBusy.value = true
+        _exportInProgress.value = export
         operationJob = viewModelScope.launch {
             // Project creation/selection must not race the initial batch restoration.
             // Otherwise an old project's batch number can be applied to the new project.
             try { initializationJob.join(); flushEdits(); block() }
             catch (e: CancellationException) { reportError(tr("Opération interrompue. Les corrections et les copies non vérifiées sont conservées.", "Operation interrupted. Corrections and unverified copies are preserved.")); throw e }
             catch (e: Exception) { reportError(e.message ?: tr("L’opération a échoué. Aucune validation n’a été inventée.", "The operation failed. No validation was fabricated.")) }
-            finally { _isBusy.value = false }
+            finally { _exportInProgress.value = false; _isBusy.value = false }
         }
     }
     private suspend fun flushEdits() {
@@ -1100,10 +1128,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } finally { liteRtEngine.close() }
     }
 
-    fun exportActiveBatchToLocalZip(includeWebDataset: Boolean = true, includeJsonl: Boolean = true, includeCoco: Boolean = true, includeYolo: Boolean = true, includeVl: Boolean = true) = operation {
+    fun exportActiveBatchToLocalZip(includeWebDataset: Boolean = true, includeJsonl: Boolean = true, includeCoco: Boolean = true, includeYolo: Boolean = true, includeVl: Boolean = true) = operation(export = true) {
         prepareActiveArchive(includeWebDataset,includeJsonl,includeCoco,includeYolo,includeVl)
     }
     private suspend fun prepareActiveArchive(includeWebDataset: Boolean = true, includeJsonl: Boolean = true, includeCoco: Boolean = true, includeYolo: Boolean = true, includeVl: Boolean = true) {
+        // The workflow route uses this same preparation path; it must expose the same export lifetime.
+        _exportInProgress.value = true
         _operationProgress.value = OperationProgress(tr("Préparation de l’archive locale…", "Preparing the local archive…"), 0, 1)
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Atelier absent", "Studio not found"))
         check(db.batchDao().getBatchSync(_activeProjectId.value, _activeBatchNumber.value)?.status !in com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety.lockedStates) { tr("Le paquet publié doit rester inchangé pour vérification. Récupérez les fichiers depuis le commit HF ou conservez l’archive déjà prête.", "The published package must stay unchanged for verification. Retrieve files from the HF commit or keep the existing archive.") }
@@ -1125,12 +1155,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _previewSnippet.value = if (s == null) tr("Aucun cas dans ce lot.", "No samples in this batch.") else exporters.generatePreviewSnippet(format, s, batchEngine.getSampleAnnotations(s.sampleId), p)
         }
     }
-    fun recoverPendingTransferArchive() = operation {
+    fun recoverPendingTransferArchive() = operation(export = true) {
         _lastExportedZip.value = batchEngine.recoverPendingArchive(_activeProjectId.value, _activeBatchNumber.value)
         _operationProgress.value = OperationProgress(tr("Copie prête à enregistrer. L’envoi HF reste en attente de vérification.",
             "Copy ready to save. The HF upload still awaits verification."), 1, 1)
     }
-    fun saveArchiveToUri(uri: Uri) = operation {
+    fun saveArchiveToUri(uri: Uri) = operation(export = true) {
         val file = _lastExportedZip.value?.takeIf { it.isFile } ?: error(tr("Préparez d’abord l’archive", "Prepare the archive first"))
         val copyReceipt=withContext(Dispatchers.IO) {
             val ctx=kotlin.coroutines.coroutineContext
@@ -1417,7 +1447,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     override fun onCleared() { liteRtEngine.close();super.onCleared() }
 
     fun clearPreviewSnippet() { _previewSnippet.value = null }
-    fun publishActiveBatch() = operation {
+    fun publishActiveBatch() = operation(export = true) {
         _operationProgress.value = OperationProgress(tr("Publication et vérification distante…", "Publishing and verifying remotely…"), 0, 1)
         val result = batchEngine.publishAndVerifyBatch(_activeProjectId.value, _activeBatchNumber.value)
         val learning=if(result.success)prepareOptionalExportTraining(_activeProjectId.value,_activeBatchNumber.value) else ""

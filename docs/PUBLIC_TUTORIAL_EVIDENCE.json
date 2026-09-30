@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "date": "2026-09-30",
+  "application_id": "com.unicornwhodev.visiondatasetstudio",
+  "edition": "public Apache-2.0",
+  "published_rc8_changed": false,
+  "final_rc_published": false,
+  "human_ui_accepted": false,
+  "production_qualified": false,
+  "builds": {
+    "debug": {
+      "local_receipt": "dist/android/runs/20260930T050523Z-25d642deaac8/status.json",
+      "receipt_sha256": "6fb90fd4f0356a6c696298db6df5bdeb9c4c6e60f055d18e3b011c66d2dff6a4",
+      "apk_pair": {
+        "app": "c9241b7e9f0ab33214593c96d2d2d92506e067b5b151b5d0cf7a79b9bc91c721",
+        "tests": "0f675fc2a8da53c2fd7bf38121d96395c20487d8e5ea1894454bc9bbc881f281"
+      }
+    },
+    "release": {
+      "local_receipt": "dist/release-tests/runs/20260930T050900Z-6005bd58/status.json",
+      "receipt_sha256": "6566d66df7cd1066ae2427a155bee244f6e114232cea35835ae2a446fb36059e",
+      "signing_receipt": {
+        "local_receipt": "dist/release-tests/runs/20260930T050900Z-6005bd58/signing-3340db6c360c/status.json",
+        "receipt_sha256": "d313a3acafa808ce2ae71489de96b9505bc6f8a2756a6e446170981307cff368"
+      },
+      "apk_pair": {
+        "app": "1747fc4d1173bf3834be1758adf46036bd9f706585e5a5455b27d616077ec3d7",
+        "tests": "a2051f917e30764ee06ad4d60f67f43d69dc283199625e4679dbe0d737c0e9a5"
+      }
+    }
+  },
+  "checks": {
+    "jvm": {
+      "tests": 117,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lint": {
+      "Error": 0,
+      "Warning": 85
+    },
+    "ksp_generated_files": 101,
+    "python_tools": 104,
+    "python_receipt": {
+      "local_receipt": "dist/final01-review/python-public-tutorial-v1.log",
+      "receipt_sha256": "3d1de582ef09ad033212241c31d1116f298e6018b9a40ff78541f9b27a7b1624"
+    },
+    "sdk_absence_debug": "monetization_sdk_absent",
+    "sdk_absence_release": "monetization_sdk_absent"
+  },
+  "devices": {
+    "avd": {
+      "physical": false,
+      "android_api": 36,
+      "page_size": 16384,
+      "abi": "x86_64",
+      "core": {
+        "local_receipt": "test-results/public-tutorial-avd-core-v1-20260930/status.json",
+        "receipt_sha256": "a0a00e544c88185655ddc7136ff949d0f536c1c2daef3d9b9477c96c76de1d3d",
+        "passed": 61,
+        "failed": 0,
+        "skipped": 0,
+        "tutorial_tests": 3
+      },
+      "matrices": {
+        "portrait": {
+          "local_receipt": "test-results/public-tutorial-avd-portrait-v1-20260930/status.json",
+          "receipt_sha256": "fd7692f8d273a84e5970e00145b1e17124676599631c6d9ea149a05133b54d10",
+          "captures": 144,
+          "human_certified": false
+        },
+        "landscape": {
+          "local_receipt": "test-results/public-tutorial-avd-landscape-v1-20260930/status.json",
+          "receipt_sha256": "c2470f874f7d297646e74194bf184f7462df6d5ba4154e7fc2f2c6a037635a01",
+          "captures": 144,
+          "human_certified": false
+        }
+      }
+    },
+    "oppo": {
+      "physical": true,
+      "android_api": 33,
+      "page_size": 4096,
+      "abi": "arm64-v8a",
+      "core": {
+        "local_receipt": "test-results/public-tutorial-oppo-core-v1-20260930/status.json",
+        "receipt_sha256": "2184be4966837b6a5e5716d8b9c9066526c3705162fd1282125aadc280dc2385",
+        "passed": 61,
+        "failed": 0,
+        "skipped": 0,
+        "tutorial_tests": 3
+      },
+      "matrices": {
+        "portrait": {
+          "local_receipt": "test-results/public-tutorial-oppo-portrait-v1-20260930/status.json",
+          "receipt_sha256": "daf697af14ba0dfe3903eeb0ad82c61d2265d66c1c586bef2b77074c416d3199",
+          "captures": 144,
+          "human_certified": false
+        },
+        "landscape": {
+          "local_receipt": "test-results/public-tutorial-oppo-landscape-v1-20260930/status.json",
+          "receipt_sha256": "c9ad513d7c20c43f327fd297d7755ed37c11002bf18e039951dcbac41a79eabe",
+          "captures": 144,
+          "human_certified": false
+        }
+      },
+      "database_update": {
+        "local_receipt": "test-results/public-tutorial-oppo-after-v1-20260930/status.json",
+        "receipt_sha256": "96dc50804f5c23f10e73cb718388eebb90b707de51fdf6ec80b7f5e9a46a2530",
+        "all_installed_tables_preserved": true,
+        "user_contents_exported": false
+      },
+      "independent_ui": {
+        "local_receipt": "test-results/public-tutorial-oppo-host-v1-20260930/status.json",
+        "receipt_sha256": "0f26e2b976e9a86f306fb534922b679ec55be4a0f1d08265fcfeecce4df70e5b",
+        "passed": 4
+      },
+      "public_source_images": {
+        "files": 1000,
+        "equal": true,
+        "sha256_sorted": "f2d7d76272e6060ceed815f33cbd01d1240f77550603bf99eb66a66a12a56fa4"
+      }
+    }
+  },
+  "open_gates": [
+    "physical ARM 16 KiB",
+    "full UI states and human acceptance",
+    "complete legal publisher details",
+    "complete native provenance"
+  ],
+  "source_review": {
+    "staged_diff_detected_secrets": 0,
+    "staged_diff_raw_findings": 18,
+    "staged_diff_classification": "public_signing_key_fingerprints_in_deleted_receipts",
+    "whole_tree_raw_findings": 90,
+    "classifications": {
+      "public_source_file_sha256": 54,
+      "public_signing_key_fingerprint": 36
+    },
+    "confirmed_secrets": 0,
+    "unresolved": 0,
+    "compiled_files_match_index": 232,
+    "compiled_mismatches": [],
+    "unchanged_apache2_license_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "ai_studio_key_pattern_source_matches": 0,
+    "ai_studio_key_pattern_history_matches": 0
+  },
+  "history_rewrite": {
+    "authorized_by_owner": true,
+    "scope": "recent main commit",
+    "immutable_release_tags_changed": false
+  }
+}

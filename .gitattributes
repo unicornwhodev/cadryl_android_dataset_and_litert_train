@@ -1,5 +1,10 @@
 # Build inputs have identical bytes on Windows and Unix, independently of core.autocrlf.
 * text=auto eol=lf
+/third_party/native-notices/originals/** -text whitespace=-blank-at-eol,-blank-at-eof
+# Preserve the upstream whitespace in licence texts and their assembled notices.
+/third_party/native-notices/NOTICES.native.txt whitespace=-blank-at-eol,-blank-at-eof
+/third_party/NOTICES.runtime.txt whitespace=-blank-at-eol,-blank-at-eof
+/app/src/main/assets/legal/notices.txt whitespace=-blank-at-eol,-blank-at-eof
 *.bat text eol=crlf
 # Qualification receipts are immutable raw evidence, including Windows line endings.
 /test-results/rc6-release/** -text

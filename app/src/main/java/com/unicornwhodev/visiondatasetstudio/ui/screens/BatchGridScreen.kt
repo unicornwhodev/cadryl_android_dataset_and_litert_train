@@ -151,13 +151,10 @@ fun BatchGridScreen(viewModel: MainViewModel) {
                     OutlinedTextField(search, { search = it }, leadingIcon = { Icon(Icons.Default.Search, null, Modifier.size(18.dp)) }, placeholder = { Text(tr("Rechercher une image", "Search images"), style = MaterialTheme.typography.bodySmall) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(top = 12.dp))
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         BatchFilter.entries.forEach { f ->
-                            Column(Modifier.width(IntrinsicSize.Max).clickable(role = Role.Tab) { filter = f }.semantics { this.selected = filter == f }, horizontalAlignment = Alignment.CenterHorizontally) {
-                                Row(Modifier.heightIn(min = 46.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Text(f.title, style = MaterialTheme.typography.labelMedium, color = if(filter == f) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text("${samples.count { matches(it, f) }}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                Box(Modifier.fillMaxWidth().height(2.dp).background(if(filter == f) MaterialTheme.colorScheme.primary else androidx.compose.ui.graphics.Color.Transparent))
-                            }
+                            FilterChip(selected=filter==f,onClick={filter=f},label={
+                                Text("${f.title} · ${samples.count { matches(it,f) }}")
+                            },shape=MaterialTheme.shapes.small)
+
                         }
                     }
                     if (priority) Text(tr("Priorité aux révisions", "Prioritize review"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
@@ -225,7 +222,7 @@ fun SampleThumbnailCard(sample: SampleEntity, onClick: () -> Unit, selected: Boo
         else -> Icons.Default.Edit
     }
     val outline by androidx.compose.animation.animateColorAsState(if(selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, label = "sample selection")
-    Column(Modifier.clip(RoundedCornerShape(4.dp)).border(if(selected) 2.dp else 1.dp, outline, RoundedCornerShape(4.dp))
+    Column(Modifier.clip(RoundedCornerShape(18.dp)).border(if(selected) 2.dp else 1.dp, outline, RoundedCornerShape(18.dp))
         .background(MaterialTheme.colorScheme.surface).combinedClickable(onClick = onClick, onLongClickLabel = tr("Sélectionner cette image", "Select this image"), onLongClick = onLongClick)
         .semantics(mergeDescendants = true) { contentDescription = "${sample.assetId}, $label"; this.selected = selected }
         .testTag("sample_${sample.sampleId}")) {

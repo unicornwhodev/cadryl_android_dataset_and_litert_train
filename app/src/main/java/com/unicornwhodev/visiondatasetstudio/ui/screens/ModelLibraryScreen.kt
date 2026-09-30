@@ -6,6 +6,7 @@ import com.unicornwhodev.visiondatasetstudio.R
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -79,7 +80,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
         Column(Modifier.fillMaxSize().padding(inset)) {
             StudioTabs(listOf(tr("Catalogue","Catalog"),tr("Installés","Installed"),tr("Presets","Presets"),tr("Importer","Import")), tab, { tab = it }, Modifier.padding(horizontal = 16.dp))
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-                LazyColumn(Modifier.widthIn(max = 1000.dp).fillMaxSize(), state = listState, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                LazyColumn(Modifier.widthIn(max = 1000.dp).fillMaxSize(), state = listState, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     if (tab != 3) item {
                         OutlinedTextField(search, { search = it }, label = { Text(tr("Rechercher un modèle", "Search models")) }, singleLine = true,
                             leadingIcon = { Icon(Icons.Default.Search, null) }, modifier = Modifier.fillMaxWidth())
@@ -145,7 +146,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                 QualificationStatus.FAILED->stringResource(R.string.qualification_failed);QualificationStatus.UNTESTED->stringResource(R.string.qualification_untested)
                             }
                             Column {
-                                Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Row(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface).padding(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Memory, null, Modifier.size(18.dp), tint = if(item.installableNow) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant)
                                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                         Text(item.entry.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -166,16 +167,17 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                         Text("$state  ·  ${item.entry.upstreamLicense}", style = MaterialTheme.typography.labelSmall, color = if(item.installableNow) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant)
                                         Text(capabilityText,style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant,maxLines=2)
                                     }
-                                    IconButton(onClick = { showInfo = true }) { Icon(Icons.Default.Info, stringResource(R.string.models_details,item.entry.title), Modifier.size(17.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                    IconButton(onClick = { showInfo = !showInfo }) { Icon(Icons.Default.Info, stringResource(R.string.models_details,item.entry.title), Modifier.size(17.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
                                     if(item.installableNow) IconButton(onClick = { vm.downloadCommunityModel(item.entry.id,item.sourceRepo,item.repoSha) }, enabled = !busy) {
                                         Icon(Icons.Default.Download, stringResource(R.string.models_install,item.entry.title), Modifier.size(19.dp), tint = MaterialTheme.colorScheme.primary)
                                     }
                                 }
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))
+                                Spacer(Modifier.height(4.dp))
                             }
-                            if(showInfo) AlertDialog(onDismissRequest = { showInfo = false }, title = { Text(item.entry.title) },
-                                text = { Text((item.entry.purpose)+"\n\n$capabilityText\n"+stringResource(R.string.model_files,item.entry.expectedFiles.size)+"\n\n"+(item.note)) },
-                                confirmButton = { TextButton(onClick = { showInfo = false }) { Text(stringResource(R.string.action_close)) } })
+                            androidx.compose.animation.AnimatedVisibility(showInfo) {
+                                Text(item.entry.purpose+"\n\n$capabilityText\n"+stringResource(R.string.model_files,item.entry.expectedFiles.size)+"\n\n"+item.note,
+                                    Modifier.padding(16.dp),style=MaterialTheme.typography.bodySmall)
+                            }
                         }
                         if(visiblePublic.isNotEmpty()) {
                             item {
@@ -188,7 +190,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                             }
                             items(visiblePublic.size,key={ "public:"+visiblePublic[it].id }) { index ->
                                 val item=visiblePublic[index]
-                                Row(Modifier.fillMaxWidth().padding(vertical=10.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalAlignment=Alignment.CenterVertically) {
+                                Row(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface).padding(16.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalAlignment=Alignment.CenterVertically) {
                                     Icon(Icons.Default.Memory,null,Modifier.size(18.dp),tint=MaterialTheme.colorScheme.secondary)
                                     Column(Modifier.weight(1f)) {
                                         Text(item.title,style=MaterialTheme.typography.titleSmall)
@@ -197,7 +199,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                     }
                                     StudioAction(tr("Installer","Install"),{vm.downloadCatalogModel(item.id)},enabled=!busy)
                                 }
-                                HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant.copy(alpha=.5f))
+                                Spacer(Modifier.height(4.dp))
                             }
                         }
                     } else if(tab == 1) {
@@ -207,7 +209,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                             val active = if(profile.modelPath.isNotBlank()) project?.modelPath == profile.modelPath
                                 else project?.modelPath.isNullOrBlank() && project?.modelConfigJson == profile.configJson
                             Column {
-                                Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Row(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface).padding(16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Memory, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.secondary)
                                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                         Text(profile.name, style = MaterialTheme.typography.titleSmall)
@@ -258,7 +260,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                         items(visiblePresets.size,key={visiblePresets[it].id}) { index ->
                             val preset=visiblePresets[index]
                             Column {
-                                Row(Modifier.fillMaxWidth().padding(vertical=10.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalAlignment=Alignment.CenterVertically) {
+                                Row(Modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface).padding(16.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalAlignment=Alignment.CenterVertically) {
                                     Icon(Icons.Default.Tune,null,Modifier.size(18.dp),tint=MaterialTheme.colorScheme.secondary)
                                     Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(3.dp)) {
                                         Text(preset.title,style=MaterialTheme.typography.titleSmall)
@@ -276,7 +278,7 @@ fun ModelLibraryScreen(vm: MainViewModel) {
                                     },enabled=!busy)
                                     else StudioAction(tr("Appliquer","Apply"),{vm.applyModelPreset(preset.id)},enabled=!busy)
                                 }
-                                HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant.copy(alpha=.5f))
+                                Spacer(Modifier.height(4.dp))
                             }
                         }
                     } else {

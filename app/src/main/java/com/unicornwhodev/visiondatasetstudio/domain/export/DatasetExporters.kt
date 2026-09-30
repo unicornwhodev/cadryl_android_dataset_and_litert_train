@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import com.unicornwhodev.visiondatasetstudio.core.storage.DurableFiles
+import com.unicornwhodev.visiondatasetstudio.core.storage.VerifiedZip
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ensureActive
 import kotlin.coroutines.coroutineContext
@@ -149,7 +150,8 @@ class DatasetExporters(private val storageManager: StorageManager, private val h
         }
         val zip = File(storageManager.exportsDir, "${root.name}-recovery.zip")
         val copyContext = coroutineContext
-        DurableFiles.replace(zip) { raw ->
+        val expected = VerifiedZip.snapshot(files.map { it.relativeTo(root).invariantSeparatorsPath to it }) { copyContext.ensureActive() }
+        DurableFiles.replace(zip, verify = { VerifiedZip.verify(it, expected) { copyContext.ensureActive() } }) { raw ->
             val out = ZipOutputStream(raw)
             files.forEach { file ->
                 copyContext.ensureActive()
@@ -173,7 +175,8 @@ class DatasetExporters(private val storageManager: StorageManager, private val h
         try {
             check(storageManager.hasAvailableBudget(p.generatedFiles.sumOf { it.second.length() } + 1048576L, project.diskBudgetMb, com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings.read(project).reserveFreeMb)) { tr("Budget insuffisant pour la copie ZIP; paquet préparé conservé", "Insufficient budget for the ZIP copy; prepared package preserved") }
             val exportContext=coroutineContext
-            DurableFiles.replace(zip) { raw ->
+            val expected = VerifiedZip.snapshot(p.generatedFiles) { exportContext.ensureActive() }
+            DurableFiles.replace(zip, verify = { VerifiedZip.verify(it, expected) { exportContext.ensureActive() } }) { raw ->
                 // finish(), not close(): DurableFiles owns flush/fsync/close of the underlying file.
                 val out=ZipOutputStream(raw)
                 p.generatedFiles.forEach { (path,f) ->

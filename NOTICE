@@ -1,5 +1,5 @@
 Vision Dataset Studio — Unicorn Who Dev
-Candidate 4.2.0-rc2
+Cadryl — project and third-party notices
 
 The project code is licensed under Apache License 2.0. See LICENSE and LICENSING_STATUS.md.
 No claim of legal ownership of every pre-existing contribution is made by a branding change.
@@ -7,7 +7,9 @@ No claim of legal ownership of every pre-existing contribution is made by a bran
 The build references third-party AndroidX, Kotlin, TensorFlow Lite, Moshi, OkHttp,
 Retrofit, Coil and testing/tooling components. They retain their own licences,
 notices and copyrights. The Gradle declarations identify direct dependencies;
-the resolved transitive dependency and native-library notice audit is pending.
+the resolved runtime inventory, supplemental source evidence and retained
+native notices are distributed in third_party/ and available in the app.
+The remaining native dependency review is documented in LICENSING_STATUS.md.
 This notice is not a substitute for the licences/notices of those components.
 
 Model weights are NOT bundled. Their download, use and redistribution require

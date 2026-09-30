@@ -21,6 +21,9 @@ class DeviceReceiptTests(unittest.TestCase):
     def test_compact_french_home_does_not_require_studio_label(self):
         self.assertTrue(home_ui_visible(f'<hierarchy><node package="{APP_ID}" text="Modèle"/><node package="{APP_ID}" text="Outils"/></hierarchy>'))
 
+    def test_redesigned_home_navigation_is_visible(self):
+        self.assertTrue(home_ui_visible(f'<hierarchy><node package="{APP_ID}" text="Atelier"/><node package="{APP_ID}" text="Modèles"/><node package="{APP_ID}" text="Export"/></hierarchy>'))
+
     def test_system_overlay_never_counts_as_app_startup(self):
         self.assertFalse(home_ui_visible('<hierarchy><node package="com.android.systemui" text="Studio"/></hierarchy>'))
 

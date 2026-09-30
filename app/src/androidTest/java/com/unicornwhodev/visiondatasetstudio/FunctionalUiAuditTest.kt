@@ -81,6 +81,7 @@ class FunctionalUiAuditTest {
             val config=ModelConfig(task="classification",adapter="tinyclip",bundleKind="tinyclip",labels=listOf("cat","dog"),prompt="a photo of {label}",threshold=0f)
             act { saveModelConfig(StudioJson.moshi.adapter(ModelConfig::class.java).toJson(config)) }
             act { navigateTo(Screen.ModelSettings) };englishScreen("Model settings")
+            rule.onNodeWithText("Model options").performScrollTo().performClick()
             rule.onNodeWithText("Model prompt").performScrollTo().performTextReplacement("a drawing of {label}")
             androidx.test.espresso.Espresso.closeSoftKeyboard()
             rule.waitForIdle()

@@ -34,6 +34,17 @@ Le registre anti-doublons couvre les fichiers ou pixels identiques dans un même
 
 ## Distribution
 
+Le dépôt public contient uniquement l’édition sans publicité ni abonnement.
+Les composants commerciaux sont hors de cet arbre. Les renseignements
+légaux fournis ne constituent pas une attestation de conformité.
+La revue intégrale UI/accessibilité/parcours d’erreur et la validation humaine
+sont des conditions de la future RC finale ; des captures seules ne les clôturent pas.
+
 rc8 utilise la clé durable. Les anciennes rc4/rc5 Debug portent d’autres certificats et ne peuvent pas être mises à jour directement. Garde leurs données. La clé actuelle et sa copie ont été vérifiées sur deux disques du même PC ; une sauvegarde hors machine reste à faire.
 
-La CI distante est préparée mais n’a pas été exécutée. L’inventaire des 109 dépendances est disponible ; la revue des notices natives transitives reste ouverte. [Signature](docs/SIGNING.md) · [Licences](LICENSING_STATUS.md) · [Priorités](docs/ROADMAP.md).
+La CI distante est préparée mais n’a pas été exécutée. Les inventaires actuels comptent 103 artefacts du runtime public ; la revue des notices natives transitives reste ouverte. [Signature](docs/SIGNING.md) · [Licences](LICENSING_STATUS.md) · [Priorités](docs/ROADMAP.md).
+
+La préparation suivante vérifie l’absence des SDK AdMob/UMP/Billing dans les
+APK publics. La revue des captures à 200 % relève des
+textes et libellés coupés, notamment en paysage : l’UI reste à reprendre avant
+RC final0.1.

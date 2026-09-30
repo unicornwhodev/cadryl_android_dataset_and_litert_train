@@ -6,6 +6,7 @@ import com.unicornwhodev.visiondatasetstudio.R
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.horizontalScroll
@@ -91,7 +92,7 @@ fun PublicationScreen(viewModel: MainViewModel) {
                     Text(tr("Vous pouvez aussi désactiver COCO et YOLO pour conserver l’archive JSONL complète.", "You can also turn off COCO and YOLO to keep the full JSONL archive."), style = MaterialTheme.typography.bodySmall)
                 }
                 if (available == 0 && samples.isNotEmpty()) Text(tr("Validez au moins une image pour préparer une archive.", "Approve at least one image to prepare an archive."), style = MaterialTheme.typography.bodySmall)
-                Button(onClick = { viewModel.exportActiveBatchToLocalZip(tar, true, coco, yolo, vl) }, enabled = !busy && formatsReady && available > 0 && batch?.status !in com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety.lockedStates, modifier = Modifier.heightIn(min = 40.dp)) {
+                Button(onClick = { viewModel.exportActiveBatchToLocalZip(tar, true, coco, yolo, vl) }, enabled = !busy && formatsReady && available > 0 && batch?.status !in com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety.lockedStates, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) {
                     Icon(Icons.Default.Archive, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(tr("Créer l’archive · $available", "Create archive · $available"))
                 }
                 if (batch?.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT")) {
@@ -110,9 +111,9 @@ fun PublicationScreen(viewModel: MainViewModel) {
                 if (batch != null && batch.status in setOf("VERIFIED","PURGING")) {
                     StatusPill(if(batch.verificationKind=="local")tr("Archive externe vérifiée", "External archive verified") else if(batch.verificationKind=="rejection_only")tr("Rejets explicitement confirmés", "Rejections explicitly confirmed") else tr("Contenus distants vérifiés", "Remote contents verified"), Icons.Default.VerifiedUser)
                     if(learningRequired && !learningDone) TextButton(onClick={viewModel.navigateTo(Screen.Training)}){Text(stringResource(R.string.publication_finish_training))}
-                    OutlinedButton(onClick = { confirmPurge = true }, enabled = !busy && (!learningRequired || learningDone), modifier = Modifier.heightIn(min = 40.dp)) { Text(if(batch?.status=="PURGING") tr("Reprendre le nettoyage", "Resume cleanup") else tr("Libérer le stockage", "Free storage")) }
+                    OutlinedButton(onClick = { confirmPurge = true }, enabled = !busy && (!learningRequired || learningDone), modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) { Text(if(batch?.status=="PURGING") tr("Reprendre le nettoyage", "Resume cleanup") else tr("Libérer le stockage", "Free storage")) }
                 }
-                if (batch?.status in setOf("PURGED","EMPTY","DISCARDED") || (batch?.status=="VERIFIED" && policy?.keepVerifiedBatches==true && (!learningRequired || learningDone))) Button(onClick = { viewModel.nextBatch() }, enabled = !busy, modifier = Modifier.heightIn(min = 40.dp)) { Text(stringResource(R.string.publication_next_batch)) }
+                if (batch?.status in setOf("PURGED","EMPTY","DISCARDED") || (batch?.status=="VERIFIED" && policy?.keepVerifiedBatches==true && (!learningRequired || learningDone))) Button(onClick = { viewModel.nextBatch() }, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) { Text(stringResource(R.string.publication_next_batch)) }
                 if(batch?.status=="EMPTY") Text(tr("Fin de source · aucune nouvelle image", "End of source · no new images"),style=MaterialTheme.typography.bodySmall)
             }
             StudioDisclosure(stringResource(R.string.publication_hf), Icons.Default.CloudUpload, initiallyExpanded = batch?.status in setOf("PUBLISHING", "CONFLICT", "VERIFIED", "PURGING")) {
@@ -121,7 +122,7 @@ fun PublicationScreen(viewModel: MainViewModel) {
                 if (project?.hfDestRepo.isNullOrBlank()) OutlinedButton(onClick = { viewModel.navigateTo(Screen.TransferSettings) }) { Text(stringResource(R.string.publication_configure_destination)) }
                 StudioDetails(tr("Le lot distant utilise les formats choisis ci-dessus, avec images et JSONL canonique obligatoires. Tous les cas doivent avoir une décision finale. Les fichiers sont relus à distance et comparés par SHA-256.", "The remote batch uses the formats selected above; images and canonical JSONL are required. Every sample needs a final decision. Remote files are read back and compared by SHA-256."), style = MaterialTheme.typography.bodyMedium)
                 if (unfinished > 0) Text(tr("$unfinished cas non terminés : reprenez les différés ou rejetez-les avec un motif.", "$unfinished unfinished samples: resume deferred samples or reject them with a reason."), color = MaterialTheme.colorScheme.error)
-                Button(onClick = { confirmPublish = true }, enabled = !busy && (formatsReady || formatsLocked) && validated > 0 && unfinished == 0 && !project?.hfDestRepo.isNullOrBlank() && batch?.status !in setOf("PURGING","PURGED") && (batch?.status != "VERIFIED" || batch.verificationKind == "local"), modifier = Modifier.heightIn(min = 40.dp)) { Text(when(batch?.status) { "PUBLISHED" -> tr("Reprendre la vérification", "Resume verification"); "PREPARED","PUBLISHING","CONFLICT" -> tr("Réconcilier l’envoi", "Reconcile upload"); else -> tr("Publier & vérifier", "Publish & verify") }) }
+                Button(onClick = { confirmPublish = true }, enabled = !busy && (formatsReady || formatsLocked) && validated > 0 && unfinished == 0 && !project?.hfDestRepo.isNullOrBlank() && batch?.status !in setOf("PURGING","PURGED") && (batch?.status != "VERIFIED" || batch.verificationKind == "local"), modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) { Text(when(batch?.status) { "PUBLISHED" -> tr("Reprendre la vérification", "Resume verification"); "PREPARED","PUBLISHING","CONFLICT" -> tr("Réconcilier l’envoi", "Reconcile upload"); else -> tr("Publier & vérifier", "Publish & verify") }) }
                 batch?.lastTransferError?.let { Text(it, color=MaterialTheme.colorScheme.error) }
                 if(batch?.status=="CONFLICT" && batch.hfCommitSha==null) OutlinedButton(onClick={confirmIsolate=true},enabled=!busy) { Text(stringResource(R.string.publication_isolate_retry)) }
                 batch?.hfCommitSha?.let { sha -> SelectionContainer { Text("Commit : $sha", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace) } }
@@ -151,12 +152,15 @@ fun PublicationScreen(viewModel: MainViewModel) {
 
 @Composable
 private fun ExportToggle(title: String, hint: String, selected: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
-    var help by remember { mutableStateOf(false) }
-    Row(Modifier.fillMaxWidth().toggleable(value = selected, enabled = enabled, role = Role.Checkbox, onValueChange = onChange), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-        IconButton(onClick = { help = true }) { Icon(Icons.Default.Info, tr("Détails : $title", "Details: $title"), Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-        Checkbox(selected, onCheckedChange = null, enabled = enabled)
+    Surface(shape=MaterialTheme.shapes.medium,color=if(selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha=.25f) else MaterialTheme.colorScheme.surfaceContainerLow,
+        border=BorderStroke(1.dp,if(selected) MaterialTheme.colorScheme.primary.copy(alpha=.4f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha=.35f))) {
+        Row(Modifier.fillMaxWidth().toggleable(value=selected,enabled=enabled,role=Role.Checkbox,onValueChange=onChange).padding(start=14.dp,end=8.dp,top=8.dp,bottom=8.dp),
+            verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                Text(title,style=MaterialTheme.typography.titleSmall)
+                Text(hint,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Checkbox(selected,onCheckedChange=null,enabled=enabled)
+        }
     }
-    if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text(title) }, text = { Text(hint) },
-        confirmButton = { TextButton(onClick = { help = false }) { Text(stringResource(R.string.common_understood)) } })
 }

@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <instrumentation android:name="com.unicornwhodev.visiondatasetstudio.ReleaseContinuityInstrumentation" android:targetPackage="com.unicornwhodev.visiondatasetstudio" />
-    <application><provider android:name="com.unicornwhodev.visiondatasetstudio.SafFaultProvider" android:authorities="com.unicornwhodev.visiondatasetstudio.test.documents" android:exported="true" android:grantUriPermissions="true" /></application>
+    <application>
+        <provider android:name="com.unicornwhodev.visiondatasetstudio.SafFaultProvider" android:authorities="com.unicornwhodev.visiondatasetstudio.test.documents" android:exported="true" android:grantUriPermissions="true" />
+        <provider android:name="com.unicornwhodev.visiondatasetstudio.QaEvidenceProvider" android:authorities="com.unicornwhodev.visiondatasetstudio.test.qa-evidence" android:exported="true" />
+    </application>
 </manifest>

@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "legal_clearance": false,
+  "input_line_endings": "canonical LF",
+  "files": {
+    "privacy.txt": {
+      "sha256": "c6fe1585c1f873d626183a68846f6425b24fdfbad0a15914701c5e6f6a9b75ba",
+      "inputs": {
+        "docs/PRIVACY_POLICY.md": "c6fe1585c1f873d626183a68846f6425b24fdfbad0a15914701c5e6f6a9b75ba"
+      }
+    },
+    "privacy-en.txt": {
+      "sha256": "7ab4ffa24a9fbafdcb307ebe9f41a75e299d3e02894e51bf7511bb3f10c6c95a",
+      "inputs": {
+        "docs/PRIVACY_POLICY.en.md": "7ab4ffa24a9fbafdcb307ebe9f41a75e299d3e02894e51bf7511bb3f10c6c95a"
+      }
+    },
+    "notices.txt": {
+      "sha256": "b9486e9927434f2ffdd408a4c3d9461c5ec2094d5314e9febfdd1eddd0f2f35d",
+      "inputs": {
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "NOTICE": "bbce71a984b3f95d1c877bf56cfb331b33cf1ed768e9a457300f0bfe365a7316",
+        "third_party/NOTICES.runtime.txt": "b7af754757841f64f215b75e256170d246f7d9f1092b2a045b6e35b64b940bc9",
+        "third_party/patches/LICENSE.cpuinfo": "8e7e60636c3aa0cb03571a1a841ce5697f9551ff92b3c426c2561613d15ade70",
+        "third_party/patches/README.md": "4bd19e3ce303e476f48ac1efcb526ff007b87cab9937518717be182b283326e6",
+        "third_party/native-notices/NOTICES.native.txt": "c8b8cffd669f9c758931b838047750372f0549baafad7318ff1c992a970f7eee",
+        "third_party/supplemental/javax.inject-1-copyright.txt": "17a53a5dfc12a0c07ae56da76d3294380cc799c40bb9e5992aa76a66c21b0b84"
+      }
+    }
+  }
+}

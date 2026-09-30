@@ -12,12 +12,14 @@ import java.security.MessageDigest
 
 /** Atomic replacement of an app-private file. Never truncate the previous valid file. */
 object DurableFiles {
-    fun replace(target: File, write: (FileOutputStream) -> Unit) {
+    fun replace(target: File, verify: (File) -> Unit = {}, write: (FileOutputStream) -> Unit) {
         val parent = target.canonicalFile.parentFile ?: error(tr("Parent absent", "Parent missing"))
         check(parent.isDirectory || parent.mkdirs()) { tr("Dossier inaccessible", "Folder inaccessible") }
         val pending = File.createTempFile(".${target.name}.", ".pending", parent)
         try {
             FileOutputStream(pending).use { out -> write(out); out.flush(); out.fd.sync() }
+            // Read back the closed candidate before replacing a previous valid generation.
+            verify(pending)
             Files.move(pending.toPath(), target.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
         } finally { pending.delete() }
     }
@@ -55,12 +57,12 @@ object DurableFiles {
         return total
     }
 
-    fun hash(input: InputStream, maxBytes: Long = Long.MAX_VALUE): String {
+    fun hash(input: InputStream, maxBytes: Long = Long.MAX_VALUE, checkCancelled: () -> Unit = {}): String {
         val md = MessageDigest.getInstance("SHA-256")
         copyBounded(input, object : OutputStream() {
             override fun write(b: Int) { md.update(b.toByte()) }
             override fun write(b: ByteArray, off: Int, len: Int) { md.update(b, off, len) }
-        }, maxBytes)
+        }, maxBytes, checkCancelled)
         return md.digest().joinToString("") { "%02x".format(it) }
     }
 

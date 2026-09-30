@@ -5,8 +5,6 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.StatFs
 import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
 
 /**
  * Manages bounded app-private storage, cache limits, disk quotas, and verified purge.
@@ -31,11 +29,6 @@ class StorageManager(val context: Context) {
     fun getFreeSpaceBytes(): Long {
         val stat = StatFs(context.filesDir.path)
         return stat.availableBlocksLong * stat.blockSizeLong
-    }
-
-    fun getTotalSpaceBytes(): Long {
-        val stat = StatFs(context.filesDir.path)
-        return stat.blockCountLong * stat.blockSizeLong
     }
 
     fun getUsedSpaceBytes(): Long {
@@ -79,14 +72,6 @@ class StorageManager(val context: Context) {
                 check(!child.exists() || child.delete()) { tr("Nettoyage du transfert impossible", "Transfer cleanup failed") }
             }
         }
-    }
-
-    fun saveImageStream(sampleId: String, stream: InputStream, extension: String = "jpg"): ImageMetadata {
-        val file = getImageFile(sampleId, extension)
-        FileOutputStream(file).use { out ->
-            stream.copyTo(out)
-        }
-        return readImageMetadata(file)
     }
 
     fun readImageMetadata(file: File): ImageMetadata {

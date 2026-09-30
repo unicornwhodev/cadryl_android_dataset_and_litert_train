@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
+import androidx.room.withTransaction
 import com.unicornwhodev.visiondatasetstudio.core.workflow.SourceIdentity
 import com.unicornwhodev.visiondatasetstudio.core.workflow.ProcessingSettings
 import com.unicornwhodev.visiondatasetstudio.data.db.AppDatabase
@@ -13,8 +14,6 @@ import com.unicornwhodev.visiondatasetstudio.data.hf.ViewerRowData
 import com.unicornwhodev.visiondatasetstudio.data.model.*
 import com.unicornwhodev.visiondatasetstudio.data.preferences.ProjectSettings
 import com.unicornwhodev.visiondatasetstudio.domain.inference.ProposalMerger
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -151,7 +150,7 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
     }
     suspend fun importManifest(project:ProjectEntity,uri:Uri,tree:Uri?=null):Long = withContext(Dispatchers.IO) {
         val stream=context.contentResolver.openInputStream(uri) ?: error(tr("Manifeste inaccessible", "Manifest inaccessible"))
-        stream.use { input ->
+        stream.use { input -> db.withTransaction {
             beginIndex(project)
             val count=readManifest(project,input) { ref ->
                 when { ref.startsWith("https://")->ref
@@ -161,19 +160,20 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
             val settings=ProjectSettings.read(project).copy(sourceMode="LOCAL_INDEX",sourceIndexReady=true,localTreeUri=tree?.toString(),localSourceLabel=tr("Manifeste JSONL local", "Local JSONL manifest"),resolvedSourceRevision=null)
             db.projectDao().saveProject(project.copy(hfSourceRepo="",settingsJson=ProjectSettings.write(settings),lastRowCursor=0))
             count
-        }
+        } }
     }
     suspend fun importHfManifest(project:ProjectEntity):Long = withContext(Dispatchers.IO) {
         val settings=ProjectSettings.read(project)
-        beginIndex(project)
         val sha=hf.resolveRevision(project.hfSourceRepo,settings.sourceRevision)
         val uri=hf.resolveUrl(project.hfSourceRepo,sha,settings.manifestPath)
-        val tmp=File(context.cacheDir,"source-${project.id}.jsonl.part")
+        val tmp=File.createTempFile("source-${project.id}-", ".jsonl.part",context.cacheDir)
         try {
             val space=com.unicornwhodev.visiondatasetstudio.core.storage.StorageManager(context)
             val limit=minOf(128L*1024*1024,project.diskBudgetMb*1048576-space.getUsedSpaceBytes(),space.getFreeSpaceBytes()-settings.reserveFreeMb*1048576L)
             check(limit>0){tr("Budget insuffisant pour le manifeste", "Insufficient budget for the manifest")}
             check(hf.downloadImage(uri,tmp,maxBytes=limit)) { tr("Manifeste HF inaccessible ou supérieur à 128 Mo", "HF manifest inaccessible or larger than 128 MB") }
+            db.withTransaction {
+            beginIndex(project)
             val parent=settings.manifestPath.substringBeforeLast('/',"")
             val count=tmp.inputStream().use { input->readManifest(project,input) { ref->
                 if(ref.startsWith("https://")) ref else {
@@ -183,13 +183,14 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
             } }
             db.projectDao().saveProject(project.copy(settingsJson=ProjectSettings.write(settings.copy(sourceMode="HF_MANIFEST",resolvedSourceRevision=sha,sourceIndexReady=true)),lastRowCursor=0))
             count
+            }
         } finally { tmp.delete() }
     }
     /** Streaming JSONL, bounded records, metadata inserted in chunks; no original images loaded here. */
     private suspend fun readManifest(project:ProjectEntity,input:InputStream,resolve:(String)->String):Long {
         val rows=mutableListOf<SourceEntryEntity>();var ordinal=0L
         val settings=ProjectSettings.read(project)
-        val reader=input.bufferedReader()
+        val reader=com.unicornwhodev.visiondatasetstudio.core.storage.BoundedUtf8.reader(input,128L*1024*1024)
         var total=0L
         while(true) {
             coroutineContext.ensureActive()
@@ -214,7 +215,7 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
     }
     private fun boundedLine(reader:BufferedReader,max:Int):String? {
         val b=StringBuilder()
-        while(true){val c=reader.read();if(c<0)return if(b.isEmpty()) null else b.toString();if(c==10)return b.toString();if(c!=13)b.append(c.toChar());check(b.length<=max){tr("Ligne JSONL supérieure à 1 Mo", "JSONL line exceeds 1 MB")}}
+        while(true){val c=reader.read();if(c<0)return if(b.isEmpty()) null else b.toString().removeSuffix("\r");if(c==10)return b.toString().removeSuffix("\r");b.append(c.toChar());check(b.length<=max){tr("Ligne JSONL supérieure à 1 Mo", "JSONL line exceeds 1 MB")}}
     }
     private data class Child(val id:String,val name:String,val mime:String)
     private fun findChild(tree:Uri,parentId:String,name:String):String {
@@ -241,6 +242,7 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
     }
     suspend fun importFolder(project:ProjectEntity,tree:Uri):Long = withContext(Dispatchers.IO) {
         context.contentResolver.takePersistableUriPermission(tree,Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        db.withTransaction {
         beginIndex(project)
         var ordinal=0L;val rows=mutableListOf<SourceEntryEntity>();val visited=mutableSetOf<String>()
         suspend fun walk(parent:String,prefix:String,depth:Int) {
@@ -262,6 +264,7 @@ class SourceCatalog(private val context:Context,private val db:AppDatabase,priva
         val config=ProjectSettings.read(project).copy(sourceMode="LOCAL_INDEX",sourceIndexReady=true,localTreeUri=tree.toString(),localSourceLabel=tr("Dossier local · $ordinal images", "Local folder · $ordinal images"),resolvedSourceRevision=null)
         db.projectDao().saveProject(project.copy(hfSourceRepo="",settingsJson=ProjectSettings.write(config),lastRowCursor=0))
         ordinal
+        }
     }
     suspend fun copyAsset(ref:String,dest:File,maxBytes:Long):Boolean = withContext(Dispatchers.IO) {
         if(ref.startsWith("https://")) {

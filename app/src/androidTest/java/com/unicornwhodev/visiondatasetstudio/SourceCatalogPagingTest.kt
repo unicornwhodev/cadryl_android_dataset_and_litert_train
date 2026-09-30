@@ -29,6 +29,35 @@ import org.junit.Test
 class SourceCatalogPagingTest {
     private val context=InstrumentationRegistry.getInstrumentation().targetContext
 
+    private fun manifestUri() = android.net.Uri.parse("content://${InstrumentationRegistry.getInstrumentation().context.packageName}.documents/atomic-manifest")
+
+    @Test fun malformedManifestAfterOneInsertedChunkPreservesThePreviousIndex() = exercise { db, _, catalog ->
+        val p=project(ProcessingSettings(sourceMode="LOCAL_INDEX",sourceIndexReady=true))
+        db.projectDao().saveProject(p)
+        val old=SourceEntryEntity(p.id,0,"previous","https://example.invalid/previous.png")
+        db.sourceEntryDao().insert(listOf(old))
+        context.contentResolver.openOutputStream(manifestUri())!!.bufferedWriter().use { out ->
+            repeat(257) { out.appendLine("""{"image":"https://example.invalid/$it.png"}""") }
+            out.appendLine("{broken-json")
+        }
+        var rejected=false
+        try { catalog.importManifest(p,manifestUri(),null) } catch (_: Exception) { rejected=true }
+        assertTrue(rejected)
+        assertEquals(listOf(old),db.sourceEntryDao().page(p.id,0,100))
+        assertEquals(p,db.projectDao().getProjectSync(p.id))
+    }
+
+    @Test fun emptyManifestPreservesThePreviousIndex() = exercise { db, _, catalog ->
+        val p=project(ProcessingSettings(sourceMode="LOCAL_INDEX",sourceIndexReady=true))
+        db.projectDao().saveProject(p)
+        val old=SourceEntryEntity(p.id,0,"previous","https://example.invalid/previous.png")
+        db.sourceEntryDao().insert(listOf(old))
+        context.contentResolver.openOutputStream(manifestUri())!!.use { it.write("\n".toByteArray()) }
+        requireRejected { catalog.importManifest(p,manifestUri(),null) }
+        assertEquals(listOf(old),db.sourceEntryDao().page(p.id,0,100))
+        assertEquals(p,db.projectDao().getProjectSync(p.id))
+    }
+
     private class ViewerFixture {
         val bodies=java.util.ArrayDeque<String>()
         val requests=mutableListOf<HttpUrl>()

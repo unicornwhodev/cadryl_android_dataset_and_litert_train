@@ -9,6 +9,8 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -36,34 +39,33 @@ import com.unicornwhodev.visiondatasetstudio.ui.OperationProgress
 fun StudioTopBar(title: String, eyebrow: String? = null, onBack: (() -> Unit)? = null,
                  actions: @Composable RowScope.() -> Unit = {}) {
     Column {
-        Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).heightIn(min = 52.dp).padding(end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).heightIn(min = 72.dp).padding(start = 8.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Retour", "Back"), Modifier.size(20.dp)) }
             else Box(Modifier.width(48.dp), contentAlignment = Alignment.Center) {
-                Icon(painterResource(R.drawable.ic_cadryl), stringResource(R.string.app_name), Modifier.size(26.dp), tint = Color.Unspecified)
+                Icon(painterResource(R.drawable.ic_cadryl), stringResource(R.string.app_name), Modifier.size(30.dp), tint = Color.Unspecified)
             }
             Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
-                Text(title, modifier = Modifier.testTag("screen_title"), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(title, modifier = Modifier.testTag("screen_title"), style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (eyebrow != null) Text(eyebrow, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             actions()
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .55f))
+        Spacer(Modifier.height(4.dp))
     }
 }
 
-/** A small visible command inside a full-height touch target. */
+/** Primary commands have one continuous visual and touch surface. */
 @Composable
 fun StudioAction(label: String, onClick: () -> Unit, modifier: Modifier = Modifier,
                  icon: ImageVector? = null, enabled: Boolean = true, primary: Boolean = false) {
-    val foreground = if (!enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = .38f)
-        else if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-    val background = if (primary && enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh
-    Box(modifier.heightIn(min = 48.dp).clip(RoundedCornerShape(5.dp)).clickable(enabled = enabled, role = Role.Button, onClick = onClick), contentAlignment = Alignment.Center) {
-        Row(Modifier.clip(RoundedCornerShape(5.dp)).background(background).padding(horizontal = 12.dp, vertical = 7.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (icon != null) Icon(icon, null, Modifier.size(16.dp), tint = foreground)
-            Text(label, style = MaterialTheme.typography.labelMedium, color = foreground, maxLines = 1)
-        }
+    if (primary) Button(onClick=onClick,enabled=enabled,modifier=modifier.heightIn(min=50.dp),
+        shape=RoundedCornerShape(14.dp),contentPadding=PaddingValues(horizontal=18.dp,vertical=12.dp)) {
+        if(icon!=null) { Icon(icon,null,Modifier.size(20.dp));Spacer(Modifier.width(8.dp)) }
+        Text(label,style=MaterialTheme.typography.labelLarge)
+    } else FilledTonalButton(onClick=onClick,enabled=enabled,modifier=modifier.heightIn(min=50.dp),
+        shape=RoundedCornerShape(14.dp),contentPadding=PaddingValues(horizontal=16.dp,vertical=12.dp)) {
+        if(icon!=null) { Icon(icon,null,Modifier.size(20.dp));Spacer(Modifier.width(8.dp)) }
+        Text(label,style=MaterialTheme.typography.labelLarge)
     }
 }
 
@@ -80,24 +82,29 @@ fun StudioRouteMotion(route: String, content: @Composable () -> Unit) {
 fun StudioSection(title: String, subtitle: String? = null, icon: ImageVector? = null,
                   modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     var help by remember { mutableStateOf(false) }
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (icon != null) Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
-            Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-            if (subtitle != null) IconButton(onClick = { help = true }) {
-                Icon(Icons.Default.HelpOutline, tr("Aide : $title", "Help: $title"), Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+    Surface(modifier.fillMaxWidth(),shape=MaterialTheme.shapes.large,
+        color=MaterialTheme.colorScheme.surface,border=BorderStroke(1.dp,MaterialTheme.colorScheme.outlineVariant.copy(alpha=.45f))) {
+        Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalAlignment=Alignment.CenterVertically) {
+                if(icon!=null) Surface(shape=RoundedCornerShape(12.dp),color=MaterialTheme.colorScheme.primaryContainer) {
+                    Icon(icon,null,Modifier.padding(10.dp).size(20.dp),tint=MaterialTheme.colorScheme.primary)
+                }
+                Text(title,Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
+                if(subtitle!=null) IconButton(onClick={help=!help}) {
+                    Icon(Icons.Default.HelpOutline,tr("Aide : $title","Help: $title"),Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
+            AnimatedVisibility(help && subtitle!=null) {
+                Text(subtitle.orEmpty(),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            content()
         }
-        content()
-        HorizontalDivider(Modifier.padding(top = 10.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f))
     }
-    if (help && subtitle != null) AlertDialog(onDismissRequest = { help = false }, title = { Text(title) },
-        text = { Text(subtitle) }, confirmButton = { TextButton(onClick = { help = false }) { Text(stringResource(R.string.common_understood)) } })
 }
 
 @Composable
 fun StudioDisclosure(title: String, icon: ImageVector = Icons.Default.Tune, initiallyExpanded: Boolean = false,
-                     content: @Composable ColumnScope.() -> Unit) {
+                     keepContent: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
     val rotation by animateFloatAsState(if (expanded) 180f else 0f, label = "disclosure")
     Surface(shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.surface, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .65f)), modifier = Modifier.fillMaxWidth()) {
@@ -109,7 +116,12 @@ fun StudioDisclosure(title: String, icon: ImageVector = Icons.Default.Tune, init
                 Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
                 Icon(Icons.Default.ExpandMore, null, Modifier.size(18.dp).graphicsLayer { rotationZ = rotation })
             }
-            AnimatedVisibility(expanded, enter = expandVertically(tween(200)) + fadeIn(), exit = shrinkVertically(tween(160)) + fadeOut()) {
+            if(keepContent) {
+                // Keep unsaved form state while the user folds the options.
+                Column(if(expanded) Modifier.padding(start=14.dp,end=14.dp,bottom=14.dp)
+                    else Modifier.height(0.dp).clipToBounds().clearAndSetSemantics {},
+                    verticalArrangement=Arrangement.spacedBy(12.dp),content=content)
+            } else AnimatedVisibility(expanded, enter = expandVertically(tween(200)) + fadeIn(), exit = shrinkVertically(tween(160)) + fadeOut()) {
                 Column(Modifier.padding(start = 14.dp, end = 14.dp, bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
             }
         }
@@ -118,29 +130,26 @@ fun StudioDisclosure(title: String, icon: ImageVector = Icons.Default.Tune, init
 
 @Composable
 fun StudioTabs(labels: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
-    // All destinations remain visible at 320 dp; the active rule moves without resizing labels.
-    Column(modifier.fillMaxWidth()) {
-        Row(Modifier.widthIn(max = 520.dp).fillMaxWidth()) {
-            labels.forEachIndexed { index, label ->
-                val active = index == selected
-                val color by animateColorAsState(if (active) MaterialTheme.colorScheme.primary else Color.Transparent, label = "tab rule")
-                Column(Modifier.weight(1f).clickable(role = Role.Tab) { onSelect(index) }.semantics { this.selected = active }, horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.heightIn(min = 48.dp).padding(horizontal = 3.dp, vertical = 12.dp), contentAlignment = Alignment.Center) {
-                        Text(label, color = if (active) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.labelMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    }
-                    Box(Modifier.fillMaxWidth().height(2.dp).background(color))
+    Row(modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical=6.dp),
+        horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+        labels.forEachIndexed { index,label ->
+            val active=index==selected
+            val color by animateColorAsState(if(active) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,label="workspace tab")
+            Surface(shape=RoundedCornerShape(12.dp),color=color) {
+                Box(Modifier.heightIn(min=44.dp).clickable(role=Role.Tab) { onSelect(index) }
+                    .semantics { this.selected=active }.padding(horizontal=16.dp,vertical=12.dp),contentAlignment=Alignment.Center) {
+                    Text(label,style=MaterialTheme.typography.labelLarge,
+                        color=if(active) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f))
     }
 }
 
 @Composable
 fun StatusPill(text: String, icon: ImageVector = Icons.Default.Circle, attention: Boolean = false) {
-    Surface(shape = RoundedCornerShape(4.dp), color = if (attention) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh) {
-        Row(Modifier.padding(horizontal = 7.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+    Surface(shape = RoundedCornerShape(50), color = if (attention) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh) {
+        Row(Modifier.padding(horizontal = 10.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, Modifier.size(11.dp), tint = if(attention) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary)
             Text(text, style = MaterialTheme.typography.labelSmall)
         }
@@ -149,7 +158,7 @@ fun StatusPill(text: String, icon: ImageVector = Icons.Default.Circle, attention
 
 @Composable
 fun MetricTile(value: String, label: String, modifier: Modifier = Modifier) {
-    Column(modifier.padding(vertical = 12.dp, horizontal = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(modifier.clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceContainerLow).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         AnimatedContent(value, label = "metric") { Text(it, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurface) }
         Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }

@@ -15,9 +15,23 @@ utilisation et redistribution restent soumis à leurs propres conditions.
 Le choix de licence ne vaut pas qualification technique : les résultats de compilation,
 tests et recette sont consignés séparément dans les rapports de validation.
 
-Le 23 septembre 2026 UTC, les 109 artefacts du runtime Release résolu ont été inventoriés
+Le 30 septembre 2026 UTC, les 103 artefacts du runtime public ont été inventoriés
 dans [third_party](third_party/README.md), avec les métadonnées de licence et les
 notices embarquées. La revue des composants transitifs liés dans les bibliothèques
 natives reste ouverte ; cet inventaire ne constitue pas une validation juridique.
 La reconstruction LiteRT conserve aussi la licence BSD de CPUinfo et la
 [notice du correctif source](third_party/patches/README.md).
+
+Le dépôt public ne contient aucun SDK AdMob, UMP ou Play Billing ni code
+d’abonnement. Le code source du projet reste Apache-2.0. Les notices sont aussi embarquées et lisibles hors ligne dans les
+réglages. Le POM javax.inject incomplet est conservé comme tel ; les déclarations
+de licence de son archive source exacte figurent dans le supplément de provenance.
+Six binaires LiteRT/Flex retenus sont vérifiés contre les AAR distribués pour
+rattacher leurs notices aux entrées de liaison. Les limites de couverture figurent
+dans [l’inventaire natif](third_party/native-notices/inventory.json).
+
+La vente n’est pas ouverte : l’éditeur a fourni « Unicorn Who Dev », France et
+unicornwhodev@gmail.com, audience tout public. Son identité juridique complète,
+son adresse professionnelle, les informations commerciales applicables et l’URL
+publique de confidentialité restent à renseigner. Les politiques et conditions
+de préparation ne constituent pas une attestation de conformité ou une vente active.

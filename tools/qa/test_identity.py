@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Static source identity guards. Not Android compilation or manifest-merger validation."""
 from pathlib import Path
-import re, tomllib, unittest, xml.etree.ElementTree as ET
+import re, subprocess, tomllib, unittest, xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[2]
 PACKAGE='com.unicornwhodev.visiondatasetstudio'
 NS='{http://schemas.android.com/apk/res/android}'
@@ -26,7 +26,9 @@ class IdentityTests(unittest.TestCase):
             self.assertIsNone(re.search(r'com[./]example(?:[./";\s]|$)',text),path)
     def test_file_provider_uses_application_id(self):
         tree=ET.parse(ROOT/'app/src/main/AndroidManifest.xml')
-        provider=tree.find('.//provider')
+        providers=[node for node in tree.findall('.//provider') if node.get(NS+'name')=='androidx.core.content.FileProvider']
+        self.assertEqual(1,len(providers),'Exactly one product FileProvider is required')
+        provider=providers[0]
         self.assertEqual('${applicationId}.fileprovider',provider.get(NS+'authorities'))
         self.assertEqual('false',provider.get(NS+'exported'))
     def test_instrumented_provider_identity(self):
@@ -62,7 +64,9 @@ class IdentityTests(unittest.TestCase):
         data=tomllib.loads((ROOT/'gradle/libs.versions.toml').read_text(encoding='utf-8'))
         libraries={key.replace('-','.') for key in data['libraries']}
         plugins={key.replace('-','.') for key in data['plugins']}
-        for path in ROOT.rglob('*.gradle.kts'):
+        # Candidate build scripts only: ignored caches retain older independent catalogs.
+        names=subprocess.check_output(['git','ls-files','-c','-o','--exclude-standard'],cwd=ROOT,text=True).splitlines()
+        for path in (ROOT/name for name in sorted(set(names)) if name.endswith('.gradle.kts') and (ROOT/name).is_file()):
             for use in re.findall(r'libs\.([a-z][\w.]*)',path.read_text(encoding='utf-8')):
                 self.assertIn(use[8:] if use.startswith('plugins.') else use,plugins if use.startswith('plugins.') else libraries,path)
     def test_build_workflow_has_emulator_job_without_publication(self):

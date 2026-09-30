@@ -61,7 +61,9 @@ fun ModelConfigurationScreen(vm: MainViewModel) {
                         Text(tr("Modifier tâches et classes", "Edit tasks and classes"))
                     }
                 }
-                ModelSettingsPanel(p, busy, vm::saveModelConfig, spec)
+                StudioDisclosure(tr("Options du modèle", "Model options"),Icons.Default.Tune,keepContent=true) {
+                    ModelSettingsPanel(p,busy,vm::saveModelConfig,spec)
+                }
                 StudioSection(tr("Essayer sur une image", "Try on an image"),
                     tr("Utilise les réglages enregistrés. Les annotations sont conservées.", "Uses saved settings. Annotations are preserved."), Icons.Default.Science) {
                     if(config!=null && ModelContract.adapter(config)!="inspect_only" && !runtimeReady) {

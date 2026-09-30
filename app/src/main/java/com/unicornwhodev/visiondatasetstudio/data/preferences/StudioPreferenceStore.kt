@@ -16,6 +16,13 @@ class StudioPreferenceStore(context: Context) {
         showCanvasLabels = prefs.getBoolean("canvas_labels", true), captionLanguage = prefs.getString("caption_language", "fr") ?: "fr"
     ))
     val state = mutable.asStateFlow()
+    private val tutorial = MutableStateFlow(prefs.getBoolean("tutorial_on_launch", true))
+    val tutorialOnLaunch = tutorial.asStateFlow()
+    fun setTutorialOnLaunch(enabled: Boolean): Boolean {
+        val saved = prefs.edit().putBoolean("tutorial_on_launch", enabled).commit()
+        if (saved) tutorial.value = enabled
+        return saved
+    }
     fun update(value: StudioPreferences) {
         prefs.edit().putString("theme", value.theme.name).putString("density", value.gridDensity.name)
             .putBoolean("auto_advance", value.autoAdvance).putBoolean("guidance", value.showGuidance)

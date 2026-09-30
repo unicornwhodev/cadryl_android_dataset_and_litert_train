@@ -14,6 +14,7 @@ import subprocess
 import time
 import xml.etree.ElementTree as ET
 from run_device_qualification import APP_ID
+from adb_transport import prefix
 
 
 def main():
@@ -25,7 +26,7 @@ def main():
     if os.environ.get('VDS_ALLOW_TEST_INSTALL') != '1' or not re.fullmatch('[a-f0-9]{64}', args.sha256):
         parser.error('Select an authorized QA device, exact APK hash and VDS_ALLOW_TEST_INSTALL=1.')
     args.output.mkdir(parents=True, exist_ok=False)
-    adb = ['adb', '-s', args.serial]
+    adb = prefix(args.serial)
     state = dict(suite='host_adb_ui_fresh_xml', outcome='running', passed=[],
                  started_at=datetime.now(timezone.utc).isoformat(), main_sha256=args.sha256,
                  instrumentation=False, qa_foreground_service=False, freezing_exemption=False,
@@ -113,7 +114,7 @@ def main():
         # The RC8 first-run home screen can expose "Studio" twice (the active
         # workspace tab and the bottom navigation item). Assert the unique
         # page heading instead of relying on either navigation label.
-        find(r'De vos images à votre dataset|From your images to your dataset|Votre source est prête|Your source is ready')
+        find(r'Vos images\. Votre dataset\.|Your images\. Your dataset\.|Continuez votre lot|Continue your batch|Votre lot est relu|Your batch is reviewed')
 
     def passed(name):
         state['passed'].append(name)
@@ -145,7 +146,7 @@ def main():
         state['abi'] = run('shell', 'getprop', 'ro.product.cpu.abi').strip()
         state['page_size'] = int(run('shell', 'getconf', 'PAGE_SIZE').strip())
         restart()
-        find('Votre parcours|Your workflow')
+        find(r'Vos images\. Votre dataset\.|Your images\. Your dataset\.|Continuez votre lot|Continue your batch|Votre lot est relu|Your batch is reviewed')
         passed('home_renders')
         click('Modèles|Models')
         click('Importer|Import')

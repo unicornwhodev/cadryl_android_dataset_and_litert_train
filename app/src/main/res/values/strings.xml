@@ -6,24 +6,19 @@
     <string name="nav_export">Export</string>
     <string name="nav_quality">Quality</string>
     <string name="nav_settings">Settings</string>
-    <string name="model_unqualified">Unqualified</string>
-    <string name="model_failed">Known failure</string>
-    <string name="action_cancel">Cancel</string>
-    <string name="action_confirm">Confirm</string>
-    <string name="screen_controls">Workspace</string><string name="screen_export">Export</string><string name="screen_training">Training</string>
+    <string name="action_cancel">Cancel</string><string name="screen_export">Export</string><string name="screen_training">Training</string>
     <string name="screen_preferences">Settings</string><string name="screen_workflow">Workflow</string><string name="screen_setup">Project</string>
     <string name="screen_quality">Quality</string><string name="screen_similarity">Similar images</string><string name="screen_models">Models</string>
-    <string name="subtitle_on_device">On this device</string><string name="subtitle_configuration">Configuration</string><string name="subtitle_same_model">Same project and model weights</string>
+    <string name="subtitle_on_device">On this device</string><string name="subtitle_same_model">Same project and model weights</string>
     <string name="batch_title">Batch %1$02d</string><string name="batch_summary">%1$d images / %2$d validated</string><string name="models_summary">Library / %1$d installed</string>
-    <string name="models_tab_explore">Explore</string><string name="models_tab_installed">Installed</string><string name="models_tab_import">Import</string>
+    <string name="models_tab_explore">Explore</string><string name="models_tab_import">Import</string>
     <string name="models_catalogue">CATALOG</string><string name="models_downloadable">%1$d downloadable</string>
     <string name="models_empty_title">Catalog not loaded</string><string name="models_empty_body">Refresh to see available models.</string><string name="models_explore">Explore catalog</string>
     <string name="models_details">Details: %1$s</string><string name="models_install">Install %1$s</string><string name="action_close">Close</string>
     <string name="models_none_installed">No installed model</string><string name="models_import_compatible">Import a compatible .tflite file.</string>
     <string name="models_active">Active</string><string name="models_use">Use</string><string name="models_delete">Delete %1$s</string><string name="models_detach">Detach from project</string>
     <string name="models_litert_file">LiteRT file</string><string name="models_device_weights">.tflite weights on this device</string><string name="models_choose_file">Choose a .tflite file</string>
-    <string name="models_from_url">From a URL</string><string name="models_url_label">Direct HTTPS URL</string><string name="models_import_url">Import URL</string><string name="models_advanced">Contracts and advanced options</string>
-    <string name="models_catalog_source">Hugging Face catalog</string><string name="models_repo">Account / repository</string><string name="models_revision">Revision</string><string name="models_folder">Folder · empty for root</string><string name="models_private_access">Private access uses the app’s HF connection.</string><string name="action_open">Open</string>
+    <string name="models_from_url">From a URL</string><string name="models_url_label">Direct HTTPS URL</string><string name="models_import_url">Import URL</string><string name="models_advanced">Contracts and advanced options</string><string name="models_repo">Account / repository</string><string name="models_revision">Revision</string><string name="models_folder">Folder · empty for root</string><string name="models_private_access">Private access uses the app’s HF connection.</string>
     <string name="models_delete_title">Delete this profile?</string><string name="models_delete_body">Annotations and corrections are preserved. Weights are deleted only when no longer referenced.</string><string name="action_delete">Delete</string>
     <string name="training_trainable">Trainable model</string><string name="training_inference_only">Inference conversion</string><string name="training_batch_only">Exported batch %1$d only. Cleanup follows training.</string><string name="training_epochs">Epochs</string>
     <string name="training_model_versions">The original stays intact. The first training creates a learned version; later training continues from its latest validated weights, even before activation.</string>
@@ -37,7 +32,7 @@
     <string name="training_details_runtime">Execution uses the model’s LiteRT train / infer / save / restore signatures. No corpus or gradient is sent to the pod. Reused validation does not measure generalization to an independent corpus.</string>
     <string name="cap_detection">Detection</string><string name="cap_pointing">Pointing</string><string name="cap_segmentation">Masks</string><string name="cap_classification">Classification</string><string name="cap_captioning">Captions</string><string name="cap_vqa">Questions/answers</string><string name="cap_counting">Counting</string><string name="cap_grounding">Text ↔ region</string><string name="cap_embedding">Embeddings</string><string name="cap_similarity">Similarity</string><string name="cap_interactive_segmentation">Interactive segmentation</string><string name="cap_training">Trainable</string><string name="cap_inspection">Inspection only</string>
     <string name="qualification_qualified">Qualified</string><string name="qualification_partial">Partially qualified</string><string name="qualification_inference">Inference qualified</string><string name="qualification_training">Training qualified</string><string name="qualification_failed">Known failure</string><string name="qualification_untested">Unqualified</string>
-    <string name="model_state_upcoming">Upcoming</string><string name="model_state_unsupported">Unsupported bundle</string><string name="model_state_contract">Contract provided</string><string name="model_state_heatmap">Heatmap contract</string><string name="model_state_embedding">Visual representations</string><string name="model_state_bundle">Local pipeline</string><string name="model_state_detection">Detection</string><string name="model_state_inspection">Inspection</string><string name="model_files">%1$d file(s)</string><string name="model_test_required">Installation and on-device testing required.</string>
+    <string name="model_state_upcoming">Upcoming</string><string name="model_state_unsupported">Unsupported bundle</string><string name="model_state_contract">Contract provided</string><string name="model_state_heatmap">Heatmap contract</string><string name="model_state_embedding">Visual representations</string><string name="model_state_bundle">Local pipeline</string><string name="model_state_detection">Detection</string><string name="model_state_inspection">Inspection</string><string name="model_files">%1$d file(s)</string>
     <string name="export_format_canonical">Complete JSONL</string><string name="export_format_coco">COCO — boxes + masks</string><string name="export_format_yolo">YOLO — boxes</string><string name="export_format_vl">Questions / answers</string>
     <string name="editor_action_preannotate">Pre-annotate</string><string name="editor_action_preannotate_partial">Partially pre-annotate</string><string name="editor_action_embedding">Compute representation</string><string name="editor_action_interactive_segmentation">Prompt segmentation</string><string name="editor_action_inspect">Inspect model</string><string name="editor_action_model">Model</string>
     <string name="instance_unlinked">Unlinked instance</string><string name="instance_linked">Instance · %1$s</string><string name="instance_new">New instance</string><string name="instance_unlink">Unlink</string><string name="instance_link_box">Link box · %1$s</string><string name="instance_link_mask">Link mask · %1$s</string><string name="instance_link_point">Link point · %1$s</string>
@@ -55,31 +50,21 @@
     <string name="batch_tag_to_add">Tag to add</string>
     <string name="common_apply">Apply</string>
     <string name="editor_reject_explanation">The image is excluded from export without immediately deleting the file.</string>
-    <string name="editor_accept_explanation">Point, box, and tag proposals for this image will be marked as human-reviewed. Accept only what you actually verified.</string>
     <string name="publication_hf">Hugging Face</string>
     <string name="publication_isolate_title">Isolate a new attempt?</string>
     <string name="publication_close_all_title">Close all these rejections?</string>
     <string name="setup_dataset_url_help">Dataset URL or identifier, not a file URL.</string>
-    <string name="setup_classes_help">Stable identifiers for your taxonomy. Existing classes are not renamed automatically.</string>
-    <string name="setup_optional_contract">model-config.json · optional</string>
     <string name="setup_budget_help">From 128 to 65,536 MiB. Configurable batches of 1 to 1,000 cases.</string>
     <string name="prefs_appearance">Appearance</string>
     <string name="prefs_gestures">Gestures and pace</string>
     <string name="prefs_tools">Tools</string>
     <string name="controls_projects">My projects</string>
-    <string name="controls_presets">Presets</string>
     <string name="controls_source_selection">Source and selection</string>
     <string name="controls_collaboration">Collaboration</string>
     <string name="controls_batches_network">Batches and network</string>
     <string name="controls_bounded_storage">Bounded storage</string>
     <string name="controls_hf_publication">Hugging Face publication</string>
     <string name="controls_model_library">Model library</string>
-    <string name="controls_public_catalog">Downloadable public catalog</string>
-    <string name="controls_download_inspect">Download and inspect…</string>
-    <string name="controls_import_tflite">Import a .tflite file</string>
-    <string name="controls_download_weights">Download these weights</string>
-    <string name="controls_detach_model">Detach model from this project</string>
-    <string name="controls_keep_profile">Keep weights and contract in library</string>
     <string name="controls_contract_preprocessing">Contract and preprocessing</string>
     <string name="controls_versioned_contract">Versioned JSON contract</string>
     <string name="controls_validate_contract">Validate and save contract</string>
@@ -88,9 +73,6 @@
     <string name="controls_preannotate_pending">Preannotate untouched images</string>
     <string name="controls_measure_device">Measure on this device</string>
     <string name="controls_adaptive_points">Adaptive point correction</string>
-    <string name="common_download">Download</string>
-    <string name="controls_delete_profile_title">Delete this profile?</string>
-    <string name="common_delete">Delete</string>
     <string name="controls_clear_corrector_title">Clear local corrector?</string>
     <string name="common_reset">Reset</string>
     <string name="batch_preannotate_body">Only images without annotations will be processed. Existing proposals stay unchanged. Keep the app open.</string>
@@ -98,32 +80,20 @@
     <string name="batch_bulk_body">The action only affects selected editable cases. No image will be validated automatically.</string>
     <string name="publication_isolate_body">The previous commit and paths will remain unchanged. A new publication will use a unique path; this can create a remote duplicate if the first response was lost. Nothing is deleted remotely.</string>
     <string name="publication_close_all_body">No case in this batch was accepted. Rejections and reasons remain in history. Cached-copy cleanup remains separate; no source original will be deleted.</string>
-    <string name="controls_download_title">Download %1$s?</string><string name="controls_download_body">Download from public TensorFlow storage without an HF token. Maximum allowance: 64 MB. Labels and metadata are read from the weights. Incompatible imports are blocked. Check the model terms before redistribution. The active model is not replaced.</string>
-    <string name="controls_delete_profile_body">Its weights will be deleted only when no other profile or project uses them. Annotations and correctors will not be deleted.</string>
     <string name="controls_clear_corrector_body">Numeric examples and correction heads for this project will be erased. Annotations, images, and model weights remain intact.</string>
     <!-- Remaining setup and workflow copy -->
-    <string name="setup_access_unconfirmed">Access not confirmed</string>
-    <string name="setup_adapters_help">Available adapters: SSD / TF Object Detection and classification. YOLO, pointing, or arbitrary VLM models require a dedicated adapter.</string>
-    <string name="setup_no_model">No imported model</string>
     <string name="setup_folder_indexed">Folder indexed</string>
     <string name="setup_start">Start</string>
-    <string name="setup_repo_accessible">Repository accessible. This does not guarantee write permission.</string>
     <string name="setup_provenance_locked">Provenance is locked after the first batch is acquired: changing the source will be refused without affecting data.</string>
     <string name="setup_network_safety">Network errors must not erase corrections. Automatic cleanup requires remote verification of published files.</string>
-    <string name="setup_export_later">Archive formats and contents are selected in Export. No upload starts at this step.</string>
-    <string name="setup_proposals_help">Proposals still require review. All manual tools remain available without a model.</string>
-    <string name="setup_local_export_help">Local export remains available without a destination repository.</string>
     <string name="setup_index_help">The index references images. Only the active batch is copied to cache.</string>
     <string name="setup_advanced">Advanced options</string>
-    <string name="setup_weights_imported">Weights imported · compatibility must be checked</string>
     <string name="setup_prepare_next">Prepare the batch next</string>
     <string name="setup_collapse">Collapse</string>
     <string name="setup_token_security">Encrypted storage with Android Keystore. The token is not included in exports.</string>
-    <string name="setup_tasks_help">You can combine or change tasks later.</string>
     <string name="workflow_privacy">Only instructions and case counts are sent. The server is provided separately.</string>
     <string name="workflow_prepare">Prepare</string>
-    <string name="similarity_empty">No other representation is available. Process the batch with the same encoder.</string>
-    <string name="setup_rows_verified">%1$d verified rows</string><string name="setup_verify_image_column">Check that “%1$s” is the column containing the images.</string><string name="setup_connected">Connected: %1$s</string><string name="setup_public_read">Public read access available</string><string name="setup_create_private_body">Repository %1$s will be created in your Hugging Face account. No file will be published now.</string>
+    <string name="similarity_empty">No other representation is available. Process the batch with the same encoder.</string><string name="setup_verify_image_column">Check that “%1$s” is the column containing the images.</string><string name="setup_connected">Connected: %1$s</string><string name="setup_public_read">Public read access available</string>
     <!-- Actions referenced by the primary screens. -->
     <string name="common_cancel">Cancel</string>
     <string name="common_configure">Configure</string>
@@ -155,7 +125,6 @@
     <string name="controls_save_settings">Save these settings</string>
     <string name="controls_show_receipts">Show receipts</string>
     <string name="controls_train_corrections">Learn from corrections</string>
-    <string name="editor_accept_reviewed">Accept after review</string>
     <string name="editor_add_count">Add count</string>
     <string name="editor_add_expression">Add expression</string>
     <string name="editor_add_question">Add question</string>
@@ -165,7 +134,6 @@
     <string name="editor_audit_notes">Review notes</string>
     <string name="editor_clear_sam">Clear SAM prompts</string>
     <string name="editor_confirm_rejection">Confirm rejection</string>
-    <string name="editor_confirm_review">Confirm review</string>
     <string name="editor_count_boxes">Count boxes</string>
     <string name="editor_customize_tools">Customize tools</string>
     <string name="editor_defer_image">Defer image</string>
@@ -195,7 +163,6 @@
     <string name="editor_similar_images">Similar images</string>
     <string name="editor_split_islands">Split islands</string>
     <string name="editor_verified_absences">Verified absences</string>
-    <string name="editor_verified_proposals">Proposals verified</string>
     <string name="editor_zoom_in">Zoom in</string>
     <string name="editor_zoom_out">Zoom out</string>
     <string name="point_absent">Absent</string>
@@ -218,17 +185,9 @@
     <string name="publication_transfer_options">Transfer options</string>
     <string name="quality_open_batches">Open batches</string>
     <string name="quality_storage">Storage</string>
-    <string name="setup_ai_assistant">AI assistant</string>
     <string name="setup_choose_folder">Choose a folder</string>
-    <string name="setup_choose_tflite">Choose a .tflite</string>
-    <string name="setup_classes">Classes</string>
     <string name="setup_connect">Connect</string>
-    <string name="setup_create_private">Create private repository</string>
-    <string name="setup_create_private_title">Create this private repository?</string>
-    <string name="setup_create_repo">Create repository</string>
-    <string name="setup_dataset_destination">Destination dataset</string>
     <string name="setup_dataset_link">Dataset URL or ID</string>
-    <string name="setup_download_model">Download model</string>
     <string name="setup_hf_config">HF configuration</string>
     <string name="setup_hf_dataset">Hugging Face dataset</string>
     <string name="setup_hf_login">Hugging Face sign-in</string>
@@ -237,14 +196,8 @@
     <string name="setup_inspect_source">Inspect source</string>
     <string name="setup_local_budget">Local budget (MiB)</string>
     <string name="setup_local_images">Local images</string>
-    <string name="setup_optional_destination">Optional destination</string>
     <string name="setup_project_name">Project name</string>
-    <string name="setup_save_contract">Save contract</string>
     <string name="setup_source_split">Source split</string>
-    <string name="setup_storage_pace">Storage and pace</string>
-    <string name="setup_tasks">Tasks</string>
-    <string name="setup_verify_access">Verify access</string>
-    <string name="setup_weights_url">Weights URL</string>
     <string name="workflow_local_agent">Local agent</string>
     <string name="workflow_optional_instructions">Optional instructions</string>
     <string name="workflow_propose">Propose a workflow</string>
