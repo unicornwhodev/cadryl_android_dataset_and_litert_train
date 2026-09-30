@@ -528,11 +528,15 @@
     },
     "app/src/main/java/com/adamglin/PhosphorIcons.kt": {
       "source": "Minimal registry for the pinned MIT-licensed Phosphor vectors",
-      "sha256": "fdb6c2d293a0a119e5a7f5249c87412e192c78a362a5499c558d5e974648523a"
+      "sha256": "967dd12a77c9acf30d06e5b8a015e0e782a4a4e90aaac9c9fd8eae0ca7571837",
+      "before_lf_sha256": "fdb6c2d293a0a119e5a7f5249c87412e192c78a362a5499c558d5e974648523a",
+      "adaptation": "LF line endings for stable source builds"
     },
     "app/src/main/java/com/adamglin/phosphoricons/DuotoneGroup.kt": {
       "source": "Minimal registry for the pinned MIT-licensed Phosphor vectors",
-      "sha256": "b8a9e72dd8d1e7e9e0a7bff7b60af8381da6ceda4096ba15986928d067ff9cfa"
+      "sha256": "087945ff4bacfcd999beb8179ab0d3c14a1a567b0a6cf90b56c50e43627a9141",
+      "before_lf_sha256": "b8a9e72dd8d1e7e9e0a7bff7b60af8381da6ceda4096ba15986928d067ff9cfa",
+      "adaptation": "LF line endings for stable source builds"
     }
   }
 }

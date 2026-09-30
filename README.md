@@ -16,6 +16,8 @@ Lynx retenu, typographie Barlow, icônes Phosphor Duotone et interface porcelain
 
 La release `v0.0.1` publiée conserve son interface et ses APK d’origine. La nouvelle interface est compilée et testée dans les sources actuelles ; elle n’a pas remplacé les fichiers de cette release.
 
+Un nouvel **AAB ARM64 signé** du studio est produit localement, avec son APK dérivée et les tests associés. [Compilation, empreintes et portée de la recette](docs/APP_BUNDLE.md).
+
 ## Version publique 0.0.1
 
 Studio simplifié, didacticiel interactif au premier lancement, imports et exports sécurisés, icônes Cadryl et notices hors ligne. Modèles et apprentissage restent disponibles. La case finale du didacticiel désactive ses prochains lancements ; les réglages permettent de le relancer.

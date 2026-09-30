@@ -103,5 +103,13 @@
     "published": false,
     "compiled_source_bytes_equal_git_index": true,
     "source_manifest_sha256": "46315378de4809db0568ff4ddf75e1405f2a958b10882fd2627cd8855e110a60"
+  },
+  "source_app_bundle": {
+    "evidence": "docs/APP_BUNDLE_EVIDENCE.json",
+    "version": "0.0.1",
+    "version_code": 14,
+    "signed": true,
+    "physical_device_qualified": false,
+    "uploaded": false
   }
 }

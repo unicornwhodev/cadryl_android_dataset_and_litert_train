@@ -594,12 +594,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             catch(e:Exception){inferenceError=e.message ?: tr("Préannotation interrompue", "Preannotation interrupted")}
             finally{liteRtEngine.close()}
         }
+        val imageCount=tr("${unique.size} image${if(unique.size==1) "" else "s"}", "${unique.size} image${if(unique.size==1) "" else "s"}")
+        val duplicateCount=tr("$duplicates doublon${if(duplicates==1) "" else "s"} écarté${if(duplicates==1) "" else "s"}",
+            "$duplicates duplicate${if(duplicates==1) "" else "s"} excluded")
         val message=when {
             inferenceError!=null -> tr("Import conservé. $inferenceError", "Imported data preserved. $inferenceError")
-            failed>0 -> tr("$failed image(s) à réessayer · $duplicates doublon(s) écarté(s)", "$failed image(s) to retry · $duplicates duplicate(s) excluded")
-            unique.isEmpty() && exhausted -> tr("Fin de source · $duplicates doublon(s) écarté(s)", "End of source · $duplicates duplicate(s) excluded")
-            !exhausted && unique.size<policy.batchSize -> tr("${unique.size} image(s) · $duplicates doublon(s). Réessayer pour compléter le lot.", "${unique.size} image(s) · $duplicates duplicate(s). Retry to fill the batch.")
-            else -> tr("${unique.size} image(s) à contrôler · $duplicates doublon(s) écarté(s)", "${unique.size} image(s) to review · $duplicates duplicate(s) excluded") + if(exhausted) tr(" · Fin de source", " · End of source") else ""
+            failed>0 -> tr("$failed image${if(failed==1) "" else "s"} à réessayer · $duplicateCount", "$failed image${if(failed==1) "" else "s"} to retry · $duplicateCount")
+            unique.isEmpty() && exhausted -> tr("Fin de source · $duplicateCount", "End of source · $duplicateCount")
+            !exhausted && unique.size<policy.batchSize -> tr("$imageCount · $duplicateCount. Réessayer pour compléter le lot.", "$imageCount · $duplicateCount. Retry to fill the batch.")
+            else -> tr("$imageCount à contrôler · $duplicateCount", "$imageCount to review · $duplicateCount") + if(exhausted) tr(" · Fin de source", " · End of source") else ""
         }
         _operationProgress.value=OperationProgress(message,1,1,failed>0 || inferenceError!=null)
         setScreen(Screen.BatchGrid)

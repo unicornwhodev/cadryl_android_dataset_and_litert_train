@@ -16,6 +16,8 @@ Selected lynx, bundled Barlow fonts, Phosphor Duotone icons and porcelain/graphi
 
 The published `v0.0.1` release retains its original APKs and interface. The redesign is built and tested in current sources; it has not replaced those published assets.
 
+A new **signed ARM64 AAB** has been built locally, with its bundle-derived APK and paired instrumentation tests. [Build recipe, hashes and qualification scope](docs/APP_BUNDLE.md). Current Debug core checks pass 63/63; the new bundle-derived APK still needs physical-device qualification after the phone disconnected.
+
 ## Public release 0.0.1
 
 Simpler studio, interactive first-launch tutorial, safer imports and exports, adaptive Cadryl icons and offline notices. Models and training remain available. The final tutorial checkbox disables future automatic starts; Settings can replay it.

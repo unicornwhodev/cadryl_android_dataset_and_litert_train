@@ -7,6 +7,7 @@ the exact, separately authorized NEW QA repository and --allow-hf-writes.
 Private receipts stay in ignored test-results. A killed phase is not a passed test.
 """
 import argparse
+from adb_transport import prefix
 import io
 import json
 from pathlib import Path
@@ -35,7 +36,7 @@ def main():
         parser.error('Explicit authorization and the exact private QA repository are required.')
     out = ROOT / 'test-results' / f'real-fault-{args.scenario}-{args.case}'
     out.mkdir(parents=True, exist_ok=False)
-    adb = ['adb', '-s', args.serial]
+    adb = prefix(args.serial)
     state = dict(scenario=args.scenario, case=args.case, outcome='running', emulator_only=True, tests={})
     running = None
     rules = []

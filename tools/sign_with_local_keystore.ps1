@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory=$true)][string]$KeyDirectory,
-    [Parameter(Mandatory=$true)][ValidateSet('release','qualification','release-tests')][string]$Kind,
-    [Parameter(Mandatory=$true)][string]$ArtifactDirectory
+    [Parameter(Mandatory=$true)][ValidateSet('release','qualification','release-tests','play-bundle')][string]$Kind,
+    [Parameter(Mandatory=$true)][string]$ArtifactDirectory,
+    [string]$Bundletool
 )
 $ErrorActionPreference = 'Stop'
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -30,6 +31,9 @@ try {
     $env:VDS_RELEASE_KEY_PASSWORD = $password
     if ($Kind -eq 'release') {
         & python -X utf8 (Join-Path $PSScriptRoot 'sign_release_candidate.py') --candidate $ArtifactDirectory --certificate-sha256 $pin.certificate_sha256
+    } elseif ($Kind -eq 'play-bundle') {
+        if (-not $Bundletool) {throw 'The official bundletool CLI path is required.'}
+        & python -X utf8 (Join-Path $PSScriptRoot 'build_app_bundle.py') --bundletool $Bundletool
     } elseif ($Kind -eq 'release-tests') {
         & python -X utf8 (Join-Path $PSScriptRoot 'qa/sign_release_test_apks.py') --build $ArtifactDirectory
     } else {

@@ -364,7 +364,7 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                 Column(Modifier.padding(horizontal=16.dp).padding(top=8.dp,bottom=12.dp)) {
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         if(regionTab) Box(Modifier.weight(1f)) {
-                            TextButton(onClick={quickClassMenu=true},enabled=!locked,contentPadding=PaddingValues(0.dp),
+                            TextButton(onClick={quickClassMenu=true},enabled=!locked,shape=androidx.compose.ui.graphics.RectangleShape,contentPadding=PaddingValues(0.dp),
                                 colors=ButtonDefaults.textButtonColors(contentColor=LocalContentColor.current)) {
                                 val ordinal=classes.indexOf(label)+1
                                 Surface(Modifier.size(32.dp),shape=CutCornerShape(6.dp),

@@ -5,6 +5,7 @@ Public model and photo files remain outside the APK and Git. No device reset,
 private corpus, background claim or exemption from process freezing is used.
 """
 import argparse
+from adb_transport import prefix
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -33,7 +34,7 @@ def main():
     for value in (a.sha256, a.test_sha256):
         if not re.fullmatch('[a-f0-9]{64}', value): p.error('Exact APK hashes required')
     a.output.mkdir(parents=True, exist_ok=False)
-    adb = ['adb', '-s', a.serial]
+    adb = prefix(a.serial)
     case = uuid.uuid4().hex[:12]
     state = dict(outcome='running', main_sha256=a.sha256, test_sha256=a.test_sha256,
                  case=case, started_at=datetime.now(timezone.utc).isoformat(),

@@ -5,6 +5,7 @@ Dedicated Debug emulator only. No reset, private corpus, inference accuracy
 claim, or external writes. The manifest contains the pinned public provenance.
 """
 import argparse
+from adb_transport import prefix
 from datetime import datetime, timezone
 import hashlib
 import io
@@ -35,7 +36,7 @@ def main():
     if manifest.get('license') != 'cc0-1.0' or len(manifest.get('images', [])) != 1000:
         p.error('A pinned, 1,000-image CC0 manifest is required.')
     a.output.mkdir(parents=True, exist_ok=False)
-    adb = ['adb', '-s', a.serial]
+    adb = prefix(a.serial)
     state = dict(outcome='running', started_at=datetime.now(timezone.utc).isoformat(),
                  case=a.case, physical_device=False, accuracy_evaluated=False)
     process = None

@@ -1,5 +1,17 @@
 # Les tests de Cadryl
 
+## Bundle signé du studio — 30 septembre 2026
+
+118 JVM et 114 Python réussis, lint zéro erreur / 88 avertissements, 101 KSP.
+La nouvelle APK Debug passe 63/63 sur l’émulateur API 36. Les recettes HF
+privée réelle (publication, conflit, réponse perdue) et SAF réelle (copie,
+révocation, refus de purge) passent sur cette APK. L’AAB ARM64 signé, son APK
+dérivée et l’APK instrumentée sont produits et vérifiés. La recette physique
+de ces artefacts attend le téléphone ; les captures et résultats physiques
+ci-dessous concernent leurs candidats d’origine.
+
+[Recette et limites](docs/APP_BUNDLE.md) · [Artefacts exacts](docs/APP_BUNDLE_EVIDENCE.json).
+
 [Le projet](README.md) · [English](docs/en/VALIDATION.md)
 
 Ce rapport distingue le candidat actuel des campagnes précédentes. Pour chaque résultat, les reçus gardent le build, les APK et l’appareil concernés.

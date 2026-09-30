@@ -5,6 +5,7 @@ No app reset. Every preparation/copy phase must finish before the next test.
 Volume injection requires a rooted emulator and an explicitly selected QA volume.
 """
 import argparse
+from adb_transport import prefix
 from datetime import datetime, timezone
 import json
 import os
@@ -27,7 +28,7 @@ def main():
     if os.environ.get('VDS_ALLOW_TEST_INSTALL') != '1' or not re.fullmatch('[a-f0-9]{12}', a.case):
         p.error('Explicit QA authorization and a new case are required.')
     a.output.mkdir(parents=True, exist_ok=False)
-    adb = ['adb', '-s', a.serial]
+    adb = prefix(a.serial)
     state = dict(outcome='running', case=a.case, tests={}, started_at=datetime.now(timezone.utc).isoformat())
     process = None; unmounted = False
     def run(*parts):

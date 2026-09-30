@@ -1,5 +1,12 @@
 # Ce qui reste à améliorer
 
+## Bundle du studio signé le 30 septembre 2026
+
+Le nouveau bundle et l’APK qui en est dérivée sont construits et vérifiés.
+Le téléphone s’est déconnecté avant la recette physique de ces octets ; les
+résultats Android Debug et les preuves physiques antérieures gardent leurs
+portées distinctes. [Preuves actuelles](docs/APP_BUNDLE.md).
+
 [Le projet](README.md) · [English](docs/en/KNOWN_LIMITATIONS.md)
 
 Cadryl **0.0.1** est la release publique. Les résultats RC8 ci-dessous sont historiques. Le [rapport du 30 septembre](docs/RC8_QUALIFICATION_2026_09.md) lie chaque contrôle aux APK et appareils réellement testés.
