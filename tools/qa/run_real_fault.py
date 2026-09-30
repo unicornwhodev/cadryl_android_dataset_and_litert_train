@@ -7,6 +7,7 @@ the exact, separately authorized NEW QA repository and --allow-hf-writes.
 Private receipts stay in ignored test-results. A killed phase is not a passed test.
 """
 import argparse
+import hashlib
 from adb_transport import prefix
 import io
 import json
@@ -113,6 +114,28 @@ def main():
         if command('shell', 'getenforce').strip() != 'Enforcing':
             raise RuntimeError('SELinux must stay Enforcing.')
         state['page_size'] = int(command('shell', 'getconf', 'PAGE_SIZE').strip())
+        for key, package in [('main_sha256', APP_ID), ('test_sha256', APP_ID + '.test')]:
+            paths = command('shell', 'pm', 'path', package).strip().splitlines()
+            if len(paths) != 1 or not re.fullmatch(r'package:/data/app/[A-Za-z0-9/_~+=.-]+/base\.apk', paths[0]):
+                raise RuntimeError('A single installed QA APK is required for artifact binding.')
+            checksum = command('shell', 'sha256sum', paths[0].removeprefix('package:')).split()[0]
+            if not re.fullmatch(r'[a-f0-9]{64}', checksum):
+                raise RuntimeError('Installed QA APK checksum was not confirmed.')
+            state[key] = checksum
+        if args.scenario == 'hf-live':
+            # The synthetic test wraps this exact preference name. Preserve it,
+            # so a new case receives its own remote namespace without changing
+            # user preferences or deleting the preceding publication evidence.
+            qa_preference = 'shared_prefs/hf_live_qa_studio_publication.xml'
+            previous = command('shell', 'run-as', APP_ID, 'cat', qa_preference, check=False)
+            if previous.startswith('<?xml'):
+                (out / 'previous-qa-publication-namespace.xml').write_text(previous, encoding='utf-8')
+                backup = f'files/qa-private/hf-live-namespace-{args.case}.xml'
+                if command('shell', 'run-as', APP_ID, 'ls', backup, check=False).strip():
+                    raise RuntimeError('The QA namespace backup already exists.')
+                command('shell', 'run-as', APP_ID, 'mkdir', '-p', 'files/qa-private')
+                command('shell', 'run-as', APP_ID, 'mv', qa_preference, backup)
+                state['preceding_qa_namespace_preserved_sha256'] = hashlib.sha256(previous.encode()).hexdigest()
         packages = command('shell', 'cmd', 'package', 'list', 'packages', '-U', APP_ID)
         uid = re.search(r'^package:' + re.escape(APP_ID) + r' uid:(\d+)\s*$', packages, re.M).group(1)
         if args.scenario == 'enospc':

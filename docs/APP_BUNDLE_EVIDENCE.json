@@ -68,7 +68,7 @@
   "portable_tests": {
     "passed": 114,
     "failed": 0,
-    "log_sha256": "5cca9f51b2e3aaf1da5f3eeed7daabec6a211b63dee6d434f5eb59b6b51a32e3"
+    "log_sha256": "d7a98b825793f84873d9f0ef3d7c063f1809277526e53fc10c0d6e6e14a6f3fe"
   },
   "debug_core": {
     "tests": {
@@ -197,5 +197,7 @@
   "new_bundle_endurance_qualified": false,
   "public_bundle_uploaded": false,
   "published_artifacts_unchanged": true,
-  "scope": "Fresh AAB and current Debug checks. Earlier physical results belong to their original APK bytes."
+  "scope": "Fresh AAB and current Debug checks. Earlier physical results belong to their original APK bytes.",
+  "compiled_source_files": 327,
+  "compiled_source_bytes_equal_git_index": true
 }

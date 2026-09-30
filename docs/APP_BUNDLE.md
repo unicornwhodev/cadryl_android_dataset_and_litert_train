@@ -43,3 +43,8 @@ Les tests physiques du studio précédent sont conservés dans
 déconnecté avant l’installation de cette nouvelle APK dérivée : sa recette
 physique et son endurance restent à exécuter. Aucun ancien résultat n’est
 attribué à ces nouveaux octets.
+
+Le pilote de pannes mesure désormais les empreintes des APK installées. Pour
+répéter la publication synthétique HF, il conserve le namespace de recette
+précédent et en crée un nouveau. Une destination déjà occupée reste protégée ;
+les préférences de publication utilisateur et les preuves précédentes sont conservées.
