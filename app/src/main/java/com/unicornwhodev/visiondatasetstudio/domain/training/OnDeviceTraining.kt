@@ -88,7 +88,7 @@ class OnDeviceTraining(private val context:Context) {
         val db=AppDatabase.getInstance(context)
         val (batch,rows)=db.withTransaction {
             val batch=db.batchDao().getBatchSync(project.id,batchNumber) ?: error(tr("Lot absent", "Batch not found"))
-            require(batch.status=="VERIFIED" && batch.verificationKind in setOf("local","hf","both")){tr("Exportez et vérifiez ce lot avant l’apprentissage", "Export and verify this batch before training")}
+            require(batch.status=="VERIFIED" && batch.verificationKind in setOf("local","hf","both")){tr("Enregistrez ce lot depuis Export avant l’apprentissage. La copie est contrôlée automatiquement.", "Save this batch from Export before training. The copy is checked automatically.")}
             require(batch.archiveSnapshot==com.unicornwhodev.visiondatasetstudio.domain.batch.BatchSnapshot.compute(db,project.id,batchNumber)){tr("Les données du lot diffèrent de l’export vérifié", "Batch data differs from the verified export")}
             val samples=db.sampleDao().getSamplesForBatchSync(project.id,batchNumber)
             require(samples.all{it.annotationStatus in setOf("VALIDATED","REJECTED","DUPLICATE")}){tr("Lot non terminé", "Batch unfinished")}
@@ -341,17 +341,25 @@ class DeviceTrainingWorker(context:Context,parameters:WorkerParameters):Coroutin
                     }
                     run=run.copy(phase="evaluating");store.write(run)
                     setForeground(TrainingForeground.info(applicationContext,id,run))
-                    val score=evaluate();val probe=session.weightProbe()
+                    val probe=session.weightProbe()
+                    // Qualify every held-out image against a reopened checkpoint. Float32 comparison
+                    // must accommodate inference rounding at both probability and pixel scales.
+                    var restoredLoss=0.0
+                    LiteRtTrainingSession(model,run.config).use{fresh->
+                        fresh.restore(requireNotNull(run.checkpoint))
+                        require(fresh.weightProbe()==probe){tr("Poids différents après rechargement", "Weights differ after reloading")}
+                        for(sample in validation) {
+                            alive();val image=bitmap(sample)
+                            try {
+                                val before=session.infer(image);val after=fresh.infer(image)
+                                require(CheckpointParity.matches(before,after)){tr("Checkpoint non reproductible après rechargement", "Checkpoint not reproducible after reloading")}
+                                restoredLoss+=TrainingTargets.validationLoss(after,sample.readTarget(model.parentFile!!),run.config,sample.auxiliary.mapValues{it.value.toFloatArray()})
+                            } finally { image.recycle() }
+                        }
+                    }
+                    val score=restoredLoss/validation.size
                     val improved=score<requireNotNull(run.initialLoss)*.99 && (probe==null || probe!=run.initialWeightProbe)
                     run=run.copy(phase=if(improved)"completed" else "rejected",validationLoss=score,finalWeightProbe=probe)
-                    // Reopen from the serialized checkpoint and independently reproduce validation outputs.
-                    val sample=validation.first();val image=bitmap(sample)
-                    val before=try{session.infer(image).flatMap{it.values.toList()}}finally{image.recycle()}
-                    LiteRtTrainingSession(model,run.config).use{fresh->
-                        fresh.restore(requireNotNull(run.checkpoint));val reload=bitmap(sample)
-                        val after=try{fresh.infer(reload).flatMap{it.values.toList()}}finally{reload.recycle()}
-                        require(before.size==after.size && before.indices.all{kotlin.math.abs(before[it]-after[it])<=1e-5f}){tr("Checkpoint non reproductible après rechargement", "Checkpoint not reproducible after reloading")}
-                    }
                     store.finish(run)
                 } catch(e:CancellationException) {
                     // Persist a complete checkpoint before yielding, even when WorkManager cancels execution.

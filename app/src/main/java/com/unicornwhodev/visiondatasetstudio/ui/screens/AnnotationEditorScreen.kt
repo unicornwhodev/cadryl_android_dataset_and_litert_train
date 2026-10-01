@@ -188,7 +188,6 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
     var zoom by remember(sampleId) { mutableFloatStateOf(1f) }
     var pan by remember(sampleId) { mutableStateOf(Offset.Zero) }
     var rejectDialog by remember { mutableStateOf(false) }
-    var acceptDialog by remember { mutableStateOf(false) }
     var reason by remember { mutableStateOf("") }
     var more by remember { mutableStateOf(false) }
     var labelMenu by remember { mutableStateOf(false) }
@@ -342,7 +341,6 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_reject_reason)) }, enabled = !locked, onClick = { rejectDialog = true; more = false })
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_retry_save)) }, onClick = { viewModel.retrySave(); more = false })
-                        DropdownMenuItem(text = { Text(tr("Marquer les éléments à relire comme relus", "Mark review items as reviewed")) }, enabled = hasUnreviewed && !locked, onClick = { acceptDialog = true; more = false })
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_customize_tools)) }, onClick = { viewModel.navigateTo(Screen.Preferences); more = false })
                     }
                 }
@@ -475,7 +473,6 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_reject_reason)) }, enabled = !locked, onClick = { rejectDialog = true; more = false })
                         HorizontalDivider()
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_retry_save)) }, onClick = { viewModel.retrySave(); more = false })
-                        DropdownMenuItem(text = { Text(tr("Marquer les éléments à relire comme relus", "Mark review items as reviewed")) }, enabled = hasUnreviewed && !locked, onClick = { acceptDialog = true; more = false })
                         DropdownMenuItem(text = { Text(stringResource(R.string.editor_customize_tools)) }, onClick = { viewModel.navigateTo(Screen.Preferences); more = false })
                     }
                         }
@@ -534,12 +531,6 @@ fun AnnotationEditorScreen(sampleId: String, viewModel: MainViewModel) {
             OutlinedTextField(reason, { reason = it }, label = { Text(stringResource(R.string.editor_rejection_reason)) }, modifier = Modifier.fillMaxWidth())
         }
     }, confirmButton = { Button(onClick = { rejectDialog = false; viewModel.rejectCurrent(reason) }, enabled = reason.isNotBlank()) { Text(stringResource(R.string.editor_confirm_rejection)) } }, dismissButton = { TextButton(onClick = { rejectDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
-    if (acceptDialog) AlertDialog(onDismissRequest = { acceptDialog = false },
-        title = { Text(tr("Marquer tous les éléments comme relus ?", "Mark all review items as reviewed?")) },
-        text = { Text(tr("Les suggestions IA et brouillons importés restants deviennent des décisions humaines relues, mais l’image reste « à valider ». Utilisez ensuite Valider l’image pour finaliser le cas.",
-            "Remaining AI suggestions and imported drafts become human-reviewed decisions, but the image still needs approval. Then use Approve image to finalize the sample.")) },
-        confirmButton = { Button(onClick = { acceptDialog = false; viewModel.acceptCurrentProposals() }) { Text(tr("Marquer comme relus", "Mark as reviewed")) } },
-        dismissButton = { TextButton(onClick = { acceptDialog = false }) { Text(stringResource(R.string.common_cancel)) } })
 }
 
 @Composable
@@ -766,7 +757,6 @@ private fun RegionInspector(a: SampleAnnotations, classes: List<String>, selecte
                 OutlinedButton(enabled=a.masks.count{it.label==mask.label&&it.width==mask.width&&it.height==mask.height}>=2,onClick={val chosen=a.masks.filter{it.label==mask.label&&it.width==mask.width&&it.height==mask.height};val merged=MaskCodec.merge(chosen,newId(),mask.label);onUpdate(a.copy(masks=a.masks-chosen.toSet()+merged));onSelect(merged.id)}){Text(stringResource(R.string.editor_merge))}
                 OutlinedButton(onClick={val pieces=MaskCodec.split(mask){newId()};if(pieces.size>1){onUpdate(a.copy(masks=a.masks.filterNot{it.id==mask.id}+pieces));onSelect(pieces.first().id)}}){Text(stringResource(R.string.editor_split_islands))}
             }
-            if(!mask.isHumanVerified) TextButton(onClick={onUpdate(a.copy(masks=a.masks.map { if(it.id==mask.id) it.copy(isHumanVerified=true) else it }))}) { Text(stringResource(R.string.editor_mask_reviewed)) }
             TextButton(onClick={onSelect(null)}) { Text(stringResource(R.string.editor_deselect)) }
         }
         if(box==null && point==null && mask==null) {
@@ -816,9 +806,6 @@ private fun RegionInspector(a: SampleAnnotations, classes: List<String>, selecte
                 }
                 Text("0,2 %",style=MaterialTheme.typography.labelSmall)
             }
-            if((box?.isHumanVerified ?: point?.isHumanVerified)==false) TextButton(onClick={
-                onUpdate(if(box!=null) a.copy(boxes=a.boxes.map { if(it.id==box.id) it.copy(isHumanVerified=true) else it }) else a.copy(points=a.points.map { if(it.id==point?.id) it.copy(isHumanVerified=true) else it }))
-            }) { Text(stringResource(R.string.editor_reviewed_proposal)) }
         }
         selected?.takeIf{box!=null||point!=null||mask!=null}?.let { targetId ->
             InstanceLinkEditor(a,targetId,onUpdate,locked)
@@ -929,7 +916,7 @@ fun TagsEditorTab(a: SampleAnnotations, classes: List<String>, onUpdate: (Sample
         }
         OutlinedTextField(draft,{draft=it},label={Text(stringResource(R.string.editor_other_tag))},singleLine=true,modifier=Modifier.fillMaxWidth())
         OutlinedButton(enabled=draft.isNotBlank(),onClick={val label=draft.trim();if(a.tags.none { it.label==label }) onUpdate(a.copy(tags=a.tags+TagTarget(newId(),label,isHumanVerified=true)));draft=""}) { Text(stringResource(R.string.editor_add_tag)) }
-        if(a.tags.any { !it.isHumanVerified }) Text(tr("Des tags proposés par le modèle restent à relire via le menu du cas.", "Model-proposed tags still need review in the sample menu."),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.error)
+        if(a.tags.any { !it.isHumanVerified }) Text(tr("Valider confirme les annotations affichées.", "Approve confirms the displayed annotations."),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

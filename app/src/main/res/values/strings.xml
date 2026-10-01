@@ -144,7 +144,6 @@
     <string name="editor_detailed">Detailed</string>
     <string name="editor_fit_image">Fit image</string>
     <string name="editor_grounding_phrase">Phrase to ground</string>
-    <string name="editor_mask_reviewed">Mask reviewed</string>
     <string name="editor_merge">Merge</string>
     <string name="editor_new_mask">New mask</string>
     <string name="editor_next_image">Next image</string>
@@ -157,7 +156,6 @@
     <string name="editor_retry_save">Retry saving</string>
     <string name="editor_return_corrections">Resume corrections</string>
     <string name="editor_review_before_validate">Check before validating</string>
-    <string name="editor_reviewed_proposal">Proposal reviewed</string>
     <string name="editor_sam_point">Add SAM point</string>
     <string name="editor_segment_point">Segment from point</string>
     <string name="editor_similar_images">Similar images</string>

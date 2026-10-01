@@ -78,7 +78,7 @@ Learning is off by default. Only accepted images from the completely reviewed an
 
 A deterministic file-hash split assigns roughly 80% training / 20% control, with at least 32 training and 8 control images. Exact duplicates cannot cross that split; transformed near-duplicates are not automatically grouped. Conflicting targets for an identical file are rejected. Targets are capped at one million values per image, stored in separate hashed files and loaded one image at a time. The disk budget covers the entire batch.
 
-WorkManager runs without a network requirement when the battery is not low. Durable checkpoints support cancellation and resume. Candidate acceptance requires more than 1% control-loss improvement and, when a probe is available, changed internal weights. A fresh interpreter must reproduce checkpoint outputs. This reused control set is not an independent generalization benchmark. Activation remains manual; rejected, interrupted or failed runs never replace the active model.
+WorkManager runs without a network requirement when the battery is not low. Durable checkpoints support cancellation and resume. Candidate acceptance requires more than 1% control-loss improvement and, when a probe is available, changed internal weights. A fresh interpreter must reproduce the shapes and finite outputs for every control image, with Float32 absolute tolerance `1e-5` plus relative tolerance `1e-5`. The final loss is measured from the restored checkpoint. This reused control set is not an independent generalization benchmark. Activation remains manual; rejected, interrupted or failed runs never replace the active model.
 
 ## Runtime and qualification
 

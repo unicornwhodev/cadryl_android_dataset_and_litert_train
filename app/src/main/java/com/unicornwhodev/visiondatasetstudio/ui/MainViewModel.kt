@@ -669,12 +669,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun validateCurrentAndNext() = editorAction {
         val s = _currentSample.value ?: return@editorAction
         val p = db.projectDao().getProjectSync(_activeProjectId.value) ?: return@editorAction
-        val issues = AnnotationReview.problems(_currentAnnotations.value, StudioWorkflow.parseTasks(p.activeTasksCsv))
-        if (issues.isNotEmpty()) { _editorIssues.value = issues; return@editorAction }
+        // This explicit approval gesture accepts the annotations currently displayed.
+        // Imported/model drafts are never accepted by acquisition or autosave.
         val reviewed=HumanAnnotationReview.validateAll(_currentAnnotations.value)
+        val issues = AnnotationReview.problems(reviewed, StudioWorkflow.parseTasks(p.activeTasksCsv))
+        if (issues.isNotEmpty()) { _editorIssues.value = issues; return@editorAction }
+        db.withTransaction {
+            batchEngine.saveSampleAnnotations(s.sampleId,reviewed)
+            batchEngine.validateSample(s.sampleId, s.batchNumber)
+        }
         _currentAnnotations.value=reviewed
-        batchEngine.saveSampleAnnotations(s.sampleId,reviewed)
-        batchEngine.validateSample(s.sampleId, s.batchNumber)
         if (preferences.value.autoAdvance) {
             val list = db.sampleDao().getSamplesForBatchSync(s.projectId, s.batchNumber)
             val eligible = list.filter { it.sampleId != s.sampleId && StudioWorkflow.isPending(it.annotationStatus) && StudioWorkflow.canEdit(it.acquisitionStatus, it.syncStatus, it.localImagePath != null) }
@@ -910,16 +914,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _operationProgress.value=OperationProgress(tr("${proposals.size} proposition(s). ${liteRtEngine.lastNote}", "${proposals.size} proposal(s). ${liteRtEngine.lastNote}") + if(liteRtEngine.lastEmbedding!=null) tr(" Représentation enregistrée pour les images similaires.", " Embedding saved for similar images.") else "",1,1)
         } finally { liteRtEngine.close() }
     }
-    fun acceptCurrentProposals() {
-        if (_editorBusy.value || _isBusy.value) return
-        val before=_currentAnnotations.value
-        val reviewed=HumanAnnotationReview.validateAll(before)
-        if(reviewed==before)return
-        undoStack.add(before);if(undoStack.size>60)undoStack.removeAt(0);redoStack.clear()
-        _currentAnnotations.value=reviewed
-        _editorIssues.value=emptyList()
-        refreshUndo();enqueueSave(reviewed)
-    }
     fun dryRunActiveModel() = operation {
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: error(tr("Projet absent", "Project not found"))
         val c=modelConfig(p)
@@ -1134,9 +1128,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } finally { liteRtEngine.close() }
     }
 
-    fun exportActiveBatchToLocalZip(includeWebDataset: Boolean = true, includeJsonl: Boolean = true, includeCoco: Boolean = true, includeYolo: Boolean = true, includeVl: Boolean = true) = operation(export = true) {
-        prepareActiveArchive(includeWebDataset,includeJsonl,includeCoco,includeYolo,includeVl)
-    }
     private suspend fun prepareActiveArchive(includeWebDataset: Boolean = true, includeJsonl: Boolean = true, includeCoco: Boolean = true, includeYolo: Boolean = true, includeVl: Boolean = true) {
         // The workflow route uses this same preparation path; it must expose the same export lifetime.
         _exportInProgress.value = true
@@ -1167,7 +1158,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             "Copy ready to save. The HF upload still awaits verification."), 1, 1)
     }
     fun saveArchiveToUri(uri: Uri) = operation(export = true) {
+        saveActiveArchiveToUri(uri)
+    }
+    fun exportActiveBatchToUri(uri: Uri, projectId: Long, batchNumber: Int, includeWebDataset: Boolean,
+        includeCoco: Boolean, includeYolo: Boolean, includeVl: Boolean) = operation(export = true) {
+        check(_activeProjectId.value == projectId && _activeBatchNumber.value == batchNumber) {
+            tr("Le lot a changé. Relancez l’export du lot affiché.", "The batch changed. Export the displayed batch again.")
+        }
+        prepareActiveArchive(includeWebDataset, true, includeCoco, includeYolo, includeVl)
+        saveActiveArchiveToUri(uri)
+    }
+    private suspend fun saveActiveArchiveToUri(uri: Uri) {
         val file = _lastExportedZip.value?.takeIf { it.isFile } ?: error(tr("Préparez d’abord l’archive", "Prepare the archive first"))
+        _operationProgress.value = OperationProgress(tr("Enregistrement de l’export et contrôle automatique de la copie…", "Saving export and automatically checking the copy…"), 0, 1)
         val copyReceipt=withContext(Dispatchers.IO) {
             val ctx=kotlin.coroutines.coroutineContext
             com.unicornwhodev.visiondatasetstudio.core.storage.SafArchives.copyVerified(getApplication<Application>().contentResolver,file,uri) { ctx.ensureActive() }
@@ -1177,17 +1180,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (pending) {
             _operationProgress.value = OperationProgress(tr("Copie locale relue et vérifiée. La publication HF reste en attente ; le nettoyage reste verrouillé.",
                 "Local copy read back and verified. HF publication remains pending; cleanup stays locked."), 1, 1)
-            return@operation
+            return
         }
         if(!copyReceipt.persistentRead) {
             _operationProgress.value=OperationProgress(tr("Copie relue mais droit de lecture non persistant. Lot non clôturé : choisissez un fournisseur SAF persistant pour autoriser le nettoyage après redémarrage.", "Copy verified but read access is not persistent. Batch remains open: choose a SAF provider with persistent access to allow cleanup after restarting."),1,1,true)
-            return@operation
+            return
         }
         val allDone=db.sampleDao().getSamplesForBatchSync(_activeProjectId.value,_activeBatchNumber.value).all { it.annotationStatus in setOf("VALIDATED","REJECTED","DUPLICATE") }
         if(allDone) {
             batchEngine.verifyLocalArchive(_activeProjectId.value,_activeBatchNumber.value,uri.toString())
             val learning=prepareOptionalExportTraining(_activeProjectId.value,_activeBatchNumber.value)
-            _operationProgress.value=OperationProgress(tr("Export vérifié. $learning", "Export verified. $learning"),1,1)
+            _operationProgress.value=OperationProgress(tr("Export enregistré. $learning", "Export saved. $learning"),1,1)
         } else _operationProgress.value=OperationProgress(tr("Copie partielle relue. Terminez le lot et refaites un export pour autoriser sa purge.", "Partial copy verified. Finish the batch and export again to allow cleanup."),1,1)
     }
     fun purgeActiveBatch() = operation {

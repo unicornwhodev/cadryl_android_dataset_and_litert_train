@@ -2,10 +2,52 @@ package com.unicornwhodev.visiondatasetstudio
 
 import com.unicornwhodev.visiondatasetstudio.data.model.*
 import com.unicornwhodev.visiondatasetstudio.domain.validation.HumanAnnotationReview
+import com.unicornwhodev.visiondatasetstudio.domain.validation.AnnotationReview
+import com.unicornwhodev.visiondatasetstudio.core.workflow.StudioTask
 import org.junit.Assert.*
 import org.junit.Test
 
 class HumanAnnotationReviewTest {
+    @Test fun explicitApprovalAcceptsImportedAndModelAnnotationsTogetherWithoutChangingGeometry() {
+        val imported=BoxTarget("imported",.1f,.2f,.4f,.8f,"smoke",sourceProvenance="import")
+        val model=BoxTarget("model",.5f,.1f,.9f,.3f,"flame",sourceProvenance="model_litert",modelScore=.72f)
+        val source=SampleAnnotations(boxes=listOf(imported,model))
+        assertFalse(AnnotationReview.problems(source,setOf(StudioTask.DETECTION)).isEmpty())
+        val approved=HumanAnnotationReview.validateAll(source)
+        assertTrue(AnnotationReview.problems(approved,setOf(StudioTask.DETECTION)).isEmpty())
+        assertEquals(imported.copy(isHumanVerified=true,sourceProvenance="human_validated:import"),approved.boxes[0])
+        assertEquals(model.copy(isHumanVerified=true,sourceProvenance="human_validated:model_litert"),approved.boxes[1])
+        assertFalse(source.boxes[0].isHumanVerified)
+        assertEquals(approved,HumanAnnotationReview.validateAll(approved))
+    }
+
+    @Test fun explicitApprovalDoesNotBypassInvalidGeometryOrUncertainty() {
+        val invalid=SampleAnnotations(boxes=listOf(BoxTarget("b",.8f,.1f,.2f,.4f,"smoke",sourceProvenance="import")))
+        assertTrue(AnnotationReview.problems(HumanAnnotationReview.validateAll(invalid),setOf(StudioTask.DETECTION)).isNotEmpty())
+        val uncertain=invalid.copy(boxes=listOf(invalid.boxes.single().copy(xmin=.1f,xmax=.8f)),quality=QualityAuditTarget(isUncertain=true))
+        val approved=HumanAnnotationReview.validateAll(uncertain)
+        assertTrue(approved.quality.isUncertain)
+        assertTrue(AnnotationReview.problems(approved,setOf(StudioTask.DETECTION)).isNotEmpty())
+        assertTrue(AnnotationReview.problems(HumanAnnotationReview.validateAll(SampleAnnotations()),setOf(StudioTask.DETECTION)).isNotEmpty())
+    }
+
+    @Test fun explicitApprovalAcceptsEveryAnnotationTypeAndPreservesExistingCorrections() {
+        val value=SampleAnnotations(
+            boxes=listOf(BoxTarget("b",.1f,.1f,.4f,.4f,"smoke",isHumanVerified=true,sourceProvenance="human_correction:model_litert",modelXmax=.3f,explicitlyAdjusted=true)),
+            points=listOf(PointTarget("p",.2f,.2f,"smoke",sourceProvenance="import")),
+            masks=listOf(MaskTarget("m","smoke",2,2,listOf(0,4),sourceProvenance="import")),
+            tags=listOf(TagTarget("t","smoke",sourceProvenance="import")),
+            captions=listOf(CaptionTarget("caption","Fumée visible",sourceProvenance="import")),
+            groundings=listOf(GroundingTarget("g","fumée",boxIds=listOf("b"),sourceProvenance="import")),
+            vqaList=listOf(VqaTarget("v","De la fumée ?","Oui",targetIds=listOf("b"),sourceProvenance="import")),
+            counts=listOf(CountingTarget("c","smoke",1,linkedInstanceIds=listOf("b"),sourceProvenance="import")))
+        val approved=HumanAnnotationReview.validateAll(value)
+        assertEquals(0,approved.unreviewedCount)
+        assertEquals(value.boxes,approved.boxes)
+        assertEquals(value.quality,approved.quality)
+        assertTrue(AnnotationReview.problems(approved,setOf(StudioTask.DETECTION,StudioTask.SEGMENTATION,StudioTask.CLASSIFICATION,StudioTask.CAPTIONING,StudioTask.GROUNDING,StudioTask.VQA,StudioTask.COUNTING)).isEmpty())
+    }
+
     @Test fun correctedModelProposalBecomesHumanCorrection() {
         val before=SampleAnnotations(boxes=listOf(BoxTarget("b",.1f,.1f,.4f,.4f,"smoke_visible",
             sourceProvenance="model_litert",modelXmin=.1f,modelYmin=.1f,modelXmax=.4f,modelYmax=.4f)))

@@ -144,7 +144,6 @@
     <string name="editor_detailed">Détaillée</string>
     <string name="editor_fit_image">Ajuster à la fenêtre</string>
     <string name="editor_grounding_phrase">Expression à localiser</string>
-    <string name="editor_mask_reviewed">Masque relu</string>
     <string name="editor_merge">Fusionner</string>
     <string name="editor_new_mask">Nouveau masque</string>
     <string name="editor_next_image">Image suivante</string>
@@ -157,7 +156,6 @@
     <string name="editor_retry_save">Réessayer la sauvegarde</string>
     <string name="editor_return_corrections">Reprendre les corrections</string>
     <string name="editor_review_before_validate">Relire avant de valider</string>
-    <string name="editor_reviewed_proposal">Proposition relue</string>
     <string name="editor_sam_point">Ajouter un point SAM</string>
     <string name="editor_segment_point">Segmenter depuis le point</string>
     <string name="editor_similar_images">Images similaires</string>

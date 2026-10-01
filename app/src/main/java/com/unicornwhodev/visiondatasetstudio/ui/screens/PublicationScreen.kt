@@ -62,6 +62,13 @@ fun PublicationScreen(viewModel: MainViewModel) {
     var confirmPublish by remember { mutableStateOf(false) }
     var confirmRejected by remember { mutableStateOf(false) }
     var confirmPurge by remember { mutableStateOf(false) }
+    var exportProjectId by rememberSaveable { mutableLongStateOf(0L) }
+    var exportBatchNumber by rememberSaveable { mutableIntStateOf(0) }
+    var exportFormats by rememberSaveable { mutableIntStateOf(0) }
+    val exportArchive = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        if (uri != null) viewModel.exportActiveBatchToUri(uri, exportProjectId, exportBatchNumber,
+            exportFormats and 1 != 0, exportFormats and 2 != 0, exportFormats and 4 != 0, exportFormats and 8 != 0)
+    }
     val saveArchive = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
         if (uri != null) viewModel.saveArchiveToUri(uri)
     }
@@ -91,8 +98,13 @@ fun PublicationScreen(viewModel: MainViewModel) {
                     Text(tr("Vous pouvez aussi désactiver COCO et YOLO pour conserver l’archive JSONL complète.", "You can also turn off COCO and YOLO to keep the full JSONL archive."), style = MaterialTheme.typography.bodySmall)
                 }
                 if (available == 0 && samples.isNotEmpty()) Text(tr("Validez au moins une image pour préparer une archive.", "Approve at least one image to prepare an archive."), style = MaterialTheme.typography.bodySmall)
-                Button(onClick = { viewModel.exportActiveBatchToLocalZip(tar, true, coco, yolo, vl) }, enabled = !busy && formatsReady && available > 0 && batch?.status !in com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety.lockedStates, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) {
-                    Icon(CadrylIcons.Archive, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(tr("Créer l’archive · $available", "Create archive · $available"))
+                Button(onClick = {
+                    exportProjectId = project?.id ?: return@Button
+                    exportBatchNumber = number
+                    exportFormats = (if (tar) 1 else 0) or (if (coco) 2 else 0) or (if (yolo) 4 else 0) or (if (vl) 8 else 0)
+                    exportArchive.launch("p-$exportProjectId-batch-${number.toString().padStart(6, '0')}.zip")
+                }, enabled = !busy && formatsReady && available > 0 && batch?.status !in com.unicornwhodev.visiondatasetstudio.core.workflow.PublicationSafety.lockedStates, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) {
+                    Icon(CadrylIcons.Archive, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(tr("Exporter · $available", "Export · $available"))
                 }
                 if (batch?.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT")) {
                     Text(tr("Un envoi est en attente. Vous pouvez sauvegarder son paquet sans modifier la publication.", "An upload is pending. You can save its package without changing the publication."), style = MaterialTheme.typography.bodySmall)
@@ -100,7 +112,7 @@ fun PublicationScreen(viewModel: MainViewModel) {
                         Text(tr("Récupérer une archive locale", "Recover a local archive"))
                     }
                 }
-                lastZip?.takeIf { it.isFile }?.let { file ->
+                lastZip?.takeIf { it.isFile && batch?.status in setOf("PREPARED", "PUBLISHING", "PUBLISHED", "CONFLICT") }?.let { file ->
                     Text(tr("Archive prête · %.1f Mo", "Archive ready · %.1f MB").format(file.length() / 1048576.0), style = MaterialTheme.typography.labelLarge)
                     OutlinedButton(onClick = { saveArchive.launch(file.name) }, enabled = !busy) { Text(stringResource(R.string.publication_save_copy)) }
                 }

@@ -52,6 +52,21 @@ fun TrainingScreen(vm:MainViewModel) {
     Scaffold(contentWindowInsets=WindowInsets(0),topBar={WorkspaceTopBar(vm, stringResource(R.string.screen_training),stringResource(R.string.subtitle_on_device),onBack={vm.navigateTo(Screen.Models)})}) { inset ->
         Box(Modifier.fillMaxSize().padding(inset),contentAlignment=Alignment.TopCenter) {
             Column(Modifier.widthIn(max=760.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
+                run?.let { state ->
+                    HorizontalDivider()
+                    Text(stringResource(when(state.phase){"queued"->R.string.training_phase_queued;"training"->R.string.training_phase_training;"evaluating"->R.string.training_phase_evaluating;"completed"->R.string.training_phase_completed;"rejected"->R.string.training_phase_rejected;"cancelled"->R.string.training_phase_cancelled;"abandoned"->R.string.training_phase_abandoned;else->R.string.training_phase_failed}),style=MaterialTheme.typography.titleMedium)
+                    LinearProgressIndicator(progress={if(state.totalSteps>0)state.completedSteps.toFloat()/state.totalSteps else 0f},modifier=Modifier.fillMaxWidth().height(8.dp))
+                    Text(stringResource(R.string.training_progress,state.completedSteps,state.totalSteps,state.samples.count{!it.validation},state.samples.count{it.validation}),style=MaterialTheme.typography.titleMedium)
+                    if(state.validationLoss!=null)Text(stringResource(R.string.training_loss,state.initialLoss ?: 0.0,state.validationLoss),style=MaterialTheme.typography.bodySmall)
+                    if(state.initialWeightProbe!=null && state.finalWeightProbe!=null)Text(stringResource(if(state.initialWeightProbe!=state.finalWeightProbe)R.string.training_weights_changed else R.string.training_weights_unchanged),style=MaterialTheme.typography.bodySmall)
+                    state.error?.let{Text(it,color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.bodySmall)}
+                    if(active)StudioAction(stringResource(R.string.training_stop),vm::cancelDeviceTraining,icon=CadrylIcons.Stop)
+                    if(state.phase in setOf("failed","cancelled")) {
+                        StudioAction(stringResource(R.string.training_resume),{withTrainingNotification{vm.resumeDeviceTraining()}},enabled=!busy)
+                        StudioAction(stringResource(R.string.training_abandon),{abandonRunId=state.id},icon=CadrylIcons.Close,enabled=!busy)
+                    }
+                    if(state.phase=="completed")StudioAction(stringResource(R.string.training_activate),vm::activateTrainedModel,icon=CadrylIcons.Check,primary=true,enabled=!busy)
+                }
                 Row(verticalAlignment=Alignment.CenterVertically){Icon(CadrylIcons.PhonelinkSetup,null,Modifier.size(24.dp));Spacer(Modifier.width(12.dp));Column{
                     Text(stringResource(if(config?.training!=null)R.string.training_trainable else R.string.training_inference_only),style=MaterialTheme.typography.titleMedium)
                     Text(when(config?.training?.scope) {
@@ -75,7 +90,7 @@ fun TrainingScreen(vm:MainViewModel) {
                 Text(stringResource(R.string.training_batch_only,number),style=MaterialTheme.typography.bodyMedium)
                 Row(verticalAlignment=Alignment.CenterVertically){Text(stringResource(R.string.training_epochs),Modifier.weight(1f));listOf(1,3,10).forEach{n->FilterChip(selected=epochs==n,onClick={epochs=n},enabled=!active && config?.training!=null,label={Text("$n")});Spacer(Modifier.width(6.dp))}}
                 StudioAction(stringResource(R.string.training_start),{withTrainingNotification{vm.startDeviceTraining(epochs)}},icon=CadrylIcons.ModelTraining,primary=true,enabled=!busy && !active && preflight?.canStart==true)
-                preflight?.let { state ->
+                preflight?.takeIf { !active }?.let { state ->
                     Text(stringResource(if(state.canStart)R.string.training_ready else R.string.training_blocked),style=MaterialTheme.typography.titleSmall,color=if(state.canStart)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
                     state.checks.forEach { check -> Row(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalAlignment=Alignment.Top) {
                         Icon(if(check.passed)CadrylIcons.CheckCircle else CadrylIcons.Cancel,null,Modifier.size(17.dp),tint=if(check.passed)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
@@ -85,21 +100,6 @@ fun TrainingScreen(vm:MainViewModel) {
                 }
                 }
                 Row(verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(stringResource(R.string.training_continuous),style=MaterialTheme.typography.titleSmall);Text(stringResource(R.string.training_continuous_help),style=MaterialTheme.typography.bodySmall)};Switch(checked=ProjectSettings.read(p).continuousTraining,onCheckedChange=vm::setContinuousTraining,enabled=!busy && (config?.training!=null || ProjectSettings.read(p).continuousTraining))}
-                run?.let { state ->
-                    HorizontalDivider()
-                    Text(stringResource(when(state.phase){"queued"->R.string.training_phase_queued;"training"->R.string.training_phase_training;"evaluating"->R.string.training_phase_evaluating;"completed"->R.string.training_phase_completed;"rejected"->R.string.training_phase_rejected;"cancelled"->R.string.training_phase_cancelled;"abandoned"->R.string.training_phase_abandoned;else->R.string.training_phase_failed}),style=MaterialTheme.typography.titleMedium)
-                    LinearProgressIndicator(progress={if(state.totalSteps>0)state.completedSteps.toFloat()/state.totalSteps else 0f},modifier=Modifier.fillMaxWidth())
-                    Text(stringResource(R.string.training_progress,state.completedSteps,state.totalSteps,state.samples.count{!it.validation},state.samples.count{it.validation}),style=MaterialTheme.typography.bodySmall)
-                    if(state.validationLoss!=null)Text(stringResource(R.string.training_loss,state.initialLoss ?: 0.0,state.validationLoss),style=MaterialTheme.typography.bodySmall)
-                    if(state.initialWeightProbe!=null && state.finalWeightProbe!=null)Text(stringResource(if(state.initialWeightProbe!=state.finalWeightProbe)R.string.training_weights_changed else R.string.training_weights_unchanged),style=MaterialTheme.typography.bodySmall)
-                    state.error?.let{Text(it,color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.bodySmall)}
-                    if(active)StudioAction(stringResource(R.string.training_stop),vm::cancelDeviceTraining,icon=CadrylIcons.Stop)
-                    if(state.phase in setOf("failed","cancelled")) {
-                        StudioAction(stringResource(R.string.training_resume),{withTrainingNotification{vm.resumeDeviceTraining()}},enabled=!busy)
-                        StudioAction(stringResource(R.string.training_abandon),{abandonRunId=state.id},icon=CadrylIcons.Close,enabled=!busy)
-                    }
-                    if(state.phase=="completed")StudioAction(stringResource(R.string.training_activate),vm::activateTrainedModel,icon=CadrylIcons.Check,primary=true,enabled=!busy)
-                }
                 StudioDisclosure(stringResource(R.string.training_details)) {
                     Text(stringResource(R.string.training_details_dataset),style=MaterialTheme.typography.bodySmall)
                     Text(stringResource(R.string.training_details_runtime),style=MaterialTheme.typography.bodySmall)

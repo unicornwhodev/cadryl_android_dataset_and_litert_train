@@ -16,7 +16,7 @@ data class TrainingPreflight(val canStart:Boolean,val scope:String?,val checks:L
                 Check(tr("Chemin des poids", "Weights path"),i.modelPathConfigured,if(i.modelPathConfigured)tr("Chemin configuré", "Path configured") else tr("Poids non configurés", "Weights not configured")),
                 Check(tr("Fichier des poids", "Weights file"),i.modelFileAvailable,if(i.modelFileAvailable)tr("Fichier présent", "File present") else tr("Fichier absent", "File missing")),
                 Check(tr("Lecture des poids", "Weights read access"),i.modelFileReadable,if(i.modelFileReadable)tr("Fichier lisible", "File readable") else tr("Fichier illisible", "File unreadable")),
-                Check(tr("Lot exporté vérifié", "Verified exported batch"),i.batchVerified,if(i.batchVerified)tr("Copie relue", "Copy read back") else tr("Export vérifié requis", "Verified export required")),
+                Check(tr("Export enregistré", "Export saved"),i.batchVerified,if(i.batchVerified)tr("Copie contrôlée automatiquement", "Copy checked automatically") else tr("Enregistrez le lot depuis Export", "Save the batch from Export")),
                 Check("Train",i.trainCount>=32,"${i.trainCount} / 32 minimum"),
                 Check("Validation",i.validationCount>=8,"${i.validationCount} / 8 minimum"),
                 Check(tr("Stockage", "Storage"),i.availableBytes>=i.requiredBytes,tr("${i.availableBytes} disponibles / ${i.requiredBytes} nécessaires", "${i.availableBytes} available / ${i.requiredBytes} required")),

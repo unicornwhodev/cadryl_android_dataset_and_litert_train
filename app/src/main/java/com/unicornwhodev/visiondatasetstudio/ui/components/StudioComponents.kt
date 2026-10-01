@@ -11,6 +11,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,8 @@ import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.text.font.FontWeight
 import com.unicornwhodev.visiondatasetstudio.ui.OperationProgress
 
@@ -189,6 +192,10 @@ fun MetricTile(value: String, label: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun OperationBanner(progress: OperationProgress?, busy: Boolean, onDismiss: () -> Unit) {
+    if (busy) {
+        OperationProgressWindow(progress)
+        return
+    }
     if (progress == null) return
     var expanded by remember(progress.message) { mutableStateOf(false) }
     Surface(color = if (progress.isError) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainer,
@@ -203,6 +210,37 @@ fun OperationBanner(progress: OperationProgress?, busy: Boolean, onDismiss: () -
             if (busy) {
                 if (progress.total > 1) LinearProgressIndicator(progress = { (progress.current.toFloat() / progress.total).coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())
                 else LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
+        }
+    }
+}
+
+@Composable
+private fun OperationProgressWindow(progress: OperationProgress?) {
+    val total = progress?.total ?: 0
+    val current = (progress?.current ?: 0).coerceIn(0, total.coerceAtLeast(0))
+    val determinate = total > 1
+    val fraction = if (determinate) current.toFloat() / total else 0f
+    Dialog(onDismissRequest = {}, properties = DialogProperties(
+        dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false)) {
+        Surface(Modifier.padding(24.dp).widthIn(max = 480.dp).fillMaxWidth()
+            .testTag("operation_progress_window").semantics { liveRegion = LiveRegionMode.Polite },
+            shape = RoundedCornerShape(24.dp), tonalElevation = 6.dp) {
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    CircularProgressIndicator(Modifier.size(40.dp), strokeWidth = 4.dp)
+                    Text(tr("Opération en cours", "Operation in progress"), style = MaterialTheme.typography.titleLarge)
+                }
+                Text(progress?.message?.takeIf { it.isNotBlank() } ?: tr("Préparation…", "Preparing…"),
+                    style = MaterialTheme.typography.bodyLarge)
+                if (determinate) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("$current / $total", style = MaterialTheme.typography.titleMedium)
+                        Text("${(fraction * 100).toInt()} %", style = MaterialTheme.typography.titleMedium)
+                    }
+                    LinearProgressIndicator(progress = { fraction }, modifier = Modifier.fillMaxWidth().height(8.dp))
+                } else LinearProgressIndicator(Modifier.fillMaxWidth().height(8.dp))
             }
         }
     }

@@ -1,5 +1,17 @@
 # Les tests de Cadryl
 
+## Contrôle de checkpoint — 1 octobre 2026
+
+124 tests JVM passent sur les sources actuelles. Trois nouveaux tests couvrent
+les arrondis Float32, les prédictions différentes, les formes et les valeurs
+non finies. Le contrôle de rechargement vérifie toutes les images de validation
+et calcule le score final sur les poids effectivement restaurés. Le seuil
+d’amélioration de plus de 1 % reste inchangé ; le modèle original et les
+annotations sont conservés si le candidat ne progresse pas.
+
+Ces résultats JVM ne qualifient pas une nouvelle installation physique de
+l’édition publique. Les résultats des artefacts précédents restent ci-dessous.
+
 ## Bundle signé du studio — 30 septembre 2026
 
 118 JVM et 114 Python réussis, lint zéro erreur / 88 avertissements, 101 KSP.
