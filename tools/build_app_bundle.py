@@ -29,6 +29,15 @@ def payload(archive):
                 for name in entries.namelist() if not name.startswith('META-INF/')}
 
 
+def parse_bundle_manifest(output):
+    # The retained command log can start with the JVM's JAVA_TOOL_OPTIONS notice.
+    # Parse only bundletool's XML, and keep malformed/missing XML as a failure.
+    start = output.find('<manifest')
+    if start < 0:
+        raise ValueError('bundletool did not return an Android manifest.')
+    return ET.fromstring(output[start:])
+
+
 def build_bundle(bundletool, gradle_properties=(), suffix='', optional_sdks=False, metadata=None):
     names = ('VDS_RELEASE_KEYSTORE', 'VDS_RELEASE_KEY_ALIAS',
              'VDS_RELEASE_STORE_PASSWORD', 'VDS_RELEASE_KEY_PASSWORD')
@@ -99,7 +108,7 @@ def build_bundle(bundletool, gradle_properties=(), suffix='', optional_sdks=Fals
         unsigned = out / 'unsigned.aab'
         shutil.copyfile(generated, unsigned)
         manifest = command('manifest', [str(java), '-jar', str(bundletool), 'dump', 'manifest', '--bundle='+str(unsigned)])
-        root = ET.fromstring(manifest)
+        root = parse_bundle_manifest(manifest)
         android = '{http://schemas.android.com/apk/res/android}'
         if root.attrib['package'] != APP_ID or root.find('application').get(android+'debuggable') == 'true':
             raise RuntimeError('Unexpected or debuggable application identity.')

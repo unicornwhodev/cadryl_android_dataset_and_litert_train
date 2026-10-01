@@ -1,5 +1,14 @@
 # Ce qui reste à améliorer
 
+## Correctif d’apprentissage du 1 octobre
+
+Les sources exécutent l’apprentissage sur un thread CPU pour rendre le
+contrôle du checkpoint reproductible. Le diagnostic physique des douze
+images et cinq tests natifs ciblés passent en QA séparée. Les nouvelles
+APK publiques ne sont pas encore qualifiées physiquement ; la qualité
+d’un modèle entraîné reste un contrôle distinct.
+[Correctif et portée](docs/TRAINING_CHECKPOINT_FIX_2026_10.md).
+
 ## Bundle du studio signé le 30 septembre 2026
 
 Le nouveau bundle et l’APK qui en est dérivée sont construits et vérifiés.

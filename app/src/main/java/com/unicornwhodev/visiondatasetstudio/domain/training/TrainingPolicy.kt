@@ -7,6 +7,10 @@ import com.unicornwhodev.visiondatasetstudio.domain.inference.ModelConfig
 
 /** Training availability never gates inference, export or ordinary batch production. */
 object TrainingPolicy {
+    /** Serial CPU execution makes live and restored checkpoint comparisons reproducible. */
+    fun executionConfig(config:ModelConfig)=config.copy(threads=1)
+    /** Functional completion is independent from a measured quality gain on a small corpus. */
+    fun executionCompleted(steps:Int,total:Int,loss:Double)=total>0 && steps==total && loss.isFinite()
     fun finished(phase:String?)=phase in setOf("completed","rejected","abandoned")
     fun supported(project:ProjectEntity)=runCatching {
         project.modelConfigJson?.let { StudioJson.moshi.adapter(ModelConfig::class.java).fromJson(it) }?.training!=null

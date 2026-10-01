@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "date": "2026-10-01",
+  "application_id": "com.unicornwhodev.visiondatasetstudio",
+  "version_code": 14,
+  "build_run": "20261001T203205Z-c4f27b6c02f8",
+  "source_manifest_sha256": "c196594b865a19006ca292fb885d9640c34d0d521df33dcc3e606288ce71c33f",
+  "bundle": {
+    "file": "cadryl-0.0.1-signed.aab",
+    "sha256": "9873d4bf8db2107bb9f6c92575ca19f50800a5e54da5c9e86dfd99b1006f87a0",
+    "bytes": 35314923
+  },
+  "certificate_sha256": "51ef3e4abf953c62c8427deaecf4349aefffc2270c593229315722457f126895",
+  "artifacts": {
+    "app": {
+      "file": "app.apk",
+      "sha256": "d25263a192997b824350f1d897cdc4a9a97020066d688b385f173389b64db728",
+      "bytes": 99414282
+    },
+    "tests": {
+      "file": "tests.apk",
+      "sha256": "2e250a6ff6724f271108408d994ccba0698803f292421978ba628fc760381fe8",
+      "bytes": 2594681
+    }
+  },
+  "uploaded": false,
+  "exact_bundle_device_qualified": false,
+  "jvm_tests": {
+    "tests": 126,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "python_tests_passed": 119,
+  "isolated_native_qa": {
+    "application_sha256": "51b47d8e568edd08c64d6482095711713794f5ae34127350a2a9d894a921533d",
+    "regression_tests_passed": 5,
+    "real_corpus_training_test_passed": true,
+    "native_fresh_project_workflow": true,
+    "training_images": 39,
+    "validation_images": 10,
+    "optimizer_steps": 117,
+    "interrupted_after_steps": null,
+    "phase": "completed",
+    "checkpoint_reload_all_validation_images": true,
+    "manual_activation": true,
+    "regular_inference_images": 10,
+    "prediction_count": 684,
+    "original_model_preserved": true,
+    "quality_gain_required": false
+  },
+  "scope": "Physical tests use an isolated QA application. They do not qualify these exact signed bundle bytes or a Play installation."
+}

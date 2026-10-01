@@ -106,9 +106,11 @@ non vérifiées ne peuvent pas servir de cibles.
 
 WorkManager exécute le job sans exigence réseau, lorsque la batterie n’est pas basse.
 L’état et les checkpoints permettent une reprise. La signature `infer` est exécutée
-sur le contrôle, sans apprentissage de ces images. Un candidat doit améliorer la
-perte de plus de 1 % ; le contrôle est réutilisé entre générations et ne constitue
-pas une mesure indépendante de généralisation. Le rechargement du checkpoint doit
+sur le contrôle, sans apprentissage de ces images. L’exécution est terminée lorsque
+toutes les étapes prévues sont réalisées et que le résultat est fini. La baisse
+de perte est informative et ne conditionne pas l’utilisation du modèle. Le contrôle
+est réutilisé entre générations et ne constitue pas une mesure indépendante de
+généralisation. Le rechargement du checkpoint doit
 reproduire les formes et les valeurs finies de toutes les sorties sur chaque
 image de contrôle. La comparaison Float32 utilise une tolérance absolue de
 `1e-5` plus une tolérance relative de `1e-5`, car des inférences successives

@@ -224,7 +224,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         viewModelScope.launch {
             while(isActive) {
-                if(_currentScreen.value is Screen.Training || _currentScreen.value is Screen.Publication) _trainingRun.value=withContext(Dispatchers.IO){deviceTraining.readBatch(_activeProjectId.value,_activeBatchNumber.value)}
+                if(_currentScreen.value is Screen.Training || _currentScreen.value is Screen.Publication) {
+                    val projectId=_activeProjectId.value;val batchNumber=_activeBatchNumber.value
+                    try {
+                        val latest=withContext(Dispatchers.IO){deviceTraining.readBatch(projectId,batchNumber)}
+                        if(projectId==_activeProjectId.value && batchNumber==_activeBatchNumber.value)_trainingRun.value=latest
+                    } catch(e:CancellationException){throw e}
+                    catch(e:Exception){reportError(tr("État d’apprentissage illisible : ${e.message}", "Training state could not be read: ${e.message}"))}
+                }
                 delay(1500)
             }
         }
@@ -1400,14 +1407,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun refreshTrainingPreflight()=viewModelScope.launch(Dispatchers.IO) {
         val p=db.projectDao().getProjectSync(_activeProjectId.value) ?: return@launch
-        val batch=db.batchDao().getBatchSync(p.id,_activeBatchNumber.value)
+        val batchNumber=_activeBatchNumber.value
+        val batch=db.batchDao().getBatchSync(p.id,batchNumber)
         val config=runCatching{modelConfig(p)}.getOrNull()
-        val inspected=runCatching{deviceTraining.inspectPreparation(p,_activeBatchNumber.value)}
+        val inspected=runCatching{deviceTraining.inspectPreparation(p,batchNumber)}
         val inspection=inspected.getOrNull()
         val train=inspection?.trainCount ?: 0;val validation=inspection?.validationCount ?: 0
         val source=p.modelPath?.let(::File)
         val needed=inspection?.requiredBytes ?: Long.MAX_VALUE
-        val prior=deviceTraining.readBatch(p.id,_activeBatchNumber.value)
+        val prior=deviceTraining.readBatch(p.id,batchNumber)
+        if(p.id!=_activeProjectId.value || batchNumber!=_activeBatchNumber.value)return@launch
+        _trainingRun.value=prior
         val already=prior?.let{it.exportSnapshot==batch?.archiveSnapshot && it.phase in setOf("completed","rejected")}==true
         val available=minOf(storageManager.getFreeSpaceBytes(),(p.diskBudgetMb*1024*1024-storageManager.getUsedSpaceBytes()).coerceAtLeast(0))
         _trainingPreflight.value=com.unicornwhodev.visiondatasetstudio.domain.training.TrainingPreflight.evaluate(

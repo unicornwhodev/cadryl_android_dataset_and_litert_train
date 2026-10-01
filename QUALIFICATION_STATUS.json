@@ -111,5 +111,8 @@
     "signed": true,
     "physical_device_qualified": false,
     "uploaded": false
-  }
+  },
+  "current_source_evidence": "docs/TRAINING_CHECKPOINT_FIX_EVIDENCE.json",
+  "current_source_status": "functional_training_fix_built_isolated_shared_runtime_tests_passed",
+  "current_source_scope": "Earlier release sections retain their original artifacts. New public bundle is not physically installed; isolated QA exercises shared training code."
 }

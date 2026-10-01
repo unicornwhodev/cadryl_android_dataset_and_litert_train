@@ -56,7 +56,7 @@ fun SetupScreen(viewModel: MainViewModel) {
     var tasksCsv by rememberSaveable { mutableStateOf(p.activeTasksCsv) }
     val tasks = StudioWorkflow.parseTasks(tasksCsv)
     val classesOk = !ProjectVocabulary.requiredFor(tasks) || ProjectVocabulary.parse(classes).isNotEmpty()
-    var budget by rememberSaveable { mutableStateOf(p.diskBudgetMb.toString()) }
+    var budget by rememberSaveable(p.id,p.diskBudgetMb) { mutableStateOf(p.diskBudgetMb.toString()) }
     var prepare by rememberSaveable { mutableStateOf(batches.isEmpty()) }
     var advanced by rememberSaveable { mutableStateOf(false) }
     var showToken by remember { mutableStateOf(false) }

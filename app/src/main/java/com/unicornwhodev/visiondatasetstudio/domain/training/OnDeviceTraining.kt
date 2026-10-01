@@ -148,7 +148,7 @@ class OnDeviceTraining(private val context:Context) {
             }
             // Continue the last validated learned version, even when inference still uses the original.
             val inherited=inspection.checkpoint
-            val baseConfig=config.copy(trainingCheckpoint="")
+            val baseConfig=TrainingPolicy.executionConfig(config).copy(trainingCheckpoint="")
             val checkpoint=if(inherited!=null)LiteRtTrainingSession(model,baseConfig).use{session->session.restore(inherited);session.save(File(directory,"inherited"))}else null
             DeviceTrainingRun(id,project.id,model.path,HashUtils.computeSha256(model),baseConfig,samples,epochs,learningRate,totalSteps=train*epochs,sourceBatchNumber=batchNumber,exportSnapshot=batch.archiveSnapshot!!,exportProof=batch.verifiedArchiveSha256 ?: batch.preparedManifestSha256 ?: error(tr("Preuve d’export absente", "Export evidence missing")),checkpoint=checkpoint,
                 lineageId=original.id,generation=(original.learned?.generation ?: 0)+1,parentRunId=original.learned?.runId).also(::write)
@@ -311,6 +311,9 @@ class DeviceTrainingWorker(context:Context,parameters:WorkerParameters):Coroutin
                 var scale=1;while(maxOf(bounds.outWidth,bounds.outHeight)/scale>2048)scale*=2
                 return BitmapFactory.decodeFile(sample.image,BitmapFactory.Options().apply{inSampleSize=scale}) ?: error(tr("Image d’apprentissage indécodable", "Training image could not be decoded"))
             }
+            // Also applies when resuming a checkpoint created by an earlier multithreaded build.
+            // Preserve the actual execution configuration in the durable run receipt.
+            run=run.copy(config=TrainingPolicy.executionConfig(run.config))
             LiteRtTrainingSession(model,run.config).use { session ->
                 run.checkpoint?.let(session::restore)
                 suspend fun evaluate():Double {
@@ -358,8 +361,10 @@ class DeviceTrainingWorker(context:Context,parameters:WorkerParameters):Coroutin
                         }
                     }
                     val score=restoredLoss/validation.size
-                    val improved=score<requireNotNull(run.initialLoss)*.99 && (probe==null || probe!=run.initialWeightProbe)
-                    run=run.copy(phase=if(improved)"completed" else "rejected",validationLoss=score,finalWeightProbe=probe)
+                    require(TrainingPolicy.executionCompleted(run.completedSteps,run.totalSteps,score)){
+                        tr("Apprentissage incomplet ou résultat non fini", "Training incomplete or non-finite result")
+                    }
+                    run=run.copy(phase="completed",validationLoss=score,finalWeightProbe=probe)
                     store.finish(run)
                 } catch(e:CancellationException) {
                     // Persist a complete checkpoint before yielding, even when WorkManager cancels execution.

@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 /** Interpreter CPU backend. CompiledModel/GPU/NPU are not advertised as tested integrations. */
-class LiteRtEngine : AutoCloseable {
+class LiteRtEngine(private val onStage:(String)->Unit = {}) : AutoCloseable {
     var lastResult:InferenceResult?=null
         private set
     var lastError: String? = null
@@ -129,11 +129,15 @@ class LiteRtEngine : AutoCloseable {
                             trainingSession=session;trainingConfig=config
                         } catch(e:Throwable) { session.close();throw e }
                     }
+                    onStage("trained_tensor_inference")
                     val tensors=trainingSession!!.infer(bitmap).mapIndexed{i,v->i to v}.toMap()
+                    onStage("trained_output_decoding")
                     lastInputShape=if(config.inputLayout=="NHWC")listOf(1,config.inputHeight,config.inputWidth,config.inputChannels)else listOf(1,config.inputChannels,config.inputHeight,config.inputWidth)
                     lastInputDtype=config.inputType;lastOutputIndices=tensors.keys.sorted();lastOutputShapes=lastOutputIndices.map{tensors.getValue(it).shape};lastOutputDtypes=lastOutputIndices.map{"FLOAT32"};lastNativeDurationNanos=System.nanoTime()-started
                     val transform=InputTransform.create(bitmap.width,bitmap.height,config.inputWidth,config.inputHeight,ModelContract.resize(config),config.cropFraction)
-                    return@synchronized ModelAdapters.decode(tensors,config.signatureConfig(),transform).map{it.copy(source="model_litert:$modelHash:trained")}
+                    val decoded=ModelAdapters.decode(tensors,config.signatureConfig(),transform).map{it.copy(source="model_litert:$modelHash:trained")}
+                    onStage("trained_inference_complete")
+                    return@synchronized decoded
                 }
                 val i=interpreter ?: error(tr("Aucun modèle chargé", "No model loaded"))
                 require(i.inputTensorCount==1+config.extraIntInputs.size) { tr("Nombre d’entrées différent du contrat", "Input count differs from the contract") }
